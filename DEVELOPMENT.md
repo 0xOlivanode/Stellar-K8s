@@ -498,6 +498,7 @@ make watch         # Watch mode: rebuild on changes
 ```bash
 make docker-build      # Build Docker image (local arch, fast mode using host binaries)
 make docker-build-ci   # Build Docker image (CI mode, builds binaries in container)
+make docker-cache-purge # Purge unused daemon build cache (asks for confirmation)
 make docker-multiarch  # Build multi-arch image (amd64 + arm64)
 ```
 

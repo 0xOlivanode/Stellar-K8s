@@ -36,6 +36,24 @@ DOCKER_BUILDKIT=1 docker build \
   -t stellar-operator:latest .
 ```
 
+## Purging local build cache
+
+Run `make docker-cache-purge` to remove all unused build cache on the current
+Docker daemon. Docker asks for confirmation before pruning and reports the
+reclaimed disk space. This is daemon-wide, so other projects using that daemon
+may also need to rebuild their cached layers. The next build may be slower.
+
+The target uses `docker builder prune --all`; it does not prune application
+images, containers, or volumes. It is an explicit maintenance command and is
+not part of `make clean`, build targets, or CI. Remote registry and GitHub Actions
+caches, and separate Buildx builders, are outside its scope.
+
+To verify manually, inspect `docker system df` before and after running the
+target, confirm the prune prompt, and check Docker's reclaimed-space report.
+Reclaiming zero bytes is valid when there is no unused build cache.
+See [Docker's builder prune reference](https://docs.docker.com/reference/cli/docker/builder/prune/)
+for details.
+
 ## Verifying reproducibility
 Run the build **twice** with the same arguments and compare digests:
 ```bash
