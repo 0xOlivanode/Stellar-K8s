@@ -1,6 +1,9 @@
 site_name: Stellar-K8s Documentation
 site_url: https://m1s0g1.github.io/Stellar-K8s/
 site_description: Comprehensive documentation for deploying and managing Stellar blockchain nodes on Kubernetes
+# Fail the build on any warning (missing nav targets, broken links, plugin
+# issues) so docs regressions are caught in CI (#1691).
+strict: true
 repo_url: https://github.com/OtowoOrg/Stellar-K8s
 repo_name: OtowoOrg/Stellar-K8s
 edit_uri: edit/main/docs/

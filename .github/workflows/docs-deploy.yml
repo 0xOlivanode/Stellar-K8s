@@ -52,6 +52,7 @@ jobs:
 
       - name: Build and deploy documentation
         run: |
+          mkdocs build --strict --clean --verbose
           mkdocs gh-deploy --force --clean --verbose
 
       - name: Verify deployment

@@ -479,6 +479,28 @@ jobs:
       - name: Run link checker
         run: python3 scripts/check-links.py
 
+  # ── 7c. Docs strict build ───────────────────────────────────────────────────
+  docs-build-strict:
+    name: Docs Strict Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install docs dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Strict docs build (fails on warnings)
+        run: mkdocs build --strict
+
   # ── 8. Examples smoke test ────────────────────────────────────────────────────
   examples-smoke-test:
     name: Examples Smoke Test
