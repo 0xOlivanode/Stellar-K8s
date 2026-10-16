@@ -99,15 +99,15 @@ nav:
     - Soroban RPC: deployment-guides/soroban-rpc.md
   - Configuration:
     - configuration/index.md
-    - CRD Reference: configuration/crd-reference.md
-    - Operators: configuration/operators.md
-    - Storage: configuration/storage.md
+    - CRD Reference: api-reference.md
+    - Operators: operator-sdk-guide.md
+    - Storage: volume-snapshots.md
     - Database Optimization: database/optimization-guide.md
   - Tutorials:
     - tutorials/index.md
     - Deploy Testnet Validator: tutorials/deploy-testnet-validator.md
-    - Configure HA Setup: tutorials/configure-ha-setup.md
-    - Backup and Restore: tutorials/backup-restore.md
+    - Configure HA Setup: deployment-patterns/validator-ha-topology.md
+    - Backup and Restore: backup-verification.md
   - Troubleshooting:
     - troubleshooting/index.md
     - Operator Troubleshooting: troubleshooting/operator-troubleshooting.md
@@ -116,7 +116,7 @@ nav:
     - Disk Scaling: troubleshooting/disk-scaling.md
     - Sync Problems: troubleshooting/sync-problems.md
   - API Reference:
-    - api-reference/index.md
+    - api-reference.md
   - Security:
     - Security Compliance Guide: security/compliance-guide.md
     - Credentials & Secrets: security/credentials-and-secrets.md
