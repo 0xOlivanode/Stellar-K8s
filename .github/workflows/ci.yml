@@ -98,7 +98,7 @@ jobs:
             '^(Dockerfile|\.dockerignore|Cargo\.toml|Cargo\.lock|src/|config/|Makefile)')" \
             >> "$GITHUB_OUTPUT"
           echo "helm=$(_match \
-            '^(charts/|config/crd/|config/samples/|examples/|Makefile)')" \
+            '^(charts/|config/crd/|config/samples/|examples/|Makefile|\.github/workflows/ci\.yml$)')" \
             >> "$GITHUB_OUTPUT"
           echo "api_docs=$(_match \
             '^(docs/|scripts/generate-api-docs\.py|config/crd/|src/crd/|src/rest_api/|Makefile)')" \
@@ -582,7 +582,7 @@ jobs:
         with:
           version: "3.14.0"
 
-      - name: Lint chart (default values)
+      - name: Strict lint chart (default values)
         run: make helm-lint
 
       - name: Schema rejects invalid logLevel

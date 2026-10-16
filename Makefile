@@ -22,7 +22,7 @@
 .PHONY: help \
 	fmt fmt-check lint lint-strict shellcheck audit verify-mtls security-scan security-all security-report \
 	build test chaos-test ci-local quick watch \
-	docker-build docker-build-ci docker-multiarch \
+	docker-build docker-build-ci docker-multiarch docker-cache-purge \
 	dev-setup dev-setup-rust dev-setup-tools dev-setup-hooks health-check pre-commit pre-commit-install run run-local run-dev \
 	install-crd apply-samples crd-gen regenerate completions completions-bash completions-zsh completions-fish \
 	helm-lint helm-unittest helm-upgrade-test link-check link-check-all changelog \
@@ -256,6 +256,10 @@ chaos-report: ## Aggregate chaos drill results into a summary report (scripts/ag
 
 # ── Docker ────────────────────────────────────────────────────────────────────
 
+docker-cache-purge: ## Purge all unused Docker builder cache (asks for confirmation)
+	@echo "→ Purging unused build cache on the current Docker daemon..."
+	$(DOCKER) builder prune --all
+
 docker-build: ## Fast local Docker build using host release binaries
 	@echo "→ Building Docker image (fast local mode)..."
 	@if [ ! -f target/release/stellar-operator ] || [ ! -f target/release/kubectl-stellar ] || [ ! -f target/release/soroban-cache-proxy ]; then \
@@ -446,9 +450,9 @@ completions: ## Generate shell completion scripts
 	@echo "  Zsh:  Copy completions/_stellar-operator to your fpath"
 	@echo "  Fish: Copy completions/stellar-operator.fish to ~/.config/fish/completions/"
 
-helm-lint: ## Helm lint check
+helm-lint: ## Strict Helm lint check (warnings fail)
 	@echo "→ Linting Helm charts..."
-	helm lint charts/stellar-operator
+	helm lint charts/stellar-operator --strict
 
 dev-setup: ## Setup dev environment
 	rustup update stable

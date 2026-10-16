@@ -14,6 +14,18 @@ If you run into issues, jump to the relevant section below:
 
 ## 1. Fork and Pull Request Workflow
 
+Maintainers can follow the [issue label review guide](docs/development/issue-label-review.md)
+to check template labels and triage issues.
+
+Reviewer routing lives in [CODEOWNERS](.github/CODEOWNERS). Keep the default
+rule first and specific overrides last: GitHub uses the last matching rule,
+not a union of matching owners. Remove shadowed duplicate patterns when trimming
+the file, while preserving the effective owners. In particular, `/src/webhook/`
+routes to `@security-team`, and the performance workflow overrides the general
+workflow owners. Verify edits by comparing effective owners for those paths,
+ordinary controller files, and an unmatched path before and after the change.
+Maintainers should also check GitHub's CODEOWNERS view for syntax or access errors.
+
 We use a fork-and-pull-request model. The basic flow is:
 
 1. **Fork** the repository on GitHub.
