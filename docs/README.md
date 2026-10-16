@@ -1,4 +1,4 @@
-# Stellar-K8s Documentation
+﻿# Stellar-K8s Documentation
 
 Production-grade Stellar infrastructure on Kubernetes. This directory contains all operator documentation.
 
@@ -30,7 +30,7 @@ Production-grade Stellar infrastructure on Kubernetes. This directory contains a
 - [Storage & PVC Auto-Expansion](pvc-auto-expansion.md)
 - [Proactive Disk Scaling](proactive-disk-scaling.md)
 - [Sync-State Scaling](sync-state-scaling.md)
-- [Feature Flags](../README.md#️-runtime-feature-flags)
+- [Feature Flags](../README.md#runtime-feature-flags)
 - [Ingress Guide](ingress-guide.md)
 - [Network Policies](network-isolation.md)
 - [Network Policy Templates](network-policy-templates.md)

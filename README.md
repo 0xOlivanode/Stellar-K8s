@@ -1,4 +1,4 @@
-<p align="center">
+﻿<p align="center">
   <img src="assets/logo.png" alt="Stellar-K8s Logo" width="200" />
 </p>
 
@@ -276,7 +276,7 @@ See [wasm-webhook.md](docs/wasm-webhook.md) for complete documentation and examp
 
 ---
 
-## 📊 Monitoring & Observability
+## Monitoring & Observability
 
 Stellar-K8s comes with built-in Prometheus metrics and a pre-configured Grafana dashboard that provides a comprehensive overview of both the operator's health and the managed Stellar nodes.
 
@@ -304,7 +304,7 @@ The operator exposes the following production-readiness metrics:
 
 ---
 
-## ⚙️ Runtime Feature Flags
+## Runtime Feature Flags
 
 The operator supports runtime feature flags via the `stellar-operator-config` ConfigMap. Changes are picked up **without restart**.
 

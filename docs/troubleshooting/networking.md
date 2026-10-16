@@ -488,4 +488,4 @@ Before opening a support issue, collect:
 - [mTLS Guide](../mtls-guide.md)
 - [MetalLB BGP Anycast](../metallb-bgp-anycast.md)
 - [NetworkPolicy examples](../gatekeeper-policies.md)
-- [Diagnostic script](../../scripts/debug-network.sh)
+- [Diagnostic script](../development/scripts-reference.md#operations-and-diagnostics)
