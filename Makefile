@@ -27,7 +27,7 @@
 	install-crd apply-samples crd-gen regenerate completions completions-bash completions-zsh completions-fish \
 	helm-lint helm-unittest helm-upgrade-test link-check link-check-all changelog \
 	generate-api-docs check-api-docs generate-openapi-spec check-openapi-spec docs-lint \
-	docs-build docs-serve \
+	docs-build docs-serve docs-ci-build nav-coverage link-integrity link-integrity-full security-review \
 	third-party-licenses check-third-party-licenses \
 	benchmark benchmark-webhook benchmark-all \
 	benchmark-crd benchmark-helm benchmark-api benchmark-reconciliation \
@@ -362,6 +362,51 @@ docs-build: ## Build the documentation site into site/
 docs-serve: ## Serve the documentation site locally (http://127.0.0.1:8000)
 	@echo "→ Serving documentation at http://127.0.0.1:8000 (Ctrl+C to stop)"
 	@python3 -m mkdocs serve
+
+# ── Issue #1710: Documentation build ─────────────────────────────────────────
+
+docs-ci-build: ## Build the documentation site in strict mode (mirrors CI job) (#1710)
+	@echo "→ Building documentation site (strict, mirrors CI)..."
+	@command -v mkdocs >/dev/null 2>&1 || pip install -r requirements.txt
+	@python3 -m mkdocs build --strict --verbose
+	@echo "✓ Documentation site built into site/ — no broken links or nav warnings"
+
+# ── Issue #1711: Navigation coverage ─────────────────────────────────────────
+
+nav-coverage: ## Verify every mkdocs.yml nav entry resolves to an existing file (#1711)
+	@echo "→ Checking MkDocs navigation coverage..."
+	@python3 scripts/check_mkdocs_nav.py
+	@echo "✓ All navigation entries resolve"
+
+# ── Issue #1712: Link integrity ───────────────────────────────────────────────
+
+link-integrity: ## Check internal markdown links for broken references (#1712)
+	@echo "→ Checking internal link integrity across docs/..."
+	@python3 scripts/check-links.py --dir docs/
+	@echo "✓ All internal links are valid"
+
+link-integrity-full: ## Check all links (internal + external) — slower, requires network (#1712)
+	@echo "→ Checking internal and external link integrity..."
+	@python3 scripts/check-links.py --dir docs/ --check-external
+	@echo "✓ All links are valid"
+
+# ── Issue #1713: Security review ─────────────────────────────────────────────
+
+security-review: ## Run the full security review gate (audit + deny + report) (#1713)
+	@echo "→ Running security review..."
+	$(MAKE) audit
+	$(MAKE) security-scan
+	@echo "→ Generating security review report..."
+	@mkdir -p security/reports
+	@printf '# Security Review — %s\n\n' "$$(date)" > security/reports/review.md
+	@printf '## cargo-audit\n\n' >> security/reports/review.md
+	@$(CARGO) audit 2>&1 | tee -a security/reports/review.md || true
+	@printf '\n## cargo-deny\n\n' >> security/reports/review.md
+	@$(CARGO) deny check 2>&1 | tee -a security/reports/review.md || true
+	@printf '\n## Helm lint\n\n' >> security/reports/review.md
+	@helm lint charts/stellar-operator --strict 2>&1 | tee -a security/reports/review.md || true
+	@echo ""
+	@echo "✓ Security review complete — report at security/reports/review.md"
 
 # ── Kubernetes ────────────────────────────────────────────────────────────────
 
