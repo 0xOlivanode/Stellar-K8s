@@ -22,7 +22,7 @@
 .PHONY: help \
 	fmt fmt-check lint lint-strict shellcheck audit verify-mtls security-scan security-all security-report \
 	build test chaos-test ci-local quick watch \
-	docker-build docker-build-ci docker-multiarch docker-cache-purge \
+	docker-build docker-build-ci docker-multiarch docker-cache-purge docker-image-prune \
 	dev-setup dev-setup-rust dev-setup-tools dev-setup-hooks health-check pre-commit pre-commit-install run run-local run-dev \
 	install-crd apply-samples crd-gen regenerate completions completions-bash completions-zsh completions-fish \
 	helm-lint helm-unittest helm-upgrade-test link-check link-check-all changelog \
@@ -259,6 +259,10 @@ chaos-report: ## Aggregate chaos drill results into a summary report (scripts/ag
 docker-cache-purge: ## Purge all unused Docker builder cache (asks for confirmation)
 	@echo "→ Purging unused build cache on the current Docker daemon..."
 	$(DOCKER) builder prune --all
+
+docker-image-prune: ## Remove dangling local images from the Docker daemon (asks for confirmation)
+	@echo "→ Pruning dangling images on the current Docker daemon..."
+	$(DOCKER) image prune
 
 docker-build: ## Fast local Docker build using host release binaries
 	@echo "→ Building Docker image (fast local mode)..."
