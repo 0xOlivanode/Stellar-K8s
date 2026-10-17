@@ -8,6 +8,7 @@ Welcome to the Stellar-K8s FAQ! This document addresses common questions and iss
 - [Troubleshooting](#troubleshooting-questions) (Health Checks, Peer Discovery, Networking)
 - [General Operations](#general-operations-questions) (Deployment, Updates, Monitoring)
 - [Deployment FAQ](#deployment-faq) (First Validator, Testnet Onboarding)
+- [Documentation & Build](#documentation--build-questions) (Deployment Guides, Observability, Make Targets)
 
 ---
 
@@ -673,6 +674,32 @@ kubectl exec -n stellar <validator-pod> -- curl -s http://localhost:11626/info
 
 ---
 
+## Documentation & Build Questions
+
+### Q: Where are the deployment guides?
+
+**A:** Start at the [Deployment Guides index](./deployment-guides/index.md). It links the Validator, Horizon, and Soroban RPC guides, plus the deployment patterns and tutorials.
+
+### Q: Where do I find observability documentation?
+
+**A:** Start at the [Observability overview](./observability/index.md). It covers metrics, dashboards, logging, tracing, and the telemetry contract.
+
+### Q: How do I build the operator locally?
+
+**A:** Use the Makefile targets:
+
+```bash
+make build-debug   # unoptimised binary, fastest iteration
+make build         # optimised release binary (--locked)
+make build-check   # type-check all targets without producing binaries
+make build-all     # release binary plus the documentation site
+```
+
+Run `make help` to list every target.
+
+### Q: How do I build and preview the documentation site?
+
+**A:** Run `make docs-build` to build the site into `site/`, or `make docs-serve` to serve it at `http://127.0.0.1:8000`.
 ## Related Documentation
 
 - [Getting Started Guide](./getting-started/quick-start.md)

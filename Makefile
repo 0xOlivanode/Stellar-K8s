@@ -257,6 +257,15 @@ build: ## Build release
 	@echo "→ Building release..."
 	@$(CARGO) build --release --locked
 
+build-debug: ## Build an unoptimised debug binary (faster iteration than build)
+	@echo "Building debug binary..."
+	@$(CARGO) build --locked
+
+build-check: ## Type-check all targets without producing binaries (fast gate)
+	@$(CARGO) check --locked --all-targets
+
+build-all: build docs-build ## Build the release binary and the documentation site
+
 wasm-cache-build: ## Build the bounded Soroban cache Wasm artifact and enforce its size limit
 	@echo "→ Building Soroban cache Wasm artifact..."
 	@$(CARGO) build --release --locked --target wasm32-unknown-unknown -p stellar-wasm-cache
