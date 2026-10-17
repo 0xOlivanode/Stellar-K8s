@@ -35,8 +35,6 @@ schemars = { version = "0.8", features = ["chrono"] }
 
 # Error handling
 thiserror = "1"
-anyhow = "1"
-
 anyhow = "1.0.104" # Pinned to Cargo.lock (1.0.104); 1.0.108 was unpublished
 # CLI argument parsing
 clap = { version = "4.5", features = ["derive", "env"] }
@@ -52,7 +50,6 @@ bytes = "1.11.1"
 
 # Zip compression for incident reports
 zip = "2"
-tempfile = "3"
 
 # Hostname for leader election
 hostname = "0.4"
@@ -98,11 +95,6 @@ prometheus-client = { version = "0.22", optional = true }
 once_cell = { version = "1", optional = true }
 
 # TLS and certificate generation
-rustls = "0.23"
-rcgen = { version = "0.13", features = ["pem", "x509-parser"] }
-axum-server = { version = "0.7.0", features = ["tls-rustls"] }
-rustls-pki-types = "1.14.0"
-x509-parser = "0.16"
 rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
 rcgen = { version = "0.14", features = ["pem", "x509-parser"] }
 axum-server = { version = "0.7.0", features = ["tls-rustls"] }
@@ -164,6 +156,12 @@ json-patch = "4.1.0"
 md5 = "0.8.0"
 # tar archive extraction for snapshot bootstrapping (#119)
 tar = "0.4"
+# UUID generation for leases, events, and config revisions
+uuid = { version = "1", features = ["v4"] }
+# Unix signal handling for captive-core process supervision
+nix = { version = "0.30", features = ["signal", "process"] }
+# PDF generation for compliance reports
+printpdf = "0.7"
 
 
 [build-dependencies]
@@ -229,6 +227,8 @@ path = "src/bin/completions.rs"
 [[bin]]
 name = "soroban-cache-proxy"
 path = "src/bin/soroban-cache-proxy.rs"
+
+[[bin]]
 name = "conventional-commit-check"
 path = "src/bin/conventional-commit-check.rs"
 

@@ -36,16 +36,8 @@ pub struct HealthCheckState {
     pub peer_connectivity: Arc<RwLock<Option<PeerConnectivityReport>>>,
 }
 
-impl HealthCheckState {
-    /// Build state with empty sync status and no peer data yet.
-    pub fn new(core_url: impl Into<String>) -> Self {
-        Self {
-            core_url: core_url.into(),
-            sync_status: Arc::new(RwLock::new(SyncStatus::default())),
-            peer_connectivity: Arc::new(RwLock::new(None)),
-        }
-    }
 
+impl HealthCheckState {
     /// Spawn the peer probe loop for `peers`.
     ///
     /// Returns without spawning when there is nothing to probe, so non-validator
@@ -63,12 +55,14 @@ impl HealthCheckState {
 }
 
 impl HealthCheckState {
-    pub fn new(core_url: String) -> Self {
+    /// Build state with empty sync status and no peer data yet.
+    pub fn new(core_url: impl Into<String>) -> Self {
         Self {
-            core_url,
+            core_url: core_url.into(),
             core_version: "v21.3.1".to_string(),
             archive_urls: Vec::new(),
             sync_status: Arc::new(RwLock::new(SyncStatus::default())),
+            peer_connectivity: Arc::new(RwLock::new(None)),
         }
     }
 }
@@ -231,6 +225,8 @@ async fn readiness_handler(State(state): State<HealthCheckState>) -> impl IntoRe
             synced: true,
             ledger_num: sync_status.ledger_num,
             network_ledger: sync_status.network_ledger,
+            archive_compatible: Some(sync_status.archive_compatible),
+            archive_error: sync_status.archive_error.clone(),
         }),
     )
 }
@@ -413,6 +409,8 @@ async fn fetch_stellar_core_status(
         ledger_num,
         network_ledger,
         last_check: chrono::Utc::now().timestamp(),
+        archive_compatible: true,
+        archive_error: None,
     })
 }
 
@@ -444,6 +442,8 @@ async fn fetch_horizon_status(
         ledger_num,
         network_ledger,
         last_check: chrono::Utc::now().timestamp(),
+        archive_compatible: true,
+        archive_error: None,
     })
 }
 
@@ -477,6 +477,8 @@ async fn fetch_soroban_status(
         ledger_num,
         network_ledger,
         last_check: chrono::Utc::now().timestamp(),
+        archive_compatible: true,
+        archive_error: None,
     })
 }
 

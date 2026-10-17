@@ -166,7 +166,14 @@ fn check_known_peers(config: &ValidatorConfig, findings: &mut Vec<ComplianceFind
     // Check that at least some SDF testnet peers are present
     let missing_peers: Vec<&str> = SDF_TESTNET_PEERS
         .iter()
-        .filter(|peer| !known_peers.contains(peer))
+        .filter(|peer| {
+            let needle: &str = peer;
+            !known_peers
+                .split(',')
+                .flat_map(|segment| segment.split(' '))
+                .map(str::trim)
+                .any(|k| k == needle)
+        })
         .copied()
         .collect();
 

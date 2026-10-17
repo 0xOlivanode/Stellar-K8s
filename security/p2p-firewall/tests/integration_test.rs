@@ -104,12 +104,7 @@ async fn test_flood_blacklisted_within_2s() {
 
         if result.threat_level >= ThreatLevel::High && blacklisted_at.is_none() {
             let _ = blacklist
-                .blacklist(
-                    rogue_ip,
-                    BlacklistReason::Flood,
-                    result.threat_level,
-                    0,
-                )
+                .blacklist(rogue_ip, BlacklistReason::Flood, result.threat_level, 0)
                 .await;
 
             if blacklist.is_blacklisted(rogue_ip) {
@@ -155,7 +150,12 @@ async fn test_malformed_xdr_blacklisted() {
 
         if result.threat_level >= ThreatLevel::High {
             let _ = blacklist
-                .blacklist(bad_ip, BlacklistReason::MalformedPayload, result.threat_level, 0)
+                .blacklist(
+                    bad_ip,
+                    BlacklistReason::MalformedPayload,
+                    result.threat_level,
+                    0,
+                )
                 .await;
             blacklisted = true;
             break;
@@ -212,11 +212,7 @@ async fn test_legitimate_traffic_not_blacklisted() {
     });
     let blacklist = BlacklistManager::new(None, "stellar", 60, 11625, false);
 
-    let legit_peers = [
-        [10, 0, 0, 1],
-        [10, 0, 0, 2],
-        [10, 0, 0, 3],
-    ];
+    let legit_peers = [[10, 0, 0, 1], [10, 0, 0, 2], [10, 0, 0, 3]];
 
     for peer in &legit_peers {
         let payload = make_tx();
@@ -230,7 +226,11 @@ async fn test_legitimate_traffic_not_blacklisted() {
         }
     }
 
-    assert_eq!(blacklist.active_count(), 0, "No legitimate peers should be blacklisted");
+    assert_eq!(
+        blacklist.active_count(),
+        0,
+        "No legitimate peers should be blacklisted"
+    );
 }
 
 /// Verify blacklist expiry and pruning.

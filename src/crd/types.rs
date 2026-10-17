@@ -135,6 +135,17 @@ impl StellarNetwork {
     }
 }
 
+impl std::fmt::Display for StellarNetwork {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            StellarNetwork::Mainnet => write!(f, "mainnet"),
+            StellarNetwork::Testnet => write!(f, "testnet"),
+            StellarNetwork::Futurenet => write!(f, "futurenet"),
+            StellarNetwork::Custom(name) => write!(f, "{name}"),
+        }
+    }
+}
+
 /// Controls default pod anti-affinity for spreading pods that share the same
 /// [`StellarNetwork`] across nodes.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -1325,7 +1336,7 @@ pub struct HPAPolicy {
 }
 
 /// Condition for status reporting
-#[derive(Clone, Debug, Deserialize, Serialize, JsonSchema)]
+#[derive(Clone, Debug, Deserialize, Serialize, JsonSchema, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Condition {
     #[serde(rename = "type")]

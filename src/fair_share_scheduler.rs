@@ -248,7 +248,7 @@ impl FairShareSchedulerEngine {
         is_validator: bool,
     ) -> Result<()> {
         let quota = self.quotas.get(tenant_id).ok_or_else(|| {
-            Error::Validation(format!(
+            Error::ValidationError(format!(
                 "Unknown tenant '{tenant_id}' has no configured quota"
             ))
         })?;
@@ -256,28 +256,28 @@ impl FairShareSchedulerEngine {
         let usage = self.usages.get(tenant_id).cloned().unwrap_or_default();
 
         if usage.allocated_cpu_cores + req_cpu > quota.max_cpu_cores {
-            return Err(Error::Validation(format!(
+            return Err(Error::ValidationError(format!(
                 "Tenant '{tenant_id}' CPU quota exceeded: currently using {:.1} cores, requesting {:.1}, limit is {:.1}",
                 usage.allocated_cpu_cores, req_cpu, quota.max_cpu_cores
             )));
         }
 
         if usage.allocated_memory_bytes + req_mem > quota.max_memory_bytes {
-            return Err(Error::Validation(format!(
+            return Err(Error::ValidationError(format!(
                 "Tenant '{tenant_id}' Memory quota exceeded: currently using {} bytes, requesting {}, limit is {}",
                 usage.allocated_memory_bytes, req_mem, quota.max_memory_bytes
             )));
         }
 
         if is_validator && usage.active_validators + 1 > quota.max_validators {
-            return Err(Error::Validation(format!(
+            return Err(Error::ValidationError(format!(
                 "Tenant '{tenant_id}' Validator quota exceeded: currently has {}, limit is {}",
                 usage.active_validators, quota.max_validators
             )));
         }
 
         if usage.active_pods + 1 > quota.max_total_pods {
-            return Err(Error::Validation(format!(
+            return Err(Error::ValidationError(format!(
                 "Tenant '{tenant_id}' Pod count quota exceeded: currently has {}, limit is {}",
                 usage.active_pods, quota.max_total_pods
             )));

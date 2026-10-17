@@ -310,7 +310,9 @@ impl XdrAnalyzer {
         // Rule 5: low entropy garbage payload (not a valid XDR start).
         if let Some(entropy) = byte_entropy(&packet.payload) {
             if entropy < 0.5 && packet.payload.len() > 32 {
-                reasons.push(format!("low payload entropy ({entropy:.2}) suggests garbage data"));
+                reasons.push(format!(
+                    "low payload entropy ({entropy:.2}) suggests garbage data"
+                ));
                 threat = threat.max(ThreatLevel::Medium);
             }
         }
@@ -380,9 +382,8 @@ pub fn parse_xdr_header(payload: &[u8]) -> PacketInfo {
 
     let discriminant = u32::from_be_bytes([payload[4], payload[5], payload[6], payload[7]]);
 
-    let is_malformed = xdr_length == 0
-        || xdr_length > XDR_MAX_MSG_LEN
-        || discriminant > XDR_DISC_MAX_KNOWN;
+    let is_malformed =
+        xdr_length == 0 || xdr_length > XDR_MAX_MSG_LEN || discriminant > XDR_DISC_MAX_KNOWN;
 
     let is_hello = discriminant == XDR_DISC_HELLO;
 
@@ -602,10 +603,7 @@ mod tests {
 
         let result = last_result.unwrap();
         assert!(result.threat_level >= ThreatLevel::High);
-        assert!(result
-            .reasons
-            .iter()
-            .any(|r| r.contains("handshake")));
+        assert!(result.reasons.iter().any(|r| r.contains("handshake")));
     }
 
     #[test]

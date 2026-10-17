@@ -178,8 +178,7 @@ async fn load_test_p2p_firewall() {
                 latencies_ns.push(t.elapsed().as_nanos() as u64);
                 total_packets += 1;
 
-                if result.threat_level >= ThreatLevel::High
-                    && !blacklist.is_blacklisted(*attacker)
+                if result.threat_level >= ThreatLevel::High && !blacklist.is_blacklisted(*attacker)
                 {
                     let _ = blacklist
                         .blacklist(
@@ -206,8 +205,14 @@ async fn load_test_p2p_firewall() {
     let max_ns = *latencies_ns.last().unwrap();
     let throughput_pps = total_packets as f64 / elapsed.as_secs_f64();
 
-    let rogue_blacklisted = rogue_flood.iter().filter(|ip| blacklist.is_blacklisted(**ip)).count();
-    let legit_blacklisted = legit_peers.iter().filter(|ip| blacklist.is_blacklisted(**ip)).count();
+    let rogue_blacklisted = rogue_flood
+        .iter()
+        .filter(|ip| blacklist.is_blacklisted(**ip))
+        .count();
+    let legit_blacklisted = legit_peers
+        .iter()
+        .filter(|ip| blacklist.is_blacklisted(**ip))
+        .count();
     let malformed_blacklisted = malformed_attackers
         .iter()
         .filter(|ip| blacklist.is_blacklisted(**ip))
@@ -225,15 +230,33 @@ async fn load_test_p2p_firewall() {
     println!("╠══════════════════════════════════════════════════════════════════╣");
     println!("║  Traffic Summary                                                 ║");
     println!("║    Total packets analyzed : {total_packets:<10}                    ║");
-    println!("║    Total elapsed time     : {:?}                         ║", elapsed);
+    println!(
+        "║    Total elapsed time     : {:?}                         ║",
+        elapsed
+    );
     println!("║    Throughput             : {throughput_pps:.0} pkt/s                    ║");
     println!("╠══════════════════════════════════════════════════════════════════╣");
     println!("║  Analysis Latency (per-packet)                                   ║");
-    println!("║    Average   : {avg_ns:>8} ns  ({:.3} ms)                        ║", avg_ns as f64 / 1e6);
-    println!("║    P50       : {p50_ns:>8} ns  ({:.3} ms)                        ║", p50_ns as f64 / 1e6);
-    println!("║    P95       : {p95_ns:>8} ns  ({:.3} ms)                        ║", p95_ns as f64 / 1e6);
-    println!("║    P99       : {p99_ns:>8} ns  ({:.3} ms)                        ║", p99_ns as f64 / 1e6);
-    println!("║    Max       : {max_ns:>8} ns  ({:.3} ms)                        ║", max_ns as f64 / 1e6);
+    println!(
+        "║    Average   : {avg_ns:>8} ns  ({:.3} ms)                        ║",
+        avg_ns as f64 / 1e6
+    );
+    println!(
+        "║    P50       : {p50_ns:>8} ns  ({:.3} ms)                        ║",
+        p50_ns as f64 / 1e6
+    );
+    println!(
+        "║    P95       : {p95_ns:>8} ns  ({:.3} ms)                        ║",
+        p95_ns as f64 / 1e6
+    );
+    println!(
+        "║    P99       : {p99_ns:>8} ns  ({:.3} ms)                        ║",
+        p99_ns as f64 / 1e6
+    );
+    println!(
+        "║    Max       : {max_ns:>8} ns  ({:.3} ms)                        ║",
+        max_ns as f64 / 1e6
+    );
     println!("╠══════════════════════════════════════════════════════════════════╣");
     println!("║  Threat Detection                                                ║");
     println!(
@@ -257,7 +280,10 @@ async fn load_test_p2p_firewall() {
         legit_peers.len()
     );
     if let Some(t) = time_to_first_blacklist {
-        println!("║    First blacklist at         : {:?}                           ║", t);
+        println!(
+            "║    First blacklist at         : {:?}                           ║",
+            t
+        );
     }
     println!("╚══════════════════════════════════════════════════════════════════╝");
     println!();

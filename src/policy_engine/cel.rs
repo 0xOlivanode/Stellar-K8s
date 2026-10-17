@@ -278,7 +278,8 @@ impl Parser {
             }
             Token::Ident(name) if name == "has" => {
                 self.eat(&Token::LParen)?;
-                let path = self.parse_path_from_ident(self.expect_ident()?)?;
+                let ident = self.expect_ident()?;
+                let path = self.parse_path_from_ident(ident)?;
                 self.eat(&Token::RParen)?;
                 Ok(Expr::Has(path))
             }
