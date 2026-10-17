@@ -43,59 +43,34 @@ teardown() {
   [ -x "$DEP_GATE" ]
 }
 
-@test "allow path: permitted dependency change is accepted" {
-  # A permitted change: no new/blocked dependencies introduced.
-  cat >package.json <<'JSON'
-{
-  "name": "fixture-allow",
-  "version": "1.0.0",
-  "dependencies": {
-    "left-pad": "1.3.0"
-  }
-}
-JSON
+# dep-gate.sh takes a mode, not an allow list: `--audit-only` runs just
+# `cargo audit`, which the cargo shim answers without touching the network.
 
-  run bash "$DEP_GATE" --allow "left-pad"
+@test "allow path: gate passes when cargo audit succeeds" {
+  run bash "$DEP_GATE" --audit-only
 
-  # The gate must succeed and report the permitted decision.
   [ "$status" -eq 0 ]
-  echo "$output" | grep -qiE 'allow|permit|pass|ok'
+  [[ "$output" == *"All lockfile gate checks passed"* ]]
 }
 
-@test "deny path: blocked dependency change is rejected" {
-  # A blocked change: a dependency that is not on the allow list.
-  cat >package.json <<'JSON'
-{
-  "name": "fixture-deny",
-  "version": "1.0.0",
-  "dependencies": {
-    "evil-pkg": "9.9.9"
-  }
-}
-JSON
+@test "deny path: gate fails when cargo audit reports vulnerabilities" {
+  # Replace the cargo shim with one whose `audit` subcommand fails.
+  cat >"$SHIM_DIR/cargo" <<'SHIM'
+#!/usr/bin/env bash
+echo "stub:$0 $*" >>"${DEP_GATE_STUB_LOG:-/dev/null}"
+[ "$1" = "audit" ] && exit 1
+exit 0
+SHIM
+  chmod +x "$SHIM_DIR/cargo"
 
-  run bash "$DEP_GATE" --allow "left-pad"
+  run bash "$DEP_GATE" --audit-only
 
-  # The gate must fail and report the blocked decision.
   [ "$status" -ne 0 ]
-  echo "$output" | grep -qiE 'deny|denied|block|reject|fail'
+  [[ "$output" == *"cargo audit found unignored vulnerabilities"* ]]
 }
 
 @test "package manager calls are stubbed via PATH" {
-  cat >package.json <<'JSON'
-{
-  "name": "fixture-stub",
-  "version": "1.0.0",
-  "dependencies": {
-    "left-pad": "1.3.0"
-  }
-}
-JSON
+  run bash "$DEP_GATE" --audit-only
 
-  run bash "$DEP_GATE" --allow "left-pad"
-
-  # Any package manager invocation must have gone through our shim.
-  if [ -s "$DEP_GATE_STUB_LOG" ]; then
-    grep -q 'stub:' "$DEP_GATE_STUB_LOG"
-  fi
+  grep -q 'stub:.*cargo audit' "$DEP_GATE_STUB_LOG"
 }

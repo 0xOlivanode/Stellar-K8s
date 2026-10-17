@@ -26,6 +26,22 @@ _stub_all_at_pin() {
   chmod +x "${dir}"/*
 }
 
+# Helper: symlink /usr/bin and /bin into "${dir}/sys" minus the named tools, so
+# a "missing tool" test still holds on hosts (e.g. GitHub runners) that ship
+# that tool in /usr/bin. Prints the directory to put on PATH.
+_system_path_without() {
+  local dir="$1"; shift
+  local sys="${dir}/sys" bin name skip
+  mkdir -p "${sys}"
+  for bin in /usr/bin/* /bin/*; do
+    name="${bin##*/}"
+    [[ -e "${sys}/${name}" ]] && continue
+    for skip in "$@"; do [[ "${name}" == "${skip}" ]] && continue 2; done
+    ln -s "${bin}" "${sys}/${name}"
+  done
+  echo "${sys}"
+}
+
 # ---------------------------------------------------------------------------
 # Tool-presence tests
 # ---------------------------------------------------------------------------
@@ -49,7 +65,7 @@ _stub_all_at_pin() {
   _stub_all_at_pin "${dir}"
   rm "${dir}/kind"
 
-  run env PATH="${dir}:/usr/bin:/bin" bash "${PREFLIGHT}"
+  run env PATH="${dir}:$(_system_path_without "${dir}" kind)" bash "${PREFLIGHT}"
   [ "$status" -ne 0 ]
   [[ "$output" == *"[FAIL]"* ]]
   [[ "$output" == *"kind not found in PATH"* ]]
@@ -63,7 +79,7 @@ _stub_all_at_pin() {
   _stub_all_at_pin "${dir}"
   rm "${dir}/gh"
 
-  run env PATH="${dir}:/usr/bin:/bin" bash "${PREFLIGHT}"
+  run env PATH="${dir}:$(_system_path_without "${dir}" gh)" bash "${PREFLIGHT}"
   [ "$status" -ne 0 ]
   [[ "$output" == *"[FAIL]"* ]]
 
@@ -131,7 +147,7 @@ _stub_all_at_pin() {
   _stub_all_at_pin "${dir}"
   rm "${dir}/gh"
 
-  run env PATH="${dir}:/usr/bin:/bin" \
+  run env PATH="${dir}:$(_system_path_without "${dir}" gh)" \
       REPO="TestOrg/TestRepo" \
       bash "${PREFLIGHT}" --labels
   [[ "$output" == *"'gh' CLI not found"* ]]

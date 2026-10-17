@@ -34,7 +34,7 @@
 	compose-up compose-dev compose-down compose-logs \
 	bundle bundle-render bundle-generate bundle-validate bundle-build \
 	quickstart quickstart-setup quickstart-build quickstart-deploy \
-	health health-fast validate preflight test-shell all \
+	health health-fast validate preflight test-shell test-bats issue-template-lint all \
 	shell-safety test-shell-safety validate-yaml test-yaml-validation \
 	yaml-schema-validate test-db-migrations \
 	lint-observability-contract test-observability-contract \
@@ -68,7 +68,6 @@ DEFAULT_CHANNEL ?= "alpha"
 help: ## Show this help
 	@echo 'Usage: make [target]'
 	@echo ''
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo 'Canonical Command Flow:'
 	@echo '  Setup:    make dev-setup         One-time environment setup'
 	@echo '  Check:    make quick             Fast pre-commit (fmt + cargo check)'
@@ -458,6 +457,17 @@ test-shell: ## Run bats unit tests for the cleanup tool and shared shell helpers
 	@echo "→ Running cleanup tool bats tests..."
 	@command -v bats >/dev/null 2>&1 || (echo "✗ bats not installed. See https://github.com/bats-core/bats-core" && exit 1)
 	@bats scripts/tests/cleanup.bats
+
+# helm-drift.bats is excluded: it needs helm and runs via `make test-helm-drift`.
+BATS_SUITES ?= $(filter-out scripts/tests/helm-drift.bats,$(wildcard scripts/tests/*.bats))
+
+test-bats: ## Run every bats suite under scripts/tests/ except helm-drift (#1680)
+	@echo "→ Running bats suites..."
+	@command -v bats >/dev/null 2>&1 || (echo "✗ bats not installed. See https://github.com/bats-core/bats-core" && exit 1)
+	@bats $(BATS_SUITES)
+
+issue-template-lint: ## Lint GitHub Issue Forms in .github/ISSUE_TEMPLATE/ (#1681)
+	@python3 scripts/issue_template_lint.py
 
 collect-failure-diagnostics: ## Assemble a local CI failure diagnostics bundle (#1151)
 	@echo "→ Assembling failure diagnostics bundle..."
