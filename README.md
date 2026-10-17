@@ -12,8 +12,8 @@
   <a href="https://codecov.io/gh/OtowoOrg/Stellar-K8s">
     <img src="https://img.shields.io/codecov/c/github/OtowoOrg/Stellar-K8s/main?style=for-the-badge&logo=codecov" alt="Coverage" />
   </a>
-  <a href="https://github.com/OtowoOrg/Stellar-K8s/actions/workflows/security-scan.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/OtowoOrg/Stellar-K8s/security-scan.yml?branch=main&style=for-the-badge&label=Security&logo=trivy" alt="Security Scan" />
+  <a href="https://github.com/OtowoOrg/Stellar-K8s/actions/workflows/container-image-security.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/OtowoOrg/Stellar-K8s/container-image-security.yml?branch=main&style=for-the-badge&label=Security&logo=trivy" alt="Security Scan" />
   </a>
 </p>
 
@@ -47,6 +47,16 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Built%20with-Rust-orange?style=for-the-badge&logo=rust" alt="Built with Rust" />
   <img src="https://img.shields.io/badge/Kubernetes-Operator-blue?style=for-the-badge&logo=kubernetes" alt="Kubernetes Operator" />
+</p>
+
+<!-- Documentation -->
+<p align="center">
+  <a href="https://m1s0g1.github.io/Stellar-K8s/">
+    <img src="https://img.shields.io/badge/📖_Documentation-Online-blue?style=for-the-badge&logo=readthedocs" alt="Documentation Site" />
+  </a>
+  <a href="https://m1s0g1.github.io/Stellar-K8s/">
+    <strong>Read the full documentation</strong>
+  </a>
 </p>
 
 > **Production-grade Stellar infrastructure in one command.**
@@ -87,9 +97,10 @@ Stellar-K8s follows the **Operator Pattern**, extending Kubernetes with a `Stell
 - **Kubernetes cluster** (1.28+)
 - **kubectl** configured
 - **Helm 3.x** (for operator installation)
-- **Rust 1.88+** (for local development)
-  - CI/CD and Docker builds use Rust 1.93 for consistency
-  - Contributors can use any Rust 1.88+ version locally
+- **Rust 1.92+** (minimum enforced by CI's `preflight`/`lint` jobs and
+  `scripts/lib/versions.sh` — run `make dev-setup` or
+  `cargo run --bin stellar-bootstrap-verify` to check your local version)
+  - Docker builds (`Dockerfile`, `Dockerfile.dev`) currently use Rust 1.98
 
 > **New to Stellar-K8s?** See the [Glossary](docs/glossary.md) for definitions of common terms like [Validator](docs/glossary.md#validator), [Horizon](docs/glossary.md#horizon), [SCP](docs/glossary.md#scp-stellar-consensus-protocol), and [Reconciliation](docs/glossary.md#reconciliation).
 >
@@ -100,6 +111,8 @@ Stellar-K8s follows the **Operator Pattern**, extending Kubernetes with a `Stell
 ## 🚀 Quick Start
 
 Get a Testnet node running in under 5 minutes.
+
+> 📖 **Full documentation:** this Quick Start is a condensed walkthrough — the [online documentation site](https://m1s0g1.github.io/Stellar-K8s/) has the complete guides (installation, configuration, networking, troubleshooting) for every node type.
 
 ### Option 1: Docker Compose (No K8s Required)
 
@@ -132,6 +145,7 @@ helm install stellar-operator stellar-k8s/stellar-operator \
   --namespace stellar-system \
   --create-namespace
 ```
+
 
 ### Install the Operator via OLM
 
@@ -177,6 +191,7 @@ Ready-to-use manifests for all supported node types are available in the [exampl
 - [Horizon API](examples/horizon.yaml) - Scalable REST API server with Ingress and ingestion.
 - [Soroban RPC](examples/soroban-rpc.yaml) - Smart contract execution node with autoscaling.
 - [Disaster Recovery Setup](examples/dr-setup.yaml) - Multi-cluster HA configuration with automated drills.
+- [ArgoCD GitOps deployment guide](docs/gitops/argocd.mdx) - Versioned, declarative Testnet Validator and Soroban RPC golden path.
 
 ---
 
@@ -274,6 +289,37 @@ Features:
 
 See [wasm-webhook.md](docs/wasm-webhook.md) for complete documentation and examples.
 
+### Soroban RPC Fail-Open Cache
+
+Soroban RPC read methods can use an opt-in, bounded cache sidecar. The sidecar stores only read-only JSON-RPC responses, applies TTL/LRU eviction, and forwards requests to the RPC container whenever cache parsing, locking, allocation, or storage fails. The cache is disabled unless `spec.sorobanConfig.cache.enabled` is `true`.
+
+```yaml
+spec:
+  nodeType: SorobanRpc
+  sorobanConfig:
+    stellarCoreUrl: "http://stellar-core:11626"
+    cache:
+      enabled: true
+      ttlSecs: 30
+      maxEntries: 10000
+      maxBytes: 67108864
+```
+
+`ttlSecs`, `maxEntries`, and `maxBytes` are written to the node ConfigMap and mounted by the proxy. The hard limits are 10,000 entries and 64 MiB; values outside those bounds are rejected by CRD validation. The Service continues to expose port `8000`, while enabled nodes route that port to the sidecar on `18000` and the sidecar forwards to the unchanged RPC process on `127.0.0.1:8000`.
+
+Run the deterministic 10,000-request load check against an enabled proxy:
+
+```bash
+node benchmarks/soroban-cache-load-test.js http://127.0.0.1:18000
+```
+
+The harness warms 100 keys, checks `/stats`, and fails unless all requests succeed, the proxy reports at least 10,000 cache hits, and exactly 100 upstream reads are observed. To verify the Wasm artifact remains below 2 MiB:
+
+```bash
+cargo build --release --target wasm32-unknown-unknown -p stellar-wasm-cache
+test "$(wc -c < target/wasm32-unknown-unknown/release/stellar_wasm_cache.wasm)" -lt 2097152
+```
+
 ---
 
 ## 📊 Monitoring & Observability
@@ -308,6 +354,8 @@ The operator exposes the following production-readiness metrics:
 
 The operator supports runtime feature flags via the `stellar-operator-config` ConfigMap. Changes are picked up **without restart**.
 
+Dead flags that no longer gated any code paths were removed. Only `enable_dr` remains.
+
 ```yaml
 apiVersion: v1
 kind: ConfigMap
@@ -315,29 +363,18 @@ metadata:
   name: stellar-operator-config
   namespace: stellar-system
 data:
-  enable_cve_scanning: "true"
-  enable_read_pool: "false"
   enable_dr: "false"
-  enable_peer_discovery: "true"
-  enable_archive_health: "true"
-  enable_soroban_metrics: "true"
 ```
 
-| Flag                     | Default | Description                         |
-| ------------------------ | ------- | ----------------------------------- |
-| `enable_cve_scanning`    | `true`  | Automatic CVE patch reconciliation  |
-| `enable_read_pool`       | `false` | Read-replica pool management        |
-| `enable_dr`              | `false` | Disaster-recovery drill scheduling  |
-| `enable_peer_discovery`  | `true`  | Automatic peer discovery            |
-| `enable_archive_health`  | `true`  | History archive health checks       |
-| `enable_soroban_metrics` | `true`  | Soroban-specific Prometheus metrics |
+| Flag        | Default | Description                                                   |
+| ----------- | ------- | ------------------------------------------------------------- |
+| `enable_dr` | `false` | Disaster-recovery / cross-region bridge resources and drills |
 
 When using the Helm chart, set flags via `values.yaml`:
 
 ```yaml
 featureFlags:
-  enableCveScanning: "true"
-  enableReadPool: "false"
+  enableDr: false
 ```
 
 ---
@@ -347,6 +384,8 @@ featureFlags:
 We welcome contributions! This project uses pre-commit hooks to ensure code quality.
 
 Please see our **[Contributing Guide](CONTRIBUTING.md)** for details on our workflow, commit conventions, and pull request guidelines. For development setup instructions, see the **[Development Guide](DEVELOPMENT.md)**.
+
+Report bugs, request features, propose epics, or submit maintenance and support requests using the [issue templates](https://github.com/OtowoOrg/Stellar-K8s/issues/new/choose).
 
 ---
 
@@ -622,17 +661,32 @@ The full `StellarNode` CRD field reference — including all fields, types, defa
 
 **[docs/api-reference.md](docs/api-reference.md)**
 
-The reference is auto-generated from the CRD OpenAPI schema. To regenerate after modifying the CRD types:
+The CRD reference is auto-generated from the CRD OpenAPI schema. To regenerate after modifying the CRD types:
 
 ```bash
 make generate-api-docs
 ```
+
+Operator REST endpoints are documented in **[docs/api/openapi.yaml](docs/api/openapi.yaml)** (OpenAPI 3.0). Validate coverage with:
+
+```bash
+make check-openapi-spec
+```
+
+Interactive Swagger UI is available at `/developer` when the API gateway is enabled.
 
 ---
 
 ## 💻 Development
 
 For detailed instructions on setting up a local development environment, building the project, running tests, and managing Kubernetes resources locally, please refer to the **[Development Guide](DEVELOPMENT.md)**.
+
+Reliability and observability:
+
+- [Database migration testing](docs/database/migrations.md)
+- [YAML / CRD schema validation](docs/yaml-schema-validation.md)
+- [Helm chart testing](docs/helm-chart-testing.md)
+- [OpenTelemetry tracing](docs/observability/tracing.md)
 
 ### Reconciler fuzzing
 
@@ -664,3 +718,14 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 ## 📝 Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and releases.
+
+## Handsoff notes
+
+<!-- handsoff-issue-1630 -->
+- #1630: [EPIC] Add bats Coverage for secret-rotation-check Script
+
+<!-- handsoff-issue-1627 -->
+- #1627: [EPIC] Add Makefile Targets for CI-Only Helper Scripts
+
+<!-- handsoff-issue-1628 -->
+- #1628: [EPIC] Add bats Coverage for repo-health Script

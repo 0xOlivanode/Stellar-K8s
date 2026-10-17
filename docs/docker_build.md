@@ -9,7 +9,7 @@ This guide explains how to build deterministic Docker images for **Stellar-K8s**
 
 ## What we changed
 1. **Pinned base images**
-   - `lukemathwalker/cargo-chef:1.95-bookworm` (previously `latest-rust-1.95-bookworm`).
+   - `lukemathwalker/cargo-chef:latest-rust-1.95-slim-bookworm` (tag `1.95-bookworm` is unpublished on Docker Hub).
    - `debian:bookworm-slim` is now referenced by its SHA256 digest.
 2. **Source-date-epoch**
    - Added `ARG SOURCE_DATE_EPOCH=0` and `ENV SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}` early in the Dockerfile. This forces the same timestamps for file metadata inside the image.
@@ -36,6 +36,24 @@ DOCKER_BUILDKIT=1 docker build \
   -t stellar-operator:latest .
 ```
 
+## Purging local build cache
+
+Run `make docker-cache-purge` to remove all unused build cache on the current
+Docker daemon. Docker asks for confirmation before pruning and reports the
+reclaimed disk space. This is daemon-wide, so other projects using that daemon
+may also need to rebuild their cached layers. The next build may be slower.
+
+The target uses `docker builder prune --all`; it does not prune application
+images, containers, or volumes. It is an explicit maintenance command and is
+not part of `make clean`, build targets, or CI. Remote registry and GitHub Actions
+caches, and separate Buildx builders, are outside its scope.
+
+To verify manually, inspect `docker system df` before and after running the
+target, confirm the prune prompt, and check Docker's reclaimed-space report.
+Reclaiming zero bytes is valid when there is no unused build cache.
+See [Docker's builder prune reference](https://docs.docker.com/reference/cli/docker/builder/prune/)
+for details.
+
 ## Verifying reproducibility
 Run the build **twice** with the same arguments and compare digests:
 ```bash
@@ -44,7 +62,7 @@ docker image inspect --format='{{.RepoDigests}}' stellar-operator:latest
 Both runs should output the **same** digest (e.g. `stellar-operator@sha256:abcd1234…`).
 
 ## CI integration
-Multi-arch images are built and published by the GitHub workflow [`.github/workflows/multiarch-build.yml`](../.github/workflows/multiarch-build.yml). Release re-tagging is handled by [`.github/workflows/release.yml`](../.github/workflows/release.yml).
+Multi-arch images are built and published by the CI multi-arch workflow (see [CI commands](../.github/CI_COMMANDS.md)). Release re-tagging is handled by [`.github/workflows/release.yml`](../.github/workflows/release.yml).
 
 Local kind/e2e tests should prefer `make docker-build` or the shared [setup-kind-cluster](../.github/actions/setup-kind-cluster/action.yml) composite action instead of ad-hoc `docker build` scripts.
 

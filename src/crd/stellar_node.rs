@@ -1,3 +1,15 @@
+// Copyright 2024 Stellar-K8s Contributors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //! StellarNode Custom Resource Definition
 //!
 //! The StellarNode CRD represents a managed Stellar infrastructure node.
@@ -11,17 +23,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
-use super::types::{
-    AuditConfig, AutoscalingConfig, CertManagerConfig, Condition, CoreSyncState,
-    CrossClusterConfig, DisasterRecoveryConfig, DisasterRecoveryStatus, ExternalDatabaseConfig,
-    ForensicSnapshotConfig, GasAutoscalingConfig, GlobalDiscoveryConfig, HistoryMode,
-    HorizonConfig, IngressConfig, LabelPropagationConfig, LoadBalancerConfig, LogShipperConfig,
-    ManagedDatabaseConfig, NetworkPolicyConfig, NodeType, OciSnapshotConfig, PlacementConfig,
-    PodAntiAffinityStrength, PolicyConfig, ProbeConfig, RbacConfig, ResourceRequirements,
-    RestoreFromSnapshotConfig, RetentionPolicy, RolloutStrategy, SnapshotScheduleConfig,
-    SorobanConfig, StellarNetwork, StorageConfig, SyncStateScalingConfig, ValidatorConfig,
-    VpaConfig,
-};
+
 
 /// Structured validation error for `StellarNodeSpec`
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -187,7 +189,8 @@ pub struct StellarNodeSpec {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cross_cluster: Option<CrossClusterConfig>,
 
-    /// Rollout strategy for updates (RollingUpdate or Canary)
+    /// Rollout strategy for updates (RollingUpdate, Canary, or BlueGreen).
+    /// Validators support RollingUpdate and BlueGreen; Canary is rejected.
     #[serde(default)]
     pub strategy: RolloutStrategy,
 
@@ -247,6 +250,11 @@ pub struct StellarNodeSpec {
     /// Enables zero-downtime backups and creating new nodes from snapshots.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub snapshot_schedule: Option<SnapshotScheduleConfig>,
+
+    /// Pre-upgrade backup configuration for Validator PVC snapshots.
+    /// When set, the operator snapshots the PVC before applying a new version.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub backup_config: Option<BackupConfig>,
 
     /// Bootstrap this node from an existing VolumeSnapshot instead of an empty volume (Validator only).
     /// The PVC will be created from the specified snapshot for near-instant startup.
@@ -500,6 +508,35 @@ pub struct StellarNodeSpec {
     /// ```
     #[serde(skip_serializing_if = "Option::is_none")]
     pub priority_class_name: Option<String>,
+
+    /// Optional command override for the main container.
+    ///
+    /// When set, this overrides the operator's default command for the node type.
+    /// Useful for custom images that do not follow the standard Stellar image conventions.
+    ///
+    /// Default commands by node type:
+    /// - Validator: `["/usr/bin/stellar-core", "run", "--conf", "/config/stellar-core.cfg"]`
+    /// - Horizon: `["/stellar-horizon"]`
+    /// - SorobanRpc: `["/stellar-rpc"]`
+    ///
+    /// # Example
+    /// ```yaml
+    /// command: ["/custom/stellar-core", "--config", "/custom/config.cfg"]
+    /// ```
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub command: Option<Vec<String>>,
+
+    /// Optional arguments override for the main container.
+    ///
+    /// When set, this overrides the operator's default arguments for the node type.
+    /// Used in conjunction with `command` for custom image entrypoints.
+    ///
+    /// # Example
+    /// ```yaml
+    /// args: ["--verbose", "--log-level=debug"]
+    /// ```
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub args: Option<Vec<String>>,
 }
 
 fn default_network_policy() -> Option<NetworkPolicyConfig> {
@@ -553,6 +590,7 @@ impl Default for StellarNodeSpec {
             topology_spread_constraints: None,
             cve_handling: None,
             snapshot_schedule: None,
+            backup_config: None,
             restore_from_snapshot: None,
             read_replica_config: None,
             db_maintenance_config: None,
@@ -843,12 +881,16 @@ impl StellarNodeSpec {
                         "Remove spec.ingress for Validator nodes; expose Validator nodes using peer discovery or other supported mechanisms.",
                     ));
                 }
-                // Canary strategy not supported
-                if self.strategy.canary().is_some() {
+                // Canary strategy not supported for Validators (BlueGreen is allowed).
+                if matches!(
+                    self.strategy.strategy_type,
+                    crate::crd::types::RolloutStrategyType::Canary
+                ) || self.strategy.canary().is_some()
+                {
                     errors.push(SpecValidationError::new(
                         "spec.strategy",
                         "canary rollout strategy is not supported for Validator nodes",
-                        "Use RollingUpdate strategy for Validator nodes; canary is only supported for Horizon and SorobanRpc.",
+                        "Use RollingUpdate or BlueGreen for Validator nodes; canary is only supported for Horizon and SorobanRpc.",
                     ));
                 }
 
@@ -895,8 +937,10 @@ impl StellarNodeSpec {
                         }
                     }
                 }
-                // Snapshot schedule and restore only apply to Validators (ledger data)
-                if (self.snapshot_schedule.is_some() || self.restore_from_snapshot.is_some())
+                // Snapshot schedule, pre-upgrade backups, and restore only apply to Validators (ledger data)
+                if (self.snapshot_schedule.is_some()
+                    || self.backup_config.is_some()
+                    || self.restore_from_snapshot.is_some())
                     && self
                         .restore_from_snapshot
                         .as_ref()
@@ -909,13 +953,30 @@ impl StellarNodeSpec {
                         "Set spec.restoreFromSnapshot.volumeSnapshotName to an existing VolumeSnapshot name.",
                     ));
                 }
+                if let Some(backup_config) = &self.backup_config {
+                    if backup_config
+                        .volume_snapshot_class_name
+                        .as_deref()
+                        .map(|v| v.is_empty())
+                        .unwrap_or(false)
+                    {
+                        errors.push(SpecValidationError::new(
+                            "spec.backupConfig.volumeSnapshotClassName",
+                            "volumeSnapshotClassName must not be empty when set",
+                            "Provide a valid CSI VolumeSnapshotClass name or leave the field unset to use the default class.",
+                        ));
+                    }
+                }
             }
             NodeType::Horizon => {
-                if self.snapshot_schedule.is_some() || self.restore_from_snapshot.is_some() {
+                if self.snapshot_schedule.is_some()
+                    || self.backup_config.is_some()
+                    || self.restore_from_snapshot.is_some()
+                {
                     errors.push(SpecValidationError::new(
-                        "spec.snapshotSchedule / spec.restoreFromSnapshot",
-                        "snapshot and restore are only supported for Validator nodes",
-                        "Remove spec.snapshotSchedule and spec.restoreFromSnapshot for Horizon nodes.",
+                        "spec.snapshotSchedule / spec.backupConfig / spec.restoreFromSnapshot",
+                        "snapshot, pre-upgrade backup, and restore are only supported for Validator nodes",
+                        "Remove spec.snapshotSchedule, spec.backupConfig, and spec.restoreFromSnapshot for Horizon nodes.",
                     ));
                 }
                 // Horizon config required
@@ -956,11 +1017,14 @@ impl StellarNodeSpec {
                 }
             }
             NodeType::SorobanRpc => {
-                if self.snapshot_schedule.is_some() || self.restore_from_snapshot.is_some() {
+                if self.snapshot_schedule.is_some()
+                    || self.backup_config.is_some()
+                    || self.restore_from_snapshot.is_some()
+                {
                     errors.push(SpecValidationError::new(
-                        "spec.snapshotSchedule / spec.restoreFromSnapshot",
-                        "snapshot and restore are only supported for Validator nodes",
-                        "Remove spec.snapshotSchedule and spec.restoreFromSnapshot for SorobanRpc nodes.",
+                        "spec.snapshotSchedule / spec.backupConfig / spec.restoreFromSnapshot",
+                        "snapshot, pre-upgrade backup, and restore are only supported for Validator nodes",
+                        "Remove spec.snapshotSchedule, spec.backupConfig, and spec.restoreFromSnapshot for SorobanRpc nodes.",
                     ));
                 }
                 // Soroban config required
@@ -970,6 +1034,21 @@ impl StellarNodeSpec {
                         "sorobanConfig is required for SorobanRpc nodes",
                         "Add a spec.sorobanConfig section with the required Soroban RPC settings when nodeType is SorobanRpc.",
                     ));
+                }
+                if let Some(cache) = self
+                    .soroban_config
+                    .as_ref()
+                    .and_then(|config| config.cache.as_ref())
+                {
+                    if cache.enabled {
+                        if let Err(message) = cache.validate() {
+                            errors.push(SpecValidationError::new(
+                                "spec.sorobanConfig.cache",
+                                message,
+                                "Set cache.ttlSecs, cache.maxEntries, and cache.maxBytes to positive values.",
+                            ));
+                        }
+                    }
                 }
                 if let Some(ref autoscaling) = self.autoscaling {
                     if autoscaling.min_replicas < 1 {
@@ -988,6 +1067,9 @@ impl StellarNodeSpec {
                     }
                     if let Some(ref gas) = autoscaling.gas_autoscaling {
                         validate_gas_autoscaling(gas, &mut errors);
+                    }
+                    if let Some(ref queue) = autoscaling.queue_autoscaling {
+                        validate_queue_autoscaling(queue, &mut errors);
                     }
                 }
                 if let Some(ingress) = &self.ingress {
@@ -1100,6 +1182,50 @@ fn validate_gas_autoscaling(gas: &GasAutoscalingConfig, errors: &mut Vec<SpecVal
             "spec.autoscaling.gasAutoscaling.scaleUpThreshold",
             "gasAutoscaling.scaleUpThreshold must be greater than scaleDownThreshold",
             "Set spec.autoscaling.gasAutoscaling.scaleUpThreshold to a value strictly greater than scaleDownThreshold.",
+        ));
+    }
+}
+
+fn validate_queue_autoscaling(
+    queue: &QueueAutoscalingConfig,
+    errors: &mut Vec<SpecValidationError>,
+) {
+    if !queue.enabled {
+        return;
+    }
+    if queue.min_replicas < 1 {
+        errors.push(SpecValidationError::new(
+            "spec.autoscaling.queueAutoscaling.minReplicas",
+            "queueAutoscaling.minReplicas must be at least 1",
+            "Set spec.autoscaling.queueAutoscaling.minReplicas to 1 or greater.",
+        ));
+    }
+    if queue.max_replicas < queue.min_replicas {
+        errors.push(SpecValidationError::new(
+            "spec.autoscaling.queueAutoscaling.maxReplicas",
+            "queueAutoscaling.maxReplicas must be >= minReplicas",
+            "Set spec.autoscaling.queueAutoscaling.maxReplicas to be greater than or equal to minReplicas.",
+        ));
+    }
+    if queue.target_pending_per_replica == 0 {
+        errors.push(SpecValidationError::new(
+            "spec.autoscaling.queueAutoscaling.targetPendingPerReplica",
+            "queueAutoscaling.targetPendingPerReplica must be greater than 0",
+            "Set spec.autoscaling.queueAutoscaling.targetPendingPerReplica to a positive request count.",
+        ));
+    }
+    if queue.metric_name.trim().is_empty() {
+        errors.push(SpecValidationError::new(
+            "spec.autoscaling.queueAutoscaling.metricName",
+            "queueAutoscaling.metricName must not be empty",
+            "Set spec.autoscaling.queueAutoscaling.metricName to the Prometheus gauge name to poll.",
+        ));
+    }
+    if queue.poll_interval_seconds == 0 {
+        errors.push(SpecValidationError::new(
+            "spec.autoscaling.queueAutoscaling.pollIntervalSeconds",
+            "queueAutoscaling.pollIntervalSeconds must be greater than 0",
+            "Set spec.autoscaling.queueAutoscaling.pollIntervalSeconds to a positive polling interval.",
         ));
     }
 }
@@ -1663,6 +1789,26 @@ pub struct StellarNodeStatus {
     /// Timestamp of the last secret rotation (RFC3339).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_secret_rotation_time: Option<String>,
+
+    /// Validator blue/green rollout phase (e.g. `BlueActive`, `WaitingForGreen`, `GreenActive`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blue_green_phase: Option<String>,
+
+    /// Active deployment color for Validator blue/green (`blue` or `green`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blue_green_active_color: Option<String>,
+
+    /// Human-readable message for the current Validator blue/green rollout.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blue_green_message: Option<String>,
+
+    /// Target Core version for an in-progress Validator blue/green rollout.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blue_green_target_version: Option<String>,
+
+    /// VolumeSnapshot used to seed the green Validator PVC (if any).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blue_green_snapshot_name: Option<String>,
 }
 
 /// BGP advertisement status information
@@ -1884,6 +2030,49 @@ mod tests {
                     check_interval_seconds: 300,
                     ..Default::default()
                 }),
+                blue_green: None,
+            },
+            ..Default::default()
+        };
+
+        assert!(spec.validate().is_err());
+    }
+
+    #[test]
+    fn test_validator_with_blue_green_should_pass() {
+        let spec = StellarNodeSpec {
+            node_type: NodeType::Validator,
+            network: StellarNetwork::Testnet,
+            version: "v21.0.0".to_string(),
+            validator_config: Some(ValidatorConfig {
+                seed_secret_ref: "test".to_string(),
+                ..Default::default()
+            }),
+            strategy: RolloutStrategy {
+                strategy_type: crate::crd::types::RolloutStrategyType::BlueGreen,
+                canary: None,
+                blue_green: Some(crate::crd::types::BlueGreenStrategyConfig::default()),
+            },
+            ..Default::default()
+        };
+
+        assert!(spec.validate().is_ok());
+    }
+
+    #[test]
+    fn test_validator_canary_type_without_config_should_fail() {
+        let spec = StellarNodeSpec {
+            node_type: NodeType::Validator,
+            network: StellarNetwork::Testnet,
+            version: "v21.0.0".to_string(),
+            validator_config: Some(ValidatorConfig {
+                seed_secret_ref: "test".to_string(),
+                ..Default::default()
+            }),
+            strategy: RolloutStrategy {
+                strategy_type: crate::crd::types::RolloutStrategyType::Canary,
+                canary: None,
+                blue_green: None,
             },
             ..Default::default()
         };
@@ -1911,6 +2100,7 @@ mod tests {
                     check_interval_seconds: 300,
                     ..Default::default()
                 }),
+                blue_green: None,
             },
             ..Default::default()
         };
