@@ -100,6 +100,13 @@ Before opening a PR, confirm the following:
 - [ ] The PR description is filled out completely using the template.
 - [ ] The PR includes links to any related issues or design discussions.
 
+### Code owners
+
+Reviewers are assigned automatically from [`.github/CODEOWNERS`](.github/CODEOWNERS)
+(last matching rule wins). Paths such as `src/webhook/`, `charts/`, and `docs/` route
+to specific teams, so expect those reviews when you touch them. Keep the file in sync
+when paths move or teams change.
+
 ### Required checks
 
 Before submitting, run the contributor health gates via `make` (not raw
