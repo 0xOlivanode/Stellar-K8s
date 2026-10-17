@@ -76,6 +76,15 @@ We prefer a clean history. When your PR is approved, maintainers will typically 
 
 If your PR contains multiple logical changes, split it into separate branches and PRs.
 
+### Branch Protection
+
+Changes to `main` must go through a pull request. The `main` branch protection rule should require:
+
+- A pull request before merging.
+- Passing status checks before merging: `ci / build`, `ci / test`, `ci / security-audit`.
+
+See [Dependency Update Process](docs/dependency-update-process.md#branch-protection-prerequisites) for the full list of settings that auto-merge depends on.
+
 ## 3. PR Checklist
 
 Before opening a PR, confirm the following:
