@@ -322,6 +322,9 @@ pre-commit-install: dev-setup-hooks ## Install pre-commit hooks (alias for dev-s
 clean: ## Clean build artifacts
 	$(CARGO) clean
 
+cleanup: ## Remove repo scratch artifacts and check for obsolete cleanup paths (DRY_RUN=1 to preview)
+	@bash scripts/cleanup.sh $(if $(filter 1,$(DRY_RUN)),--dry-run)
+
 generate-api-docs: ## Generate API reference docs from CRD schema
 	@echo "→ Generating API reference docs..."
 	@python3 scripts/generate-api-docs.py \
