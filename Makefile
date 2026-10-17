@@ -21,7 +21,7 @@
 
 .PHONY: help \
 	fmt fmt-check lint lint-strict shellcheck audit verify-mtls security-scan security-all security-report \
-	build test chaos-test ci-local quick watch \
+	build cache-warm test chaos-test ci-local quick watch \
 	docker-build docker-build-ci docker-multiarch docker-cache-purge \
 	dev-setup dev-setup-rust dev-setup-tools dev-setup-hooks health-check pre-commit pre-commit-install run run-local run-dev \
 	install-crd apply-samples crd-gen regenerate completions completions-bash completions-zsh completions-fish \
@@ -234,6 +234,13 @@ test: ## Run tests
 build: ## Build release
 	@echo "→ Building release..."
 	@$(CARGO) build --release --locked
+
+cache-warm: ## Warm the Cargo cache: fetch locked deps and pre-compile the lib and bins
+	@echo "→ Fetching locked dependencies..."
+	@$(CARGO) fetch --locked
+	@echo "→ Pre-compiling lib and bins (dependency cache warm-up)..."
+	@$(CARGO) build --locked --lib --bins
+	@echo "✓ Cargo cache warmed"
 
 wasm-cache-build: ## Build the bounded Soroban cache Wasm artifact and enforce its size limit
 	@echo "→ Building Soroban cache Wasm artifact..."
