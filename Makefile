@@ -20,7 +20,7 @@
 # =============================================================================
 
 .PHONY: help \
-	fmt fmt-check lint lint-strict lint-all shellcheck audit verify-mtls security-scan security-all security-report \
+	fmt fmt-check lint lint-strict lint-all shellcheck codespell audit verify-mtls security-scan security-all security-report \
 	build test chaos-test ci-local quick watch \
 	docker-build docker-build-ci docker-multiarch docker-cache-purge \
 	dev-setup dev-setup-rust dev-setup-tools dev-setup-hooks health-check pre-commit pre-commit-install run run-local run-dev \
@@ -169,6 +169,12 @@ security-report: ## Generate comprehensive security report
 shellcheck: ## Run shellcheck on all shell scripts
 	@echo "→ Running shellcheck..."
 	@find scripts -type f -name "*.sh" -print0 | xargs -0 shellcheck -S error || true
+
+CODESPELL_SKIP ?= Cargo.lock,package-lock.json,target,node_modules,vendor,*-vendor,THIRD_PARTY_LICENSES.md
+
+codespell: ## Spell-check docs/, src/ and top-level Markdown (same command as the CI codespell job) (#1682)
+	@echo "→ Running codespell..."
+	@codespell --ignore-words=.codespellignore --skip="$(CODESPELL_SKIP)" docs/ src/ *.md
 
 # ── Issue #1706: make targets ─────────────────────────────────────────────────
 

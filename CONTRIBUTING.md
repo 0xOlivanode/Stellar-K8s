@@ -105,11 +105,12 @@ The full checklist, command rationale, and per-step details live in the
 [Canonical Repository Health Checklist](docs/development/repo-health-checklist.md).
 If your change adds shell scripts, also run `make shellcheck`.
 
-You can also run spell checking locally using `codespell`:
+Spell checking runs in the `Codespell` CI job; run the same check locally with:
 ```bash
 pip install codespell
-codespell --ignore-words=.codespellignore --skip="Cargo.lock,package-lock.json,target,node_modules,vendor,*-vendor" docs/ src/ *.md
+make codespell
 ```
+Add genuine false positives (one lowercase word per line) to `.codespellignore`.
 
 ## 4. Commit Message Examples
 

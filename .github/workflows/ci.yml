@@ -315,6 +315,29 @@ jobs:
       - name: Lint issue templates
         run: python3 scripts/issue_template_lint.py
 
+  # ── 2.7. Codespell (#1682) ──────────────────────────────────────────────────
+  # Spell-checks docs/, src/ and top-level Markdown as its own fast job so a typo
+  # is reported without waiting on the Rust toolchain setup in `lint`. Runs the
+  # same `make codespell` target contributors use locally; false positives go in
+  # .codespellignore.
+  codespell:
+    name: Codespell
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install codespell
+        run: pip install --quiet codespell
+
+      - name: Run codespell
+        run: make codespell
+
   # ── 3. Lint & Format ─────────────────────────────────────────────────────────
   lint:
     name: Lint & Format
@@ -357,12 +380,6 @@ jobs:
 
       - name: Install YAML tooling
         run: pip install --quiet pyyaml jsonschema
-
-      - name: Install codespell
-        run: pip install --quiet codespell
-
-      - name: Run codespell
-        run: codespell --ignore-words=.codespellignore --skip="Cargo.lock,package-lock.json,target,node_modules,vendor,*-vendor" docs/ src/ *.md
 
       - name: Run shell safety gate
         run: python3 scripts/check-shell-safety.py
