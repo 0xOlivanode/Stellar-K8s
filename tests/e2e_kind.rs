@@ -1,6 +1,22 @@
+// Copyright 2024 Stellar-K8s Contributors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 mod common;
 
 use common::skip_if_tools_missing;
+// Issue #934: import RAII teardown guards from common so new tests can use
+// TestHarnessGuard (cluster + resources) instead of ad-hoc local Drop impls.
+#[allow(unused_imports)]
+use common::{KindClusterGuard, TestHarnessGuard, TempFileGuard};
 use std::collections::HashMap;
 use std::error::Error;
 use std::process::{Command, Stdio};
@@ -379,6 +395,11 @@ spec:
 }
 
 /// RAII cleanup guard for the e2e reconciliation test.
+/// Local teardown guard for `e2e_stellarnode_reconciliation`.
+///
+/// **New tests** should use [`common::TestHarnessGuard`] instead — it handles
+/// cluster-level teardown as well as resource cleanup and is shared across all
+/// E2E test files (issue #934).
 struct E2eCleanup {
     operator_manifest: String,
     node_name: &'static str,

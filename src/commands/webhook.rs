@@ -1,11 +1,23 @@
+// Copyright 2024 Stellar-K8s Contributors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 use crate::cli::{LogFormat, WebhookArgs};
-use stellar_k8s::logging::{init_subscriber, LogOutputFormat, SubscriberConfig};
-use stellar_k8s::Error;
+use crate::logging::{init_subscriber, LogOutputFormat, SubscriberConfig};
+use crate::Error;
 use tracing::{info, info_span, warn, Level};
 
 #[cfg(feature = "admission-webhook")]
 pub async fn run_webhook(args: WebhookArgs) -> Result<(), Error> {
-    use stellar_k8s::webhook::{runtime::WasmRuntime, server::WebhookServer};
+    use crate::webhook::{runtime::WasmRuntime, server::WebhookServer};
 
     let log_format = match args.log_format {
         LogFormat::Json => LogOutputFormat::Json,
@@ -16,6 +28,7 @@ pub async fn run_webhook(args: WebhookArgs) -> Result<(), Error> {
     init_subscriber(SubscriberConfig {
         level: log_level,
         format: log_format,
+        otel: true,
         ..Default::default()
     });
 
@@ -41,11 +54,19 @@ pub async fn run_webhook(args: WebhookArgs) -> Result<(), Error> {
 
     let mut server = WebhookServer::new(runtime);
 
-    if let (Some(cert_path), Some(key_path)) = (args.cert_path, args.key_path) {
-        info!("Configuring TLS with cert: {cert_path}, key: {key_path}");
-        server = server.with_tls(cert_path, key_path);
-    } else {
-        warn!("Running webhook server without TLS (not recommended for production)");
+    match (args.cert_path, args.key_path) {
+        (Some(cert_path), Some(key_path)) => {
+            info!("Configuring TLS with cert: {cert_path}, key: {key_path}");
+            server = server.with_tls(cert_path, key_path);
+        }
+        (None, None) => {
+            warn!("Running webhook server without TLS (local development only)");
+        }
+        _ => {
+            return Err(Error::ConfigError(
+                "--cert-path and --key-path must be provided together".to_string(),
+            ));
+        }
     }
 
     info!("Webhook server listening on {addr}");

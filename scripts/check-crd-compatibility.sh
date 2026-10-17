@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
+# Copyright 2024 Stellar-K8s Contributors
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 # check-crd-compatibility.sh - Validate CRD schema backward compatibility
 #
 # This script ensures that CRD changes maintain backward compatibility by:
@@ -20,11 +32,9 @@ TEMP_DIR=$(mktemp -d)
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 ERRORS=0
-WARNINGS=0
 
 cleanup() {
     rm -rf "$TEMP_DIR"
@@ -42,7 +52,7 @@ fi
 
 # Extract current CRD version
 CURRENT_VERSION=$(grep -E '^  version: ' "$CRD_FILE" | head -1 | sed 's/.*version: *//' | tr -d '"' || echo "unknown")
-echo -e "${BLUE}Current CRD version: $CURRENT_VERSION${NC}"
+echo -e "${GREEN}Current CRD version: $CURRENT_VERSION${NC}"
 echo ""
 
 # Try to get the previous CRD version from git
@@ -125,89 +135,7 @@ else
     echo -e "  Current version:  $CURRENT_VERSION"
     echo ""
     
-    # Use Python to perform detailed schema comparison
-    python3 - <<'PYTHON_SCRIPT'
-import yaml
-import sys
-
-def extract_fields(schema, path=""):
-    """Extract all field paths from a JSON schema"""
-    fields = []
-    
-    if isinstance(schema, dict):
-        if 'properties' in schema:
-            for field, props in schema['properties'].items():
-                field_path = f"{path}.{field}" if path else field
-                fields.append(field_path)
-                # Recurse into nested properties
-                if isinstance(props, dict):
-                    fields.extend(extract_fields(props, field_path))
-        
-        if 'items' in schema:
-            # Array items
-            if isinstance(schema['items'], dict):
-                items_path = f"{path}[]"
-                fields.extend(extract_fields(schema['items'], items_path))
-    
-    return fields
-
-try:
-    with open('CRD_PATH', 'r') as f:
-        crd = yaml.safe_load(f)
-    
-    # Extract the schema
-    spec = crd.get('spec', {})
-    versions = spec.get('versions', [])
-    
-    if not versions:
-        print("ERROR: No versions found in CRD")
-        sys.exit(1)
-    
-    # Get the served version schema
-    for version in versions:
-        if version.get('served', False):
-            schema = version.get('schema', {}).get('openAPIV3Schema', {})
-            properties = schema.get('properties', {})
-            
-            print(f"→ CRD Schema Analysis:")
-            print(f"  Top-level fields: {list(properties.keys())}")
-            
-            # Extract all fields
-            all_fields = extract_fields(schema)
-            print(f"  Total fields: {len(all_fields)}")
-            
-            # Check for deprecated fields
-            deprecated = []
-            for field_path in all_fields:
-                parts = field_path.split('.')
-                current = schema
-                for part in parts:
-                    if part.endswith('[]'):
-                        part = part[:-2]
-                    if isinstance(current, dict) and 'properties' in current:
-                        current = current['properties'].get(part, {})
-                    else:
-                        current = {}
-                    if current.get('deprecated', False):
-                        deprecated.append(field_path)
-                        break
-            
-            if deprecated:
-                print(f"  ${YELLOW}Deprecated fields: {len(deprecated)}${NC}")
-                for field in deprecated[:5]:  # Show first 5
-                    print(f"    - {field}")
-            else:
-                print(f"  ${GREEN}✓ No deprecated fields${NC}")
-            
-            break
-    
-except Exception as e:
-    print(f"ERROR: {e}")
-    sys.exit(1)
-
-PYTHON_SCRIPT
-
-    # Replace placeholder with actual path
+    # Use Python to perform schema comparison
     python3 - <<PYTHON_SCRIPT
 import yaml
 import sys
@@ -231,7 +159,7 @@ try:
             print(f"→ CRD Schema Analysis:")
             print(f"  Top-level fields: {list(properties.keys())}")
             
-            # Count fields
+            # Count fields recursively
             def count_fields(obj):
                 count = 0
                 if isinstance(obj, dict):
@@ -243,6 +171,21 @@ try:
             
             total = count_fields(schema)
             print(f"  Total fields: {total}")
+            
+            # Check for any explicit deprecation markers
+            deprecated_count = 0
+            def find_deprecated(obj):
+                nonlocal deprecated_count
+                if isinstance(obj, dict):
+                    if obj.get('deprecated', False):
+                        deprecated_count += 1
+                    for v in obj.values():
+                        find_deprecated(v)
+            
+            find_deprecated(schema)
+            if deprecated_count > 0:
+                print(f"  Deprecated fields found: {deprecated_count}")
+            
             break
     
 except Exception as e:
@@ -255,7 +198,6 @@ echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "CRD Compatibility Check Summary:"
 echo -e "  Errors:   ${RED}$ERRORS${NC}"
-echo -e "  Warnings: ${YELLOW}$WARNINGS${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 if [[ $ERRORS -gt 0 ]]; then
@@ -268,17 +210,3 @@ else
     echo "✅ CRD backward compatibility check passed"
     exit 0
 fi
-
-</parameter>
-<task_progress>
-- [x] Analyze requirements for issues #1146, #1147, #1145, #1144
-- [x] Implement stale sample manifest detector (#1146)
-- [ ] Re-implement CRD backward-compatibility gate after reset (#1147)
-- [ ] Re-implement chart render diff checks after reset (#1145)
-- [ ] Re-implement benchmark sanity checks after reset (#1144)
-- [ ] Re-apply CI workflow changes
-- [ ] Re-add test files (cli_examples_test.rs, backup_restore_smoke_test.rs)
-- [ ] Commit and push changes
-- [ ] Create PR description
-</task_progress>
-</write_to_file>

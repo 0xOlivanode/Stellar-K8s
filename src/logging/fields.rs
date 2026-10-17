@@ -1,3 +1,15 @@
+// Copyright 2024 Stellar-K8s Contributors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //! Standardised logging field names for CI and runtime diagnostics (Issue #1115).
 //!
 //! All tracing call-sites **MUST** use the constants defined here instead of
@@ -115,6 +127,23 @@ pub const TRACE_ID: &str = "trace_id";
 /// W3C span ID, injected by `OtelTraceIdLayer` (`span_id`).
 pub const SPAN_ID: &str = "span_id";
 
+/// Observability contract version (`stellar_observability_contract_version`).
+pub const CONTRACT_VERSION: &str = "stellar_observability_contract_version";
+
+/// Canonical pod name used for log-to-trace pivots (`k8s_pod_name`).
+pub const K8S_POD_NAME: &str = "k8s_pod_name";
+
+/// Service instance identity, typically the pod UID (`service_instance_id`).
+pub const SERVICE_INSTANCE_ID: &str = "service_instance_id";
+
+/// Logical service name (`service_name`).
+pub const SERVICE_NAME: &str = "service_name";
+
+// ── Correlation ──────────────────────────────────────────────────────────────────
+
+/// Request correlation ID propagated across service boundaries (`correlation_id`).
+pub const CORRELATION_ID: &str = "correlation_id";
+
 // ── CI-specific ────────────────────────────────────────────────────────────────
 
 /// CI pipeline step or job name (`ci_step`).
@@ -126,19 +155,50 @@ pub const GIT_SHA: &str = "git_sha";
 /// Cargo feature flags active during the build (`features`).
 pub const FEATURES: &str = "features";
 
+// ── Network / connection ───────────────────────────────────────────────────────
+
+/// Remote peer address (IP:port) for connection-level events (`peer_addr`).
+///
+/// Use `%addr` (Display) so the value is `"203.0.113.1:40000"` in JSON.
+pub const PEER_ADDR: &str = "peer_addr";
+
+/// Inbound/outbound HTTP or gRPC request identifier (`request_id`).
+///
+/// Typically a UUID or ULID injected by the API gateway middleware.
+pub const REQUEST_ID: &str = "request_id";
+
 // ── Validation helpers ─────────────────────────────────────────────────────────
 
 /// All field name constants, used by the field-name audit test.
 pub const ALL_FIELDS: &[&str] = &[
-    NODE, NAMESPACE, NODE_TYPE, CLUSTER, K8S_NODE,
-    RECONCILE_ID, PHASE,
-    ERROR, DURATION_MS, COMPONENT,
-    LEDGER, VERSION, REGION,
+    NODE,
+    NAMESPACE,
+    NODE_TYPE,
+    CLUSTER,
+    K8S_NODE,
+    RECONCILE_ID,
+    PHASE,
+    ERROR,
+    DURATION_MS,
+    COMPONENT,
+    LEDGER,
+    VERSION,
+    REGION,
     JOB_ID,
     AUDIT_ACTION,
     SCRUB_PATTERN,
-    TRACE_ID, SPAN_ID,
-    CI_STEP, GIT_SHA, FEATURES,
+    TRACE_ID,
+    SPAN_ID,
+    CONTRACT_VERSION,
+    K8S_POD_NAME,
+    SERVICE_INSTANCE_ID,
+    SERVICE_NAME,
+    CORRELATION_ID,
+    CI_STEP,
+    GIT_SHA,
+    FEATURES,
+    PEER_ADDR,
+    REQUEST_ID,
 ];
 
 #[cfg(test)]
@@ -149,7 +209,11 @@ mod tests {
     #[test]
     fn all_field_names_are_non_empty() {
         for field in ALL_FIELDS {
-            assert!(!field.is_empty(), "field name must not be empty: {:?}", field);
+            assert!(
+                !field.is_empty(),
+                "field name must not be empty: {:?}",
+                field
+            );
         }
     }
 
@@ -157,7 +221,9 @@ mod tests {
     fn all_field_names_are_lowercase_snake_case() {
         for field in ALL_FIELDS {
             assert!(
-                field.chars().all(|c| c.is_ascii_lowercase() || c == '_' || c.is_ascii_digit()),
+                field
+                    .chars()
+                    .all(|c| c.is_ascii_lowercase() || c == '_' || c.is_ascii_digit()),
                 "field name '{}' must be lowercase_snake_case",
                 field
             );
@@ -183,5 +249,10 @@ mod tests {
         assert_eq!(TRACE_ID, "trace_id");
         assert_eq!(SPAN_ID, "span_id");
         assert_eq!(DURATION_MS, "duration_ms");
+        assert_eq!(PEER_ADDR, "peer_addr");
+        assert_eq!(REQUEST_ID, "request_id");
+        assert_eq!(CORRELATION_ID, "correlation_id");
+        assert_eq!(CI_STEP, "ci_step");
+        assert_eq!(GIT_SHA, "git_sha");
     }
 }

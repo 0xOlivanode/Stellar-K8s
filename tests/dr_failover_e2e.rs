@@ -1,6 +1,18 @@
+// Copyright 2024 Stellar-K8s Contributors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 mod common;
 
-use common::skip_if_tools_missing;
+use common::{skip_if_tools_missing, ClusterGuard};
 use std::error::Error;
 use std::process::{Command, Stdio};
 use std::thread::sleep;
@@ -23,6 +35,11 @@ fn e2e_dr_failover() -> Result<(), Box<dyn std::error::Error>> {
 
     let cluster_name = std::env::var("KIND_CLUSTER_NAME").unwrap_or_else(|_| "stellar-e2e".into());
     ensure_kind_cluster(&cluster_name)?;
+    // Register cluster teardown immediately after creation so the KinD cluster
+    // is removed even if a later step returns Err or panics. Declared before
+    // `_cleanup`, so reverse drop order runs `_cleanup` (namespaces/CRs) first
+    // and the cluster delete last. Set SKIP_TEARDOWN=1 to keep it for debugging.
+    let _cluster = ClusterGuard::new(cluster_name.as_str());
 
     // ── Install the CRD ──────────────────────────────────────────────────────
     run_cmd(

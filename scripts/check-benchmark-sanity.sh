@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
+# Copyright 2024 Stellar-K8s Contributors
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 # check-benchmark-sanity.sh - Reproducible benchmark sanity checks for PR pipelines
 #
 # This script ensures benchmark results are reproducible by:
@@ -20,11 +32,9 @@ TEMP_DIR=$(mktemp -d)
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-REGRESSION_THRESHOLD=10  # Percent regression threshold
 ERRORS=0
 WARNINGS=0
 
@@ -56,7 +66,6 @@ cd "$BENCHMARK_DIR"
 
 # Run a quick benchmark (lower iteration count for CI)
 BENCHMARK_OUTPUT="$TEMP_DIR/benchmark-output.txt"
-BENCHMARK_RESULTS="$TEMP_DIR/benchmark-results.json"
 
 if ! cargo test --release --lib reconciler::benchmarks -- --nocapture 2>&1 | tee "$BENCHMARK_OUTPUT"; then
     echo -e "  ${RED}✗${NC} Benchmark execution failed"
@@ -105,6 +114,10 @@ if [[ -f "$BASELINE_FILE" ]]; then
         if [[ $LINE_RATIO -lt 80 ]] || [[ $LINE_RATIO -gt 120 ]]; then
             echo -e "  ${YELLOW}⚠${NC}  Significant deviation detected (>20% change)"
             ((WARNINGS++))
+            # Assignment form, not `((WARNINGS++))`: a bare `((expr))` command
+            # exits nonzero when the *pre*-increment value is 0, which would
+            # trip `set -e` and abort the script on the very first warning.
+            WARNINGS=$((WARNINGS + 1))
         else
             echo -e "  ${GREEN}✓${NC} Within acceptable range (±20%)"
         fi
@@ -125,6 +138,7 @@ echo "→ Running sanity checks..."
 if grep -qi "panic" "$BENCHMARK_OUTPUT"; then
     echo -e "  ${RED}✗${NC} Panic detected in benchmark output"
     ((ERRORS++))
+    ERRORS=$((ERRORS + 1))
 else
     echo -e "  ${GREEN}✓${NC} No panics detected"
 fi
@@ -135,6 +149,7 @@ if grep -qi "test result: ok" "$BENCHMARK_OUTPUT"; then
 elif grep -qi "test result: FAILED" "$BENCHMARK_OUTPUT"; then
     echo -e "  ${RED}✗${NC} Benchmark tests failed"
     ((ERRORS++))
+    ERRORS=$((ERRORS + 1))
 else
     echo -e "  ${YELLOW}⚠${NC}  Could not determine test result"
 fi
@@ -166,17 +181,3 @@ else
     echo "✅ Benchmark sanity checks passed"
     exit 0
 fi
-
-</parameter>
-<task_progress>
-- [x] Analyze requirements for issues #1146, #1147, #1145, #1144
-- [x] Implement stale sample manifest detector (#1146)
-- [x] Implement CRD backward-compatibility gate (#1147)
-- [x] Implement chart render diff checks (#1145)
-- [x] Implement benchmark sanity checks (#1144)
-- [ ] Update CI workflow with new stages
-- [ ] Re-add test files (cli_examples_test.rs, backup_restore_smoke_test.rs)
-- [ ] Commit and push changes
-- [ ] Create PR description
-</task_progress>
-</write_to_file>
