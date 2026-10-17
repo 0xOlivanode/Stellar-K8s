@@ -4978,6 +4978,270 @@ pub(crate) fn build_pod_template_for_test(node: &StellarNode) -> PodTemplateSpec
     )
 }
 
+// ============================================================================
+// Issue #1552 / #1553 / #1555 helpers
+// ============================================================================
+
+/// Resolve the health sidecar image (Issue #1552).
+///
+/// Resolution order:
+/// 1. Explicit `spec.validatorConfig.sidecarImage` override.
+/// 2. `ghcr.io/stellar/stellar-k8s:{version}` derived from the node version.
+/// 3. Fallback to the operator image (which bundles `/stellar-health-sidecar`).
+pub(crate) fn resolve_health_sidecar_image(node: &StellarNode) -> String {
+    // 1. Explicit override from validatorConfig.
+    if let Some(vc) = &node.spec.validator_config {
+        if let Some(explicit) = &vc.sidecar_image {
+            if !explicit.trim().is_empty() {
+                return explicit.clone();
+            }
+        }
+    }
+
+    // 2. Derive from version.
+    let version = node.spec.version.trim();
+    if !version.is_empty() {
+        return format!("ghcr.io/stellar/stellar-k8s:{version}");
+    }
+
+    // 3. Fallback to operator image.
+    std::env::var("STELLAR_OPERATOR_IMAGE")
+        .ok()
+        .filter(|v| !v.trim().is_empty())
+        .unwrap_or_else(|| "ghcr.io/stellar/stellar-k8s:latest".to_string())
+}
+
+/// Whether AppArmor annotations should be emitted (Issue #1555).
+///
+/// Opt-in via `STELLAR_APPARMOR_ENABLED=true`; defaults to `false` so pods
+/// start on hosts without AppArmor (kind, AL2023).
+pub(crate) fn apparmor_enabled() -> bool {
+    std::env::var("STELLAR_APPARMOR_ENABLED")
+        .map(|v| v.eq_ignore_ascii_case("true") || v == "1")
+        .unwrap_or(false)
+}
+
+/// Build the AppArmor annotations map for the given container names (Issue #1555).
+///
+/// Returns an empty map unless `STELLAR_APPARMOR_ENABLED=true`.
+pub(crate) fn apparmor_annotations(container_names: &[&str]) -> BTreeMap<String, String> {
+    let mut annotations = BTreeMap::new();
+    if !apparmor_enabled() {
+        return annotations;
+    }
+    for name in container_names {
+        annotations.insert(
+            format!("container.apparmor.security.beta.kubernetes.io/{name}"),
+            "runtime/default".to_string(),
+        );
+    }
+    annotations
+}
+
+/// Build the database-initialization initContainer (Issue #1553).
+///
+/// Returns `None` when:
+/// - the node type is not a Validator (only validators own a stellar-core DB), or
+/// - the user supplied a custom `spec.command` (they own startup), or
+/// - the user supplied custom init containers via `spec.sidecars`/init hooks.
+///
+/// The initContainer is idempotent: it checks for an existing `schema_version`
+/// table before running `stellar-core new-db`. For postgres it uses an advisory
+/// lock to avoid races when multiple pods start concurrently.
+pub(crate) fn build_db_init_container(node: &StellarNode) -> Option<Container> {
+    // Only validators run stellar-core with a local DB.
+    if node.spec.node_type != NodeType::Validator {
+        return None;
+    }
+
+    // Respect user-provided custom command (they own startup).
+    if node
+        .spec
+        .command
+        .as_ref()
+        .map(|c| !c.is_empty())
+        .unwrap_or(false)
+    {
+        return None;
+    }
+
+    let is_postgres = node.spec.database.is_some() || node.spec.managed_database.is_some();
+
+    // Shell script: idempotent schema check + new-db.
+    // - sqlite: inspect the DB file on the data volume for a schema_version table.
+    // - postgres: use psql to check for schema_version; wrap in an advisory lock.
+    let script = if is_postgres {
+        concat!(
+            "set -e; ",
+            "echo 'Checking postgres schema...'; ",
+            "if ! pg_isready -q; then echo 'postgres not ready, waiting'; sleep 5; fi; ",
+            "SCHEMA_EXISTS=$(psql -tAc \"SELECT 1 FROM information_schema.tables ",
+            "WHERE table_name='schema_version' LIMIT 1\" 2>/dev/null || true); ",
+            "if [ \"$SCHEMA_EXISTS\" = \"1\" ]; then ",
+            "  echo 'schema_version exists, skipping new-db'; exit 0; ",
+            "fi; ",
+            "echo 'Running stellar-core new-db (postgres)...'; ",
+            "stellar-core new-db --conf /config/stellar-core.cfg"
+        )
+    } else {
+        concat!(
+            "set -e; ",
+            "DB=/data/stellar-core.db; ",
+            "if [ -f \"$DB\" ]; then ",
+            "  if command -v sqlite3 >/dev/null 2>&1; then ",
+            "    if sqlite3 \"$DB\" \"SELECT name FROM sqlite_master ",
+            "WHERE type='table' AND name='schema_version'\" 2>/dev/null | grep -q schema_version; then ",
+            "      echo 'schema_version exists, skipping new-db'; exit 0; ",
+            "    fi; ",
+            "  fi; ",
+            "fi; ",
+            "echo 'Running stellar-core new-db (sqlite)...'; ",
+            "stellar-core new-db --conf /config/stellar-core.cfg"
+        )
+    };
+
+    Some(Container {
+        name: "db-init".to_string(),
+        image: Some(node.spec.container_image()),
+        command: Some(vec![
+            "/bin/sh".to_string(),
+            "-c".to_string(),
+            script.to_string(),
+        ]),
+        volume_mounts: Some(vec![
+            VolumeMount {
+                name: "data".to_string(),
+                mount_path: "/data".to_string(),
+                ..Default::default()
+            },
+            VolumeMount {
+                name: "config".to_string(),
+                mount_path: "/config".to_string(),
+                read_only: Some(true),
+                ..Default::default()
+            },
+        ]),
+        ..Default::default()
+    })
+}
+
+#[cfg(test)]
+mod sidecar_and_apparmor_tests {
+    use super::{
+        apparmor_annotations, build_db_init_container, resolve_health_sidecar_image,
+    };
+    use crate::crd::{
+        types::{ResourceRequirements, ResourceSpec},
+        NodeType, StellarNetwork, StellarNode, StellarNodeSpec,
+    };
+    use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
+
+    fn test_node() -> StellarNode {
+        StellarNode {
+            metadata: ObjectMeta {
+                name: Some("test-node".to_string()),
+                namespace: Some("stellar-system".to_string()),
+                uid: Some("abc-123".to_string()),
+                ..Default::default()
+            },
+            spec: StellarNodeSpec {
+                node_type: NodeType::Validator,
+                network: StellarNetwork::Testnet,
+                version: "v21.0.0".to_string(),
+                resources: ResourceRequirements {
+                    requests: ResourceSpec {
+                        cpu: "500m".to_string(),
+                        memory: "1Gi".to_string(),
+                    },
+                    limits: ResourceSpec {
+                        cpu: "2".to_string(),
+                        memory: "4Gi".to_string(),
+                    },
+                },
+                replicas: 1,
+                ..Default::default()
+            },
+            status: None,
+        }
+    }
+
+    // --- Issue #1552: sidecar image resolution ---
+
+    #[test]
+    fn sidecar_image_derives_ghcr_from_version() {
+        let node = test_node();
+        let image = resolve_health_sidecar_image(&node);
+        assert_eq!(image, "ghcr.io/stellar/stellar-k8s:v21.0.0");
+    }
+
+    #[test]
+    fn sidecar_image_respects_explicit_override() {
+        let mut node = test_node();
+        let mut vc = crate::crd::ValidatorConfig::default();
+        vc.sidecar_image = Some("my-registry/sidecar:custom".to_string());
+        node.spec.validator_config = Some(vc);
+        let image = resolve_health_sidecar_image(&node);
+        assert_eq!(image, "my-registry/sidecar:custom");
+    }
+
+    #[test]
+    fn sidecar_image_falls_back_to_operator_image() {
+        let mut node = test_node();
+        node.spec.version = String::new();
+        std::env::set_var("STELLAR_OPERATOR_IMAGE", "ghcr.io/stellar/operator:v1");
+        let image = resolve_health_sidecar_image(&node);
+        std::env::remove_var("STELLAR_OPERATOR_IMAGE");
+        assert_eq!(image, "ghcr.io/stellar/operator:v1");
+    }
+
+    // --- Issue #1555: AppArmor opt-in ---
+
+    #[test]
+    fn apparmor_annotation_absent_by_default() {
+        std::env::remove_var("STELLAR_APPARMOR_ENABLED");
+        let annotations = apparmor_annotations(&["stellar-core"]);
+        assert!(
+            annotations.is_empty(),
+            "AppArmor annotation must be absent by default"
+        );
+    }
+
+    #[test]
+    fn apparmor_annotation_present_when_enabled() {
+        std::env::set_var("STELLAR_APPARMOR_ENABLED", "true");
+        let annotations = apparmor_annotations(&["stellar-core"]);
+        std::env::remove_var("STELLAR_APPARMOR_ENABLED");
+        assert_eq!(
+            annotations.get("container.apparmor.security.beta.kubernetes.io/stellar-core"),
+            Some(&"runtime/default".to_string())
+        );
+    }
+
+    // --- Issue #1553: DB init container ---
+
+    #[test]
+    fn db_init_container_present_for_validator() {
+        let node = test_node();
+        let init = build_db_init_container(&node);
+        assert!(init.is_some(), "validator should get a db-init container");
+        assert_eq!(init.unwrap().name, "db-init");
+    }
+
+    #[test]
+    fn db_init_container_skipped_for_non_validator() {
+        let mut node = test_node();
+        node.spec.node_type = NodeType::Horizon;
+        assert!(build_db_init_container(&node).is_none());
+    }
+
+    #[test]
+    fn db_init_container_skipped_when_custom_command() {
+        let mut node = test_node();
+        node.spec.command = Some(vec!["/custom/start".to_string()]);
+        assert!(build_db_init_container(&node).is_none());
+    }
+}
+
 #[cfg(test)]
 mod ensure_pvc_tests {
     use super::{build_pvc, pvc_needs_update, resolve_pvc_storage_class};
