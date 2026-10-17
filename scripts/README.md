@@ -18,8 +18,8 @@ Related documentation:
 ## Conventions
 
 - Shell scripts use `kebab-case.sh`; Python tools use `kebab-case.py`
-  (`issue_template_lint.py` and `crd_migration_lint.py` predate the rule and are
-  kept for compatibility).
+  (`issue_template_lint.py`, `crd_migration_lint.py`, and `check_mkdocs_nav.py`
+  predate the rule and are kept for compatibility).
 - Every shell script must pass `shellcheck -S error` (`make shellcheck`) and
   `scripts/check-shell-safety.py` (`make shell-safety`).
 - Anything in [`scripts/ci/`](ci/) is **CI-only**: those scripts are designed to
@@ -42,14 +42,15 @@ Related documentation:
 | [`health-check.sh`](health-check.sh) | Environment health check for installed components (`--json`, `--fix`, `--outdated-only`). | `make health-check` / `make health-check-json` / `make health-check-fix` | — |
 | [`repo-health.sh`](repo-health.sh) | Single entry point for repository health gates: fmt, clippy, test, API docs, shellcheck, issue templates, links, audit, helm. | `make health`, `make health-fast`, `bash scripts/repo-health.sh [--fast|--with-audit|--with-links|--with-helm]` | — |
 | [`cleanup.sh`](cleanup.sh) | The single supported cleanup entrypoint: removes scratch artifacts and fails if obsolete archive helpers reappear. | `make cleanup`, `make cleanup DRY_RUN=1`, `./scripts/cleanup.sh [--dry-run]` | [`tests/cleanup.bats`](tests/cleanup.bats) |
-| [`dep-gate.sh`](dep-gate.sh) | Consolidated dependency gate: `cargo audit` + `cargo deny` + license and build checks. | `make audit` (`bash scripts/dep-gate.sh`), `bash scripts/dep-gate.sh --quick`, `--audit-only` | — |
+| [`dep-gate.sh`](dep-gate.sh) | Consolidated dependency gate: `cargo audit` + `cargo deny` + license and build checks. | `make audit` (`bash scripts/dep-gate.sh`), `bash scripts/dep-gate.sh --quick`, `--audit-only` | [`tests/dep-gate.bats`](tests/dep-gate.bats) |
 | [`generate-third-party-licenses.sh`](generate-third-party-licenses.sh) | Regenerates `THIRD_PARTY_LICENSES.md` from the Cargo dependency tree; `--check` fails when the file is stale. | `make third-party-licenses`, `make check-third-party-licenses` | — |
+| [`create-argocd-branch.sh`](create-argocd-branch.sh) | One-off helper that creates a branch, commits the Argo CD GitOps docs/examples, and pushes to `origin` or the given remote URL. | `./scripts/create-argocd-branch.sh [remote-url] [branch-name]` | — |
 
 ## Validation and linting
 
 | Script | Purpose | Invocation | Tests |
 |---|---|---|---|
-| [`issue_template_lint.py`](issue_template_lint.py) | Lints GitHub Issue Forms in `.github/ISSUE_TEMPLATE/`: required keys, `body` field types, and `config.yml` shape. | `python3 scripts/issue_template_lint.py` | — |
+| [`issue_template_lint.py`](issue_template_lint.py) | Lints GitHub Issue Forms in `.github/ISSUE_TEMPLATE/`: required keys, `body` field types, and `config.yml` shape. | `make issue-template-lint` (`python3 scripts/issue_template_lint.py`) | — |
 | [`check-shell-safety.py`](check-shell-safety.py) | Static analysis gate for unsafe shell patterns (unguarded `rm -rf`, `eval`, `curl \| bash`, missing strict mode). | `make shell-safety`, `make test-shell-safety` | [`tests/test_check_shell_safety.py`](tests/test_check_shell_safety.py) |
 | [`check-secrets.sh`](check-secrets.sh) | Secret-handling audit across the repository; `--report` never fails. | `bash scripts/check-secrets.sh [--report]` | — |
 | [`validate-yaml-manifests.py`](validate-yaml-manifests.py) | Repository-wide schema validation of YAML manifests (syntax + Kubernetes/CRD schema + waivers). | `make validate-yaml`, `make test-yaml-validation` | [`tests/test_validate_yaml_manifests.py`](tests/test_validate_yaml_manifests.py) |
@@ -66,6 +67,9 @@ Related documentation:
 | [`dead-code-report.sh`](dead-code-report.sh) | Informational dead-code and unused-config report written to `target/reports/dead-code-report.md`; always exits 0. `SKIP_CARGO=1` skips the compiler pass. | `SKIP_CARGO=1 ./scripts/dead-code-report.sh` | [`tests/dead-code-report.bats`](tests/dead-code-report.bats) |
 | [`semver_gate.py`](semver_gate.py) | Release SemVer gate for charts, images, and CRDs. Subcommands: `required-bump`, `check --version X`. | `python3 scripts/semver_gate.py required-bump [--base REF]`, `python3 scripts/semver_gate.py check --version X [--base REF]` | [`tests/test_semver_gate.py`](tests/test_semver_gate.py) |
 | [`golden-path-pipeline-check.sh`](golden-path-pipeline-check.sh) | Runs the full canonical command sequence (fmt, clippy, issue templates, API docs, helm, release gate, quickstart golden path) from a clean checkout. Needs a full toolchain. | `bash scripts/golden-path-pipeline-check.sh` | — |
+| [`check_mkdocs_nav.py`](check_mkdocs_nav.py) | Fails when a local `mkdocs.yml` nav entry points to a missing file under `docs/`. Needs PyYAML. | `make nav-coverage`, `python3 scripts/check_mkdocs_nav.py [mkdocs.yml]` | — |
+| [`validate-metrics.sh`](validate-metrics.sh) | Cross-checks metric names registered in `src/controller/metrics.rs` against [`docs/observability/metric-reference.md`](../docs/observability/metric-reference.md). | `./scripts/validate-metrics.sh` | — |
+| [`validate-crd-dryrun.mjs`](validate-crd-dryrun.mjs) | Generates a 3-zone topology manifest from the frontend builder, checks it against the StellarNode CRD, and runs `kubectl apply --dry-run=client`. Needs Node.js and `kubectl`. | `node scripts/validate-crd-dryrun.mjs` | — |
 
 ## Code generation and documentation
 
@@ -75,6 +79,7 @@ Related documentation:
 | [`generate-openapi-spec.py`](generate-openapi-spec.py) | Validates `docs/api/openapi.yaml` and asserts that every operator REST route is documented; `--check` is the CI drift gate. | `make generate-openapi-spec`, `make check-openapi-spec` | — |
 | [`generate-observability-instrumentation.py`](generate-observability-instrumentation.py) | Generates the observability instrumentation Rust source for a service from its contract. | `python3 scripts/generate-observability-instrumentation.py --service NAME --out FILE` | — |
 | [`sort-manifests.py`](sort-manifests.py) | Deterministic YAML manifest sorter (recursive key sort, documents ordered by kind/namespace/name). Reads stdin or a file argument. | `make crd-gen`, `make bundle-render`, `python3 scripts/sort-manifests.py FILE`, `helm template ... \| python3 scripts/sort-manifests.py` | — |
+| [`update-cap-matrix.py`](update-cap-matrix.py) | Refreshes the stellar-core release/CAP matrix in `config/caps.toml` from GitHub releases. Needs network access. | `python3 scripts/update-cap-matrix.py` (scheduled by `cap-matrix-update.yml`) | — |
 
 ## Build, release, and packaging
 
@@ -118,6 +123,8 @@ failure.
 | [`ci/extract-crd-json-schemas.py`](ci/extract-crd-json-schemas.py) | Derives `schemas/crd/*.json` from the repository's own CRDs; `--check` fails on drift. | `ci.yml` → `repo-hygiene` |
 | [`ci/lint-observability-contract.py`](ci/lint-observability-contract.py) | Blocks resource attributes that are absent from the published observability JSON Schema. | `ci.yml` → `lint` (`make lint-observability-contract`) |
 | [`ci/validate-yaml.sh`](ci/validate-yaml.sh) | yamllint + CRD JSON-schema drift + kubeconform on Helm-rendered manifests. | `ci.yml` → `yaml-schema` (`make yaml-schema-validate`) |
+| [`ci/lint.sh`](ci/lint.sh) | Unified lint runner: shellcheck, shell-safety, scripts-convention, yamllint, and optionally Rust lints. Flags: `--fast` (skip Rust), `--rust-only`. | `ci.yml` → `scripts-convention` (`make lint-all`) |
+| [`ci/check-scripts-convention.sh`](ci/check-scripts-convention.sh) | Enforces CONVENTIONS.md §Shell scripts: kebab-case naming, no root-level scripts, Usage: headers, and lib/ placement rules. `--report` never fails. | `ci.yml` → `scripts-convention` (`make scripts-convention-check`) |
 | [`ci/test-db-migrations.sh`](ci/test-db-migrations.sh) | Forward/rollback SQL migration harness. Requires a `DATABASE_URL` pointing at an isolated Postgres instance. | `ci.yml` → `db-migrations` (`make test-db-migrations`) |
 | [`ci/helm-upgrade-test.sh`](ci/helm-upgrade-test.sh) | Asserts that Helm upgrade overrides preserve resources, selectors, affinity, and ports. | `ci.yml` → `helm-test` (`make helm-upgrade-test`) |
 | [`ci/k8s-compat-smoke-tests.sh`](ci/k8s-compat-smoke-tests.sh) | Kubernetes version compatibility smoke tests for a given `TARGET_VERSION`. | `k8s-compat.yml` |
@@ -136,10 +143,11 @@ Sourced by other scripts — never run directly.
 
 ## Test suites (`scripts/tests/`)
 
-Run everything with:
+Run every suite except `helm-drift.bats` (which needs `helm`; use
+`make test-helm-drift`) with the same target the `Bats Suites` CI job uses:
 
 ```bash
-bats scripts/tests/
+make test-bats
 ```
 
 Python suites use `unittest` and are run individually, e.g.
@@ -149,6 +157,7 @@ Python suites use `unittest` and are run individually, e.g.
 |---|---|
 | [`tests/preflight.bats`](tests/preflight.bats) | `preflight.sh` tool-presence and version-pin checks |
 | [`tests/cleanup.bats`](tests/cleanup.bats) | `cleanup.sh` (the single supported cleanup tool) |
+| [`tests/dep-gate.bats`](tests/dep-gate.bats) | `dep-gate.sh` dependency gate |
 | [`tests/dead-code-report.bats`](tests/dead-code-report.bats) | `dead-code-report.sh` report generation |
 | [`tests/helm-drift.bats`](tests/helm-drift.bats) | `check-helm-drift.sh` (requires `helm` and `python3`) |
 | [`tests/bump-chart-version.bats`](tests/bump-chart-version.bats) | `bump-chart-version.sh` SemVer rules and `min-bump` floor |
@@ -168,4 +177,4 @@ Python suites use `unittest` and are run individually, e.g.
 3. Add a `scripts/tests/<script-name>.bats` or `scripts/tests/test_<script>.py`
    suite and reference it from this index.
 4. Add a row to the relevant table above, then run `make shellcheck`,
-   `make shell-safety`, and `bats scripts/tests/` before pushing.
+   `make shell-safety`, and `make test-bats` before pushing.

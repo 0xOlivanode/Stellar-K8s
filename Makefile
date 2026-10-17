@@ -20,14 +20,14 @@
 # =============================================================================
 
 .PHONY: help \
-	fmt fmt-check lint lint-strict shellcheck audit verify-mtls security-scan security-all security-report \
+	fmt fmt-check lint lint-strict lint-all shellcheck codespell audit verify-mtls security-scan security-all security-report \
 	build test chaos-test ci-local quick watch \
-	docker-build docker-build-ci docker-multiarch docker-cache-purge \
+	docker-build docker-build-ci docker-multiarch docker-cache-purge docker-image-prune \
 	dev-setup dev-setup-rust dev-setup-tools dev-setup-hooks health-check pre-commit pre-commit-install run run-local run-dev \
 	install-crd apply-samples crd-gen regenerate completions completions-bash completions-zsh completions-fish \
 	helm-lint helm-unittest helm-upgrade-test link-check link-check-all changelog \
 	generate-api-docs check-api-docs generate-openapi-spec check-openapi-spec docs-lint \
-	docs-build docs-serve \
+	docs-build docs-serve docs-ci-build nav-coverage link-integrity link-integrity-full security-review \
 	third-party-licenses check-third-party-licenses \
 	benchmark benchmark-webhook benchmark-all \
 	benchmark-crd benchmark-helm benchmark-api benchmark-reconciliation \
@@ -36,6 +36,8 @@
 	quickstart quickstart-setup quickstart-build quickstart-deploy \
 	health health-fast validate preflight test-shell all \
 	shell-safety test-shell-safety tag-release validate-yaml test-yaml-validation \
+	health health-fast validate preflight test-shell test-bats issue-template-lint all \
+	shell-safety test-shell-safety validate-yaml test-yaml-validation \
 	yaml-schema-validate test-db-migrations \
 	lint-observability-contract test-observability-contract \
 	helm-drift helm-drift-update test-helm-drift test-helm-bump \
@@ -46,6 +48,7 @@
 	check-api-contract check-api-coverage check-breaking-changes \
 	crd-benchmark \
 	compliance-test \
+	lint-scripts scripts-convention-check \
 	cleanup clean
 
 # Default target
@@ -67,7 +70,6 @@ DEFAULT_CHANNEL ?= "alpha"
 help: ## Show this help
 	@echo 'Usage: make [target]'
 	@echo ''
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo 'Canonical Command Flow:'
 	@echo '  Setup:    make dev-setup         One-time environment setup'
 	@echo '  Check:    make quick             Fast pre-commit (fmt + cargo check)'
@@ -169,6 +171,28 @@ shellcheck: ## Run shellcheck on all shell scripts
 	@echo "→ Running shellcheck..."
 	@find scripts -type f -name "*.sh" -print0 | xargs -0 shellcheck -S error || true
 
+CODESPELL_SKIP ?= Cargo.lock,package-lock.json,target,node_modules,vendor,*-vendor,THIRD_PARTY_LICENSES.md
+
+codespell: ## Spell-check docs/, src/ and top-level Markdown (same command as the CI codespell job) (#1682)
+	@echo "→ Running codespell..."
+	@codespell --ignore-words=.codespellignore --skip="$(CODESPELL_SKIP)" docs/ src/ *.md
+
+# ── Issue #1706: make targets ─────────────────────────────────────────────────
+
+lint-scripts: ## Run shellcheck + shell-safety + scripts-convention-check in one step (#1706)
+	@echo "→ Linting all shell scripts..."
+	$(MAKE) shellcheck
+	$(MAKE) shell-safety
+	$(MAKE) scripts-convention-check
+	@echo "✓ All script lint checks passed"
+
+scripts-convention-check: ## Verify scripts follow CONVENTIONS.md naming & placement rules (#1706, #1707)
+	@echo "→ Checking scripts conventions..."
+	@bash scripts/ci/check-scripts-convention.sh
+
+lint-all: lint-scripts lint ## Run all lint gates: Rust (clippy/fmt) + shell + conventions (#1706, #1708)
+	@echo "✓ lint-all complete"
+
 compliance-test: ## Validate kube-bench compliance fixtures (CIS custom controls) (#1380)
 	@echo "→ Running kube-bench compliance static checks..."
 	@bash security/kube-bench/run-local.sh --check-only
@@ -239,6 +263,15 @@ build: ## Build release
 	@echo "→ Building release..."
 	@$(CARGO) build --release --locked
 
+build-debug: ## Build an unoptimised debug binary (faster iteration than build)
+	@echo "Building debug binary..."
+	@$(CARGO) build --locked
+
+build-check: ## Type-check all targets without producing binaries (fast gate)
+	@$(CARGO) check --locked --all-targets
+
+build-all: build docs-build ## Build the release binary and the documentation site
+
 wasm-cache-build: ## Build the bounded Soroban cache Wasm artifact and enforce its size limit
 	@echo "→ Building Soroban cache Wasm artifact..."
 	@$(CARGO) build --release --locked --target wasm32-unknown-unknown -p stellar-wasm-cache
@@ -263,6 +296,10 @@ chaos-report: ## Aggregate chaos drill results into a summary report (scripts/ag
 docker-cache-purge: ## Purge all unused Docker builder cache (asks for confirmation)
 	@echo "→ Purging unused build cache on the current Docker daemon..."
 	$(DOCKER) builder prune --all
+
+docker-image-prune: ## Remove dangling local images from the Docker daemon (asks for confirmation)
+	@echo "→ Pruning dangling images on the current Docker daemon..."
+	$(DOCKER) image prune
 
 docker-build: ## Fast local Docker build using host release binaries
 	@echo "→ Building Docker image (fast local mode)..."
@@ -326,6 +363,9 @@ pre-commit-install: dev-setup-hooks ## Install pre-commit hooks (alias for dev-s
 clean: ## Clean build artifacts
 	$(CARGO) clean
 
+cleanup: ## Remove repo scratch artifacts and check for obsolete cleanup paths (DRY_RUN=1 to preview)
+	@bash scripts/cleanup.sh $(if $(filter 1,$(DRY_RUN)),--dry-run)
+
 generate-api-docs: ## Generate API reference docs from CRD schema
 	@echo "→ Generating API reference docs..."
 	@python3 scripts/generate-api-docs.py \
@@ -367,6 +407,51 @@ docs-serve: ## Serve the documentation site locally (http://127.0.0.1:8000)
 	@echo "→ Serving documentation at http://127.0.0.1:8000 (Ctrl+C to stop)"
 	@python3 -m mkdocs serve
 
+# ── Issue #1710: Documentation build ─────────────────────────────────────────
+
+docs-ci-build: ## Build the documentation site in strict mode (mirrors CI job) (#1710)
+	@echo "→ Building documentation site (strict, mirrors CI)..."
+	@command -v mkdocs >/dev/null 2>&1 || pip install -r requirements.txt
+	@python3 -m mkdocs build --strict --verbose
+	@echo "✓ Documentation site built into site/ — no broken links or nav warnings"
+
+# ── Issue #1711: Navigation coverage ─────────────────────────────────────────
+
+nav-coverage: ## Verify every mkdocs.yml nav entry resolves to an existing file (#1711)
+	@echo "→ Checking MkDocs navigation coverage..."
+	@python3 scripts/check_mkdocs_nav.py
+	@echo "✓ All navigation entries resolve"
+
+# ── Issue #1712: Link integrity ───────────────────────────────────────────────
+
+link-integrity: ## Check internal markdown links for broken references (#1712)
+	@echo "→ Checking internal link integrity across docs/..."
+	@python3 scripts/check-links.py --dir docs/
+	@echo "✓ All internal links are valid"
+
+link-integrity-full: ## Check all links (internal + external) — slower, requires network (#1712)
+	@echo "→ Checking internal and external link integrity..."
+	@python3 scripts/check-links.py --dir docs/ --check-external
+	@echo "✓ All links are valid"
+
+# ── Issue #1713: Security review ─────────────────────────────────────────────
+
+security-review: ## Run the full security review gate (audit + deny + report) (#1713)
+	@echo "→ Running security review..."
+	$(MAKE) audit
+	$(MAKE) security-scan
+	@echo "→ Generating security review report..."
+	@mkdir -p security/reports
+	@printf '# Security Review — %s\n\n' "$$(date)" > security/reports/review.md
+	@printf '## cargo-audit\n\n' >> security/reports/review.md
+	@$(CARGO) audit 2>&1 | tee -a security/reports/review.md || true
+	@printf '\n## cargo-deny\n\n' >> security/reports/review.md
+	@$(CARGO) deny check 2>&1 | tee -a security/reports/review.md || true
+	@printf '\n## Helm lint\n\n' >> security/reports/review.md
+	@helm lint charts/stellar-operator --strict 2>&1 | tee -a security/reports/review.md || true
+	@echo ""
+	@echo "✓ Security review complete — report at security/reports/review.md"
+
 # ── Kubernetes ────────────────────────────────────────────────────────────────
 
 install-crd: ## Install CRDs
@@ -394,6 +479,17 @@ test-shell: ## Run bats unit tests for the cleanup tool and shared shell helpers
 	@echo "→ Running cleanup tool bats tests..."
 	@command -v bats >/dev/null 2>&1 || (echo "✗ bats not installed. See https://github.com/bats-core/bats-core" && exit 1)
 	@bats scripts/tests/cleanup.bats
+
+# helm-drift.bats is excluded: it needs helm and runs via `make test-helm-drift`.
+BATS_SUITES ?= $(filter-out scripts/tests/helm-drift.bats,$(wildcard scripts/tests/*.bats))
+
+test-bats: ## Run every bats suite under scripts/tests/ except helm-drift (#1680)
+	@echo "→ Running bats suites..."
+	@command -v bats >/dev/null 2>&1 || (echo "✗ bats not installed. See https://github.com/bats-core/bats-core" && exit 1)
+	@bats $(BATS_SUITES)
+
+issue-template-lint: ## Lint GitHub Issue Forms in .github/ISSUE_TEMPLATE/ (#1681)
+	@python3 scripts/issue_template_lint.py
 
 collect-failure-diagnostics: ## Assemble a local CI failure diagnostics bundle (#1151)
 	@echo "→ Assembling failure diagnostics bundle..."

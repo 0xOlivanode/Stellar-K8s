@@ -64,7 +64,19 @@ jobs:
               path: '.github/WELCOME_TEMPLATE.md',
             });
 
-            const body = Buffer.from(templateFile.content, 'base64').toString('utf8');
+            // Drop the maintainer notes comment at the top of the template.
+            let body = Buffer.from(templateFile.content, 'base64').toString('utf8')
+              .replace(/^<!--[\s\S]*?-->\n/, '');
+
+            // ── Fill [POINTS] / [DIFFICULTY] from an `N-points` label ────────
+            const item   = context.payload.issue || context.payload.pull_request;
+            const labels = (item.labels || []).map(l => l.name);
+            const points = labels.map(l => /^(\d+)-points$/.exec(l)).find(Boolean)?.[1];
+            const difficulty = { 100: 'Trivial', 150: 'Medium', 200: 'High' }[points];
+            body = points
+              ? body.replace(/\[POINTS\]/g, points)
+                    .replace(/ \(\[DIFFICULTY\]\)/g, difficulty ? ` (${difficulty})` : '')
+              : body.replace(/^.*\[POINTS\].*\n\n?/m, '');
 
             // ── Post the comment ─────────────────────────────────────────────
             if (context.eventName === 'issues') {

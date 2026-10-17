@@ -76,6 +76,15 @@ We prefer a clean history. When your PR is approved, maintainers will typically 
 
 If your PR contains multiple logical changes, split it into separate branches and PRs.
 
+### Branch Protection
+
+Changes to `main` must go through a pull request. The `main` branch protection rule should require:
+
+- A pull request before merging.
+- Passing status checks before merging: `ci / build`, `ci / test`, `ci / security-audit`.
+
+See [Dependency Update Process](docs/dependency-update-process.md#branch-protection-prerequisites) for the full list of settings that auto-merge depends on.
+
 ## 3. PR Checklist
 
 Before opening a PR, confirm the following:
@@ -91,6 +100,13 @@ Before opening a PR, confirm the following:
 - [ ] The PR description is filled out completely using the template.
 - [ ] The PR includes links to any related issues or design discussions.
 
+### Code owners
+
+Reviewers are assigned automatically from [`.github/CODEOWNERS`](.github/CODEOWNERS)
+(last matching rule wins). Paths such as `src/webhook/`, `charts/`, and `docs/` route
+to specific teams, so expect those reviews when you touch them. Keep the file in sync
+when paths move or teams change.
+
 ### Required checks
 
 Before submitting, run the contributor health gates via `make` (not raw
@@ -105,11 +121,12 @@ The full checklist, command rationale, and per-step details live in the
 [Canonical Repository Health Checklist](docs/development/repo-health-checklist.md).
 If your change adds shell scripts, also run `make shellcheck`.
 
-You can also run spell checking locally using `codespell`:
+Spell checking runs in the `Codespell` CI job; run the same check locally with:
 ```bash
 pip install codespell
-codespell --ignore-words=.codespellignore --skip="Cargo.lock,package-lock.json,target,node_modules,vendor,*-vendor" docs/ src/ *.md
+make codespell
 ```
+Add genuine false positives (one lowercase word per line) to `.codespellignore`.
 
 ## 4. Commit Message Examples
 
@@ -229,10 +246,11 @@ sudo apt-get install -y bats
 npm install -g bats
 ```
 
-**Run the suites** — the same invocation CI uses:
+**Run the suites** — the same target the `Bats Suites` CI job uses (every suite
+except `helm-drift.bats`, which needs `helm` and runs via `make test-helm-drift`):
 
 ```bash
-bats scripts/tests/
+make test-bats
 ```
 
 To run a single suite while iterating:
@@ -266,10 +284,10 @@ also separates the CI-only helpers in `scripts/ci/` from the scripts you are
 expected to run locally.
 
 To lint the GitHub issue templates locally — the same check CI runs when
-`.github/ISSUE_TEMPLATE/` changes:
+`.github/ISSUE_TEMPLATE/` or the linter changes:
 
 ```bash
-python3 scripts/issue_template_lint.py
+make issue-template-lint
 ```
 
 The command exits non-zero and lists every offending template when an Issue Form

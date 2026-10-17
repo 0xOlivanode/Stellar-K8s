@@ -279,7 +279,7 @@ node-local file alongside your normal pipeline — then you own the lifecycle:
 
 - [CRD Reference](crd-reference.md) — every `StellarNode` field
 - [Storage](storage.md) — PVC sizing, mounts, snapshot restore
-- [Operator environment](operators.md) — pod hardening and env var override rules
+- [Operator environment](operators.md) — operator process env vars, pod hardening, and env var override rules
 - [Performance Tuning](../performance-tuning.md) — memory and cache sizing
 - [Log Aggregation Guide](../log-aggregation-guide.md)
 - [Proactive Disk Scaling](../proactive-disk-scaling.md)

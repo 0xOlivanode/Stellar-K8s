@@ -54,6 +54,17 @@ Reclaiming zero bytes is valid when there is no unused build cache.
 See [Docker's builder prune reference](https://docs.docker.com/reference/cli/docker/builder/prune/)
 for details.
 
+## Pruning dangling local images
+
+Run `make docker-image-prune` to remove dangling (untagged) images from the
+current Docker daemon. Docker asks for confirmation before pruning. Tagged
+images, containers, volumes, and remote registry images are not touched. The
+target runs `docker image prune` and is not part of `make clean`, build targets,
+or CI.
+
+See [Docker's image prune reference](https://docs.docker.com/reference/cli/docker/image/prune/)
+for details.
+
 ## Verifying reproducibility
 Run the build **twice** with the same arguments and compare digests:
 ```bash

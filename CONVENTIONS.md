@@ -197,6 +197,8 @@ These conventions are enforced by:
 
 - **Pre-commit hooks** (`shellcheck`, `make fmt`, `yamllint`) — run `make pre-commit-install`
 - **CI lint step** (`make lint`, `make fmt-check`) — runs on every PR
+- **Scripts convention gate** (`make scripts-convention-check`, `scripts/ci/check-scripts-convention.sh`) — enforces kebab-case naming, placement, and `Usage:` headers on every PR
+- **Unified lint runner** (`make lint-all`, `scripts/ci/lint.sh`) — single entry point for all shell, YAML, and Rust lints
 - **PR checklist** in [CONTRIBUTING.md](CONTRIBUTING.md#9-repo-health-checklist)
 
 If you find a file that violates these conventions and is not covered by the checklist, open

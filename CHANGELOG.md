@@ -7,8 +7,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Added
+
+• Dedicated `Codespell` CI job and `make codespell` target (#1682).
+• Index the remaining scripts and the `dep-gate.bats` suite in `scripts/README.md` (#1684).
+• Fill the welcome template's `[POINTS]`/`[DIFFICULTY]` placeholders from the `N-points` label (#1685).
+• CHANGELOG entries for the above (#1683).
+• `make test-bats` and a `Bats Suites` CI job covering every bats suite except helm-drift (#1680).
+• `make issue-template-lint`; the CI job now also runs when the linter changes (#1681).
+• Operator process environment variable reference in `docs/configuration/operators.md` (#1678).
+
 ### Fixed
 
+• Fix spelling errors reported by codespell in historical CHANGELOG entries (#1682).
+• Use an absolute CONTRIBUTING.md link in the welcome comment (#1685).
+• `make help` no longer prints the target list twice (#1679).
+• `preflight.bats` "gh missing" tests pass on hosts with `gh` in `/usr/bin`; `dep-gate.bats` tests the gate's real `--audit-only` interface (#1680).
 • Deduplicate operator environment variables.
 • Prevent command injection in validator commands.
 • Scope config table lookups to the intended table.
@@ -1049,7 +1063,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## Chart v1.5.0 (2026-09-24) [minor]
 
 • Merge pull request #1534 from francisdouglas-ux/feat/epics-1521-1522-1523-1524
-✨ feat: add composite SLOs, semver gate, ownership registry and registr…
+✨ feat: add composite SLOs, semver gate, ownership registry and registry…
 ✨ feat: add composite SLOs, semver gate, ownership registry and registry pull gate
 • - composite_slo: weighted composite SLI objective published via recording
 •   rules (ratio, burn rates, error budget), with versioned weight reviews
@@ -2015,7 +2029,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Implement canary analysis engine using Kayenta integration
 - Implement pod-to-pod mTLS enforcement using Linkerd
 - Build stellar-native autoscaler for Horizon (rate-limit based)
-- Implement automated DB vacumming orchestrator
+- Implement automated DB vacuuming orchestrator
 - Built a  History Archive Pruning Worker with Lifecycle Integration
 - Integrate OpenTelemetry SDK with OTLP export and trace-ID logging
 - *(dashboard)* Add real-time SCP topology visualization
@@ -2035,7 +2049,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Add 'doctor' command for local environment verification
 - *(cli)* Add --json flag to audit command for automated scanning #592
 - Add --version and -v flags to stellar CLI
-- Add  Response Toolkit / Improve Help Outpu/ Add Shell Completion
+- Add  Response Toolkit / Improve Help Output/ Add Shell Completion
 - Add release template for versioning and documentation
 - Build Real-time SCP Analytics Dashboard using OpenSearch
 - Implement multi-region federation, ML-based anomaly detection, and unified audit recording
@@ -2233,7 +2247,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Resolve rebase conflicts and clippy lints in new upstream files
 - Resolve merge conflicts
 - Fix lint error
-- Fix lint errror
+- Fix lint error
 - Fix lint error
 - Fix errors
 - Fix helm lint
@@ -2270,7 +2284,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - *(deps)* Update dependencies and upgrade wasmtime to 24.0.5
 - Fix CI issues, fix build and update readme details
 - Add proper fixes
-- Fix bugs and brnach details
+- Fix bugs and branch details
 - Adjust details and fix inconsistencies
 - Fix issues
 - Fmt
@@ -2413,7 +2427,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fex
 
-- Fix faiing test
+- Fix failing test
 
 ### Refac
 
