@@ -47,6 +47,7 @@
 	crd-benchmark \
 	compliance-test \
 	lint-scripts scripts-convention-check \
+	ci-badge \
 	cleanup clean
 
 # Default target
@@ -81,6 +82,7 @@ help: ## Show this help
 	@echo '  Docker:   make docker-build       Local Docker image'
 	@echo '  Cleanup:  make cleanup            Scratch artifacts + obsolete-path check'
 	@echo '  Clean:    make clean              Remove build artifacts'
+	@echo '  Badge:    make ci-badge           Regenerate the CI status badge SVG'
 	@echo ''
 	@echo 'Workflows:'
 	@echo '  make quickstart                  End-to-end local quickstart (kind cluster)'
@@ -516,6 +518,13 @@ check-breaking-changes: ## Detect breaking API changes vs base branch (#1288)
 	@python3 scripts/check-api-contract.py breaking \
 		--base /tmp/base-openapi.yaml \
 		--head docs/api/openapi.yaml
+
+# ── Issue #1674: CI badge status ─────────────────────────────────────────────
+
+ci-badge: ## Regenerate the CI status badge SVG (#1674)
+	@echo "→ Generating CI status badge..."
+	@bash scripts/ci/generate-badge.sh
+	@echo "✓ CI badge regenerated"
 
 completions: ## Generate shell completion scripts
 	@echo "→ Generating shell completions..."
