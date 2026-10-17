@@ -50,7 +50,7 @@ Related documentation:
 
 | Script | Purpose | Invocation | Tests |
 |---|---|---|---|
-| [`issue_template_lint.py`](issue_template_lint.py) | Lints GitHub Issue Forms in `.github/ISSUE_TEMPLATE/`: required keys, `body` field types, and `config.yml` shape. | `python3 scripts/issue_template_lint.py` | — |
+| [`issue_template_lint.py`](issue_template_lint.py) | Lints GitHub Issue Forms in `.github/ISSUE_TEMPLATE/`: required keys, `body` field types, and `config.yml` shape. | `make issue-template-lint` (`python3 scripts/issue_template_lint.py`) | — |
 | [`check-shell-safety.py`](check-shell-safety.py) | Static analysis gate for unsafe shell patterns (unguarded `rm -rf`, `eval`, `curl \| bash`, missing strict mode). | `make shell-safety`, `make test-shell-safety` | [`tests/test_check_shell_safety.py`](tests/test_check_shell_safety.py) |
 | [`check-secrets.sh`](check-secrets.sh) | Secret-handling audit across the repository; `--report` never fails. | `bash scripts/check-secrets.sh [--report]` | — |
 | [`validate-yaml-manifests.py`](validate-yaml-manifests.py) | Repository-wide schema validation of YAML manifests (syntax + Kubernetes/CRD schema + waivers). | `make validate-yaml`, `make test-yaml-validation` | [`tests/test_validate_yaml_manifests.py`](tests/test_validate_yaml_manifests.py) |
@@ -143,10 +143,11 @@ Sourced by other scripts — never run directly.
 
 ## Test suites (`scripts/tests/`)
 
-Run everything with:
+Run every suite except `helm-drift.bats` (which needs `helm`; use
+`make test-helm-drift`) with the same target the `Bats Suites` CI job uses:
 
 ```bash
-bats scripts/tests/
+make test-bats
 ```
 
 Python suites use `unittest` and are run individually, e.g.
@@ -176,4 +177,4 @@ Python suites use `unittest` and are run individually, e.g.
 3. Add a `scripts/tests/<script-name>.bats` or `scripts/tests/test_<script>.py`
    suite and reference it from this index.
 4. Add a row to the relevant table above, then run `make shellcheck`,
-   `make shell-safety`, and `bats scripts/tests/` before pushing.
+   `make shell-safety`, and `make test-bats` before pushing.

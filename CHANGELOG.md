@@ -13,11 +13,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 • Index the remaining scripts and the `dep-gate.bats` suite in `scripts/README.md` (#1684).
 • Fill the welcome template's `[POINTS]`/`[DIFFICULTY]` placeholders from the `N-points` label (#1685).
 • CHANGELOG entries for the above (#1683).
+• `make test-bats` and a `Bats Suites` CI job covering every bats suite except helm-drift (#1680).
+• `make issue-template-lint`; the CI job now also runs when the linter changes (#1681).
+• Operator process environment variable reference in `docs/configuration/operators.md` (#1678).
 
 ### Fixed
 
 • Fix spelling errors reported by codespell in historical CHANGELOG entries (#1682).
 • Use an absolute CONTRIBUTING.md link in the welcome comment (#1685).
+• `make help` no longer prints the target list twice (#1679).
+• `preflight.bats` "gh missing" tests pass on hosts with `gh` in `/usr/bin`; `dep-gate.bats` tests the gate's real `--audit-only` interface (#1680).
 • Deduplicate operator environment variables.
 • Prevent command injection in validator commands.
 • Scope config table lookups to the intended table.

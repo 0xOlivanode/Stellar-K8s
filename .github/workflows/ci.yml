@@ -121,7 +121,7 @@ jobs:
           # only checks Kubernetes/config manifests, so the GitHub Issue Form
           # schema needs its own gate (see the `issue-template-lint` job).
           echo "issue_templates=$(_match \
-            '^(\.github/ISSUE_TEMPLATE/)')" \
+            '^(\.github/ISSUE_TEMPLATE/|scripts/issue_template_lint\.py)')" \
             >> "$GITHUB_OUTPUT"
           echo "scripts=$(_match \
             '^(scripts/|Makefile|CONVENTIONS\.md)')" \
@@ -293,8 +293,8 @@ jobs:
   # Kubernetes manifests nor covered by scripts/validate-yaml-manifests.py, so
   # nothing in CI verified their schema. A malformed form (missing `body`, an
   # unsupported `type`, a bad `config.yml` shape) silently replaced the GitHub
-  # issue form UI. This job runs the existing linter and is skipped entirely
-  # for PRs that do not touch .github/ISSUE_TEMPLATE/.
+  # issue form UI. This job runs the existing linter (`make issue-template-lint`)
+  # and is skipped for PRs that touch neither .github/ISSUE_TEMPLATE/ nor the linter.
   issue-template-lint:
     name: Issue Template Lint
     runs-on: ubuntu-latest
@@ -313,7 +313,26 @@ jobs:
         run: pip install --quiet pyyaml
 
       - name: Lint issue templates
-        run: python3 scripts/issue_template_lint.py
+        run: make issue-template-lint
+
+  # ── 2.65. Bats Suites (#1680) ───────────────────────────────────────────────
+  # Runs every scripts/tests/*.bats suite via `make test-bats` so suites without
+  # a dedicated job (preflight, cleanup, dep-gate) are exercised in CI.
+  # helm-drift.bats needs helm and stays in the helm-drift job.
+  bats-tests:
+    name: Bats Suites
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [changes]
+    if: needs.changes.outputs.scripts == 'true'
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install bats
+        run: sudo apt-get update && sudo apt-get install -y bats
+
+      - name: Run bats suites
+        run: make test-bats
 
   # ── 2.7. Codespell (#1682) ──────────────────────────────────────────────────
   # Spell-checks docs/, src/ and top-level Markdown as its own fast job so a typo

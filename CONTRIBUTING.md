@@ -230,10 +230,11 @@ sudo apt-get install -y bats
 npm install -g bats
 ```
 
-**Run the suites** — the same invocation CI uses:
+**Run the suites** — the same target the `Bats Suites` CI job uses (every suite
+except `helm-drift.bats`, which needs `helm` and runs via `make test-helm-drift`):
 
 ```bash
-bats scripts/tests/
+make test-bats
 ```
 
 To run a single suite while iterating:
@@ -267,10 +268,10 @@ also separates the CI-only helpers in `scripts/ci/` from the scripts you are
 expected to run locally.
 
 To lint the GitHub issue templates locally — the same check CI runs when
-`.github/ISSUE_TEMPLATE/` changes:
+`.github/ISSUE_TEMPLATE/` or the linter changes:
 
 ```bash
-python3 scripts/issue_template_lint.py
+make issue-template-lint
 ```
 
 The command exits non-zero and lists every offending template when an Issue Form
