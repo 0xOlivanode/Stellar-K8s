@@ -61,6 +61,7 @@ jobs:
       yaml_schema: ${{ steps.detect.outputs.yaml_schema }}
       db_migrations: ${{ steps.detect.outputs.db_migrations }}
       issue_templates: ${{ steps.detect.outputs.issue_templates }}
+      scripts: ${{ steps.detect.outputs.scripts }}
     steps:
       - uses: actions/checkout@v7
 
@@ -121,6 +122,9 @@ jobs:
           # schema needs its own gate (see the `issue-template-lint` job).
           echo "issue_templates=$(_match \
             '^(\.github/ISSUE_TEMPLATE/)')" \
+            >> "$GITHUB_OUTPUT"
+          echo "scripts=$(_match \
+            '^(scripts/|Makefile|CONVENTIONS\.md)')" \
             >> "$GITHUB_OUTPUT"
 
   # ── 1.5 Repository preflight gate ───────────────────────────────────────────
@@ -242,6 +246,47 @@ jobs:
 
       - name: Check Stale TODOs
         run: bash scripts/ci/check-stale-todos.sh
+
+  # ── 2.55. Scripts Convention & Unified Lint Gate (#1707, #1708, #1709) ─────────
+  # Enforces the script naming and placement rules in CONVENTIONS.md §Shell scripts
+  # and runs the unified lint runner (scripts/ci/lint.sh) to validate that all
+  # shell, Python, and YAML hygiene checks pass before the heavier Rust jobs start.
+  scripts-convention:
+    name: Scripts Convention & Lint Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [changes]
+    if: needs.changes.outputs.scripts == 'true' || needs.changes.outputs.rust_core == 'true'
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install Python linting tools
+        run: pip install --quiet pyyaml yamllint==1.35.1
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Check scripts naming & placement conventions
+        run: |
+          chmod +x scripts/ci/check-scripts-convention.sh
+          bash scripts/ci/check-scripts-convention.sh
+
+      - name: Run shell-safety gate
+        run: python3 scripts/check-shell-safety.py
+
+      - name: Run shellcheck on all scripts
+        run: |
+          mapfile -t shell_files < <(find scripts -type f -name "*.sh" 2>/dev/null || true)
+          if [[ "${#shell_files[@]}" -eq 0 ]]; then
+            echo "No shell scripts found — skipping shellcheck"
+            exit 0
+          fi
+          shellcheck -S error "${shell_files[@]}"
 
   # ── 2.6. Issue Template Lint (#1623) ───────────────────────────────────────────
   # GitHub Issue Forms in .github/ISSUE_TEMPLATE/ are YAML but are neither

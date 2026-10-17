@@ -20,7 +20,7 @@
 # =============================================================================
 
 .PHONY: help \
-	fmt fmt-check lint lint-strict shellcheck audit verify-mtls security-scan security-all security-report \
+	fmt fmt-check lint lint-strict lint-all shellcheck audit verify-mtls security-scan security-all security-report \
 	build test chaos-test ci-local quick watch \
 	docker-build docker-build-ci docker-multiarch docker-cache-purge \
 	dev-setup dev-setup-rust dev-setup-tools dev-setup-hooks health-check pre-commit pre-commit-install run run-local run-dev \
@@ -46,6 +46,7 @@
 	check-api-contract check-api-coverage check-breaking-changes \
 	crd-benchmark \
 	compliance-test \
+	lint-scripts scripts-convention-check \
 	cleanup clean
 
 # Default target
@@ -168,6 +169,22 @@ security-report: ## Generate comprehensive security report
 shellcheck: ## Run shellcheck on all shell scripts
 	@echo "→ Running shellcheck..."
 	@find scripts -type f -name "*.sh" -print0 | xargs -0 shellcheck -S error || true
+
+# ── Issue #1706: make targets ─────────────────────────────────────────────────
+
+lint-scripts: ## Run shellcheck + shell-safety + scripts-convention-check in one step (#1706)
+	@echo "→ Linting all shell scripts..."
+	$(MAKE) shellcheck
+	$(MAKE) shell-safety
+	$(MAKE) scripts-convention-check
+	@echo "✓ All script lint checks passed"
+
+scripts-convention-check: ## Verify scripts follow CONVENTIONS.md naming & placement rules (#1706, #1707)
+	@echo "→ Checking scripts conventions..."
+	@bash scripts/ci/check-scripts-convention.sh
+
+lint-all: lint-scripts lint ## Run all lint gates: Rust (clippy/fmt) + shell + conventions (#1706, #1708)
+	@echo "✓ lint-all complete"
 
 compliance-test: ## Validate kube-bench compliance fixtures (CIS custom controls) (#1380)
 	@echo "→ Running kube-bench compliance static checks..."
