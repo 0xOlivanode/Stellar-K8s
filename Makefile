@@ -20,6 +20,9 @@
 # =============================================================================
 
 .PHONY: help \
+	fmt fmt-check lint lint-strict shellcheck audit verify-mtls security-scan security-all security-report \
+	build cache-warm test chaos-test ci-local quick watch \
+	docker-build docker-build-ci docker-multiarch docker-cache-purge \
 	fmt fmt-check lint lint-strict lint-all shellcheck codespell audit verify-mtls security-scan security-all security-report \
 	build test chaos-test ci-local quick watch \
 	docker-build docker-build-ci docker-multiarch docker-cache-purge docker-image-prune \
@@ -263,6 +266,12 @@ build: ## Build release
 	@echo "→ Building release..."
 	@$(CARGO) build --release --locked
 
+cache-warm: ## Warm the Cargo cache: fetch locked deps and pre-compile the lib and bins
+	@echo "→ Fetching locked dependencies..."
+	@$(CARGO) fetch --locked
+	@echo "→ Pre-compiling lib and bins (dependency cache warm-up)..."
+	@$(CARGO) build --locked --lib --bins
+	@echo "✓ Cargo cache warmed"
 build-debug: ## Build an unoptimised debug binary (faster iteration than build)
 	@echo "Building debug binary..."
 	@$(CARGO) build --locked

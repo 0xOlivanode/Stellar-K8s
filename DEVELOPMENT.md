@@ -787,6 +787,7 @@ make ci-local                     # Full CI validation
 ```bash
 # Development (canonical — prefer make targets to match CI feature flags)
 make build                        # Build release (wraps `cargo build --release --locked`)
+make cache-warm                   # Warm the Cargo cache: fetch locked deps + pre-compile lib/bins
 make test                         # Run tests (wraps `cargo test` with project features)
 make fmt                          # Format code (wraps `cargo fmt --all`)
 make lint                         # Lint code (wraps `cargo clippy` with project features)
