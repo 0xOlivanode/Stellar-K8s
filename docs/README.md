@@ -118,16 +118,24 @@ Production-grade Stellar infrastructure on Kubernetes. This directory contains a
 - [Third-Party Licenses](../THIRD_PARTY_LICENSES.md)
 
 ---
+## Navigation
+
+The canonical documentation index is maintained in [`mkdocs.yml`](../mkdocs.yml) — the single navigation source for the rendered MkDocs site. Use that file to find all documentation pages organized by topic.
+
+For a quick reference, key topic areas include:
+- Getting Started, Deployment Guides, Configuration, Tutorials
+- Operations & Observability, Troubleshooting
+- API Reference, Security, Networking
+- Development, Contributing
 
 ## Documentation Maintenance
 
-**Owner:** Any contributor — this index is maintained alongside the docs it links to.
+**Owner:** Any contributor — this README is maintained alongside `mkdocs.yml`.
 
 ### Adding a new doc
 
 1. Create your `.md` file under the appropriate `docs/` subdirectory.
-2. Add a link in the relevant section above.
-3. Add a corresponding entry to `mkdocs.yml` if the doc should appear in the rendered site.
+2. Add a corresponding entry to `mkdocs.yml` under the relevant section.
 
 ### Updating an existing doc
 
@@ -137,7 +145,7 @@ Production-grade Stellar infrastructure on Kubernetes. This directory contains a
 ### Removing a doc
 
 1. Delete the file.
-2. Remove its link from this index **and** from `mkdocs.yml`.
+2. Remove its entry from `mkdocs.yml`.
 3. Search for cross-references: `grep -r "filename.md" docs/` and fix or remove them.
 
 ### Generating auto-derived docs

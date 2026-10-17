@@ -1,7 +1,19 @@
+// Copyright 2024 Stellar-K8s Contributors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //! Compatibility matrix tests across Kubernetes minor versions.
 //!
 //! This module defines a static compatibility matrix for the Stellar-K8s operator,
-//! covering the supported Kubernetes version range (1.27 – 1.30).  Tests run
+//! covering the supported Kubernetes version range (1.27 – 1.32).  Tests run
 //! entirely offline — no cluster connection is required.
 //!
 //! # Running
@@ -12,19 +24,23 @@
 //!
 //! # Run with verbose output to see the ASCII table
 //! cargo test --test compat_matrix -- --nocapture
+//!
+//! # Export matrix as JSON for CI integration
+//! cargo test --test compat_matrix -- --nocapture test_matrix_json_export
 //! ```
 //!
 //! See `docs/compat-matrix.md` for the full documentation.
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use serde_json;
+use std::collections::BTreeMap;
 
 // ---------------------------------------------------------------------------
 // Core types
 // ---------------------------------------------------------------------------
 
 /// A specific Kubernetes minor version (e.g., 1.30).
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Hash)]
 pub struct K8sVersion {
     pub major: u32,
     pub minor: u32,
@@ -139,13 +155,16 @@ pub struct CompatibilityMatrix {
 ///
 /// Per the README prerequisites: "Kubernetes cluster (1.28+)" — however the
 /// operator also supports 1.27 for legacy compatibility.  The current CI
-/// target is 1.30 (k8s-openapi `v1_30` feature).
+/// target is 1.32 (k8s-openapi `v1_32` feature). This covers N and N-1
+/// upstream minor versions, with N=1.32 as the latest stable release.
 pub fn supported_k8s_versions() -> Vec<K8sVersion> {
     vec![
-        K8sVersion::new(1, 27),
+        K8sVersion::new(1, 27), // Legacy support (deprecated, will be removed in v2.0)
         K8sVersion::new(1, 28),
         K8sVersion::new(1, 29),
         K8sVersion::new(1, 30),
+        K8sVersion::new(1, 31), // N-1 (previous stable)
+        K8sVersion::new(1, 32), // N (current stable)
     ]
 }
 
@@ -169,7 +188,15 @@ pub fn check_api_version_compatibility(version: &K8sVersion) -> Vec<CompatTestRe
         let (passed, notes) = evaluate_feature(&feature, version);
         results.push(CompatTestResult {
             version: version.clone(),
-            test_name: format!("k8s_{}_{}_compat", version, feature.label().to_lowercase().replace(' ', "_").replace('.', "")),
+            test_name: format!(
+                "k8s_{}_{}_compat",
+                version,
+                feature
+                    .label()
+                    .to_lowercase()
+                    .replace(' ', "_")
+                    .replace('.', "")
+            ),
             passed,
             notes,
         });
@@ -186,7 +213,10 @@ fn evaluate_feature(
 ) -> (bool, Option<String>) {
     // Only major == 1 is in the supported range for now.
     if version.major != 1 {
-        return (false, Some(format!("Major version {} not supported", version.major)));
+        return (
+            false,
+            Some(format!("Major version {} not supported", version.major)),
+        );
     }
 
     match feature {
@@ -224,9 +254,17 @@ fn evaluate_feature(
         // ambient/sidecar mode of both Istio and Linkerd.
         CompatibilityFeature::ServiceMesh => {
             if version.minor >= 27 {
-                (true, Some("Requires Istio ≥ 1.17 or Linkerd ≥ 2.14 installed separately".to_string()))
+                (
+                    true,
+                    Some(
+                        "Requires Istio ≥ 1.17 or Linkerd ≥ 2.14 installed separately".to_string(),
+                    ),
+                )
             } else {
-                (false, Some("Service-mesh sidecar not validated below 1.27".to_string()))
+                (
+                    false,
+                    Some("Service-mesh sidecar not validated below 1.27".to_string()),
+                )
             }
         }
     }
@@ -295,7 +333,16 @@ pub fn print_matrix_table(matrix: &CompatibilityMatrix) -> String {
             let passed = matrix
                 .results
                 .iter()
-                .find(|r| &r.version == version && r.test_name.contains(&feature.label().to_lowercase().replace(' ', "_").replace('.', "")))
+                .find(|r| {
+                    &r.version == version
+                        && r.test_name.contains(
+                            &feature
+                                .label()
+                                .to_lowercase()
+                                .replace(' ', "_")
+                                .replace('.', ""),
+                        )
+                })
                 .map(|r| r.passed)
                 .unwrap_or(false);
 
@@ -306,12 +353,7 @@ pub fn print_matrix_table(matrix: &CompatibilityMatrix) -> String {
     }
 
     // --- Assemble ---
-    let mut lines = vec![
-        title.to_string(),
-        separator,
-        header_row,
-        divider,
-    ];
+    let mut lines = vec![title.to_string(), separator, header_row, divider];
     lines.extend(data_rows);
     lines.join("\n")
 }
@@ -325,7 +367,10 @@ pub fn print_matrix_table(matrix: &CompatibilityMatrix) -> String {
 /// - `"summary"`: object with `total`, `passed`, `failed` counts
 pub fn matrix_to_json(matrix: &CompatibilityMatrix) -> serde_json::Value {
     let version_strings: Vec<String> = matrix.k8s_versions.iter().map(|v| v.to_string()).collect();
-    let feature_labels: Vec<&str> = CompatibilityFeature::all().iter().map(|f| f.label()).collect();
+    let feature_labels: Vec<&str> = CompatibilityFeature::all()
+        .iter()
+        .map(|f| f.label())
+        .collect();
 
     let result_entries: Vec<serde_json::Value> = matrix
         .results
@@ -369,16 +414,16 @@ pub fn matrix_to_json(matrix: &CompatibilityMatrix) -> serde_json::Value {
 mod tests {
     use super::*;
 
-    /// Verifies that exactly 4 supported versions are returned and that the
-    /// range spans 1.27 – 1.30 inclusive.
+    /// Verifies that exactly 6 supported versions are returned and that the
+    /// range spans 1.27 – 1.32 inclusive (N and N-1 upstream minors).
     #[test]
     fn test_supported_versions_range() {
         let versions = supported_k8s_versions();
 
         assert_eq!(
             versions.len(),
-            4,
-            "Expected exactly 4 supported K8s versions (1.27, 1.28, 1.29, 1.30)"
+            6,
+            "Expected exactly 6 supported K8s versions (1.27-1.32 covering N and N-1)"
         );
 
         let min = versions.iter().min().expect("versions must not be empty");
@@ -388,11 +433,11 @@ mod tests {
         assert_eq!(min.minor, 27, "Minimum supported version must be 1.27");
 
         assert_eq!(max.major, 1);
-        assert_eq!(max.minor, 30, "Maximum supported version must be 1.30");
+        assert_eq!(max.minor, 32, "Maximum supported version must be 1.32");
 
-        // Ensure all four versions are present
+        // Ensure all six versions are present
         let minor_set: std::collections::HashSet<u32> = versions.iter().map(|v| v.minor).collect();
-        for minor in [27u32, 28, 29, 30] {
+        for minor in [27u32, 28, 29, 30, 31, 32] {
             assert!(
                 minor_set.contains(&minor),
                 "Version 1.{} must be in supported_k8s_versions()",
@@ -409,17 +454,17 @@ mod tests {
 
         assert_eq!(
             matrix.k8s_versions.len(),
-            4,
-            "Matrix must cover 4 K8s versions"
+            6,
+            "Matrix must cover 6 K8s versions"
         );
 
-        let expected_result_count = 4 * CompatibilityFeature::all().len();
+        let expected_result_count = 6 * CompatibilityFeature::all().len();
         assert_eq!(
             matrix.results.len(),
             expected_result_count,
             "Matrix must contain {} results ({} versions × {} features)",
             expected_result_count,
-            4,
+            6,
             CompatibilityFeature::all().len()
         );
 
@@ -435,7 +480,11 @@ mod tests {
 
         // Every version must have at least one result entry
         for version in &supported {
-            let count = matrix.results.iter().filter(|r| &r.version == version).count();
+            let count = matrix
+                .results
+                .iter()
+                .filter(|r| &r.version == version)
+                .count();
             assert!(
                 count > 0,
                 "No results found for version {} in the matrix",
@@ -452,17 +501,37 @@ mod tests {
         let json = matrix_to_json(&matrix);
 
         // Required top-level keys
-        assert!(json.get("versions").is_some(), "JSON must have 'versions' key");
-        assert!(json.get("features").is_some(), "JSON must have 'features' key");
-        assert!(json.get("results").is_some(), "JSON must have 'results' key");
-        assert!(json.get("summary").is_some(), "JSON must have 'summary' key");
+        assert!(
+            json.get("versions").is_some(),
+            "JSON must have 'versions' key"
+        );
+        assert!(
+            json.get("features").is_some(),
+            "JSON must have 'features' key"
+        );
+        assert!(
+            json.get("results").is_some(),
+            "JSON must have 'results' key"
+        );
+        assert!(
+            json.get("summary").is_some(),
+            "JSON must have 'summary' key"
+        );
 
-        // versions array must have 4 entries
-        let versions_arr = json["versions"].as_array().expect("'versions' must be an array");
-        assert_eq!(versions_arr.len(), 4, "'versions' array must contain 4 entries");
+        // versions array must have 6 entries
+        let versions_arr = json["versions"]
+            .as_array()
+            .expect("'versions' must be an array");
+        assert_eq!(
+            versions_arr.len(),
+            6,
+            "'versions' array must contain 6 entries"
+        );
 
         // features array must have one entry per CompatibilityFeature variant
-        let features_arr = json["features"].as_array().expect("'features' must be an array");
+        let features_arr = json["features"]
+            .as_array()
+            .expect("'features' must be an array");
         assert_eq!(
             features_arr.len(),
             CompatibilityFeature::all().len(),
@@ -472,8 +541,14 @@ mod tests {
         // summary must have total / passed / failed
         let summary = &json["summary"];
         assert!(summary.get("total").is_some(), "summary must have 'total'");
-        assert!(summary.get("passed").is_some(), "summary must have 'passed'");
-        assert!(summary.get("failed").is_some(), "summary must have 'failed'");
+        assert!(
+            summary.get("passed").is_some(),
+            "summary must have 'passed'"
+        );
+        assert!(
+            summary.get("failed").is_some(),
+            "summary must have 'failed'"
+        );
 
         // total == passed + failed
         let total = summary["total"].as_u64().expect("total must be a number");
@@ -486,10 +561,12 @@ mod tests {
         );
 
         // results array must have the expected number of entries
-        let results_arr = json["results"].as_array().expect("'results' must be an array");
+        let results_arr = json["results"]
+            .as_array()
+            .expect("'results' must be an array");
         assert_eq!(
             results_arr.len(),
-            (4 * CompatibilityFeature::all().len()),
+            (6 * CompatibilityFeature::all().len()),
             "'results' array length must equal versions × features"
         );
     }
@@ -551,7 +628,11 @@ mod tests {
         // Verify each feature variant appears exactly once (by checking
         // that the result test_name contains the feature label substring)
         for feature in &all_features {
-            let key = feature.label().to_lowercase().replace(' ', "_").replace('.', "");
+            let key = feature
+                .label()
+                .to_lowercase()
+                .replace(' ', "_")
+                .replace('.', "");
             let found = results.iter().any(|r| r.test_name.contains(&key));
             assert!(
                 found,
@@ -593,17 +674,17 @@ mod tests {
         );
     }
 
-    /// Asserts that the current target version (1.30) has all features passing.
+    /// Asserts that the current target version (1.32) has all features passing.
     #[test]
     fn test_current_version_fully_supported() {
-        let current = K8sVersion::new(1, 30);
+        let current = K8sVersion::new(1, 32);
         let results = check_api_version_compatibility(&current);
 
         let failed: Vec<&CompatTestResult> = results.iter().filter(|r| !r.passed).collect();
 
         assert!(
             failed.is_empty(),
-            "Version 1.30 (current target) must have all features passing. \
+            "Version 1.32 (current target) must have all features passing. \
              Failed features: {:?}",
             failed
                 .iter()
@@ -622,35 +703,38 @@ mod tests {
         let versions = supported_k8s_versions();
         let mut sorted = versions.clone();
         sorted.sort();
-        assert_eq!(versions, sorted, "supported_k8s_versions() must be sorted ascending");
+        assert_eq!(
+            versions, sorted,
+            "supported_k8s_versions() must be sorted ascending"
+        );
     }
 
-    /// Checks that version 1.30 appears in the matrix and its results are all passing.
+    /// Checks that version 1.32 appears in the matrix and its results are all passing.
     #[test]
     fn test_matrix_current_version_all_pass() {
         let matrix = build_compatibility_matrix();
-        let current = K8sVersion::new(1, 30);
+        let current = K8sVersion::new(1, 32);
 
         assert!(
             matrix.k8s_versions.contains(&current),
-            "Matrix must contain version 1.30"
+            "Matrix must contain version 1.32"
         );
 
-        let v130_results: Vec<&CompatTestResult> = matrix
+        let v132_results: Vec<&CompatTestResult> = matrix
             .results
             .iter()
             .filter(|r| r.version == current)
             .collect();
 
         assert!(
-            !v130_results.is_empty(),
-            "Matrix must contain results for version 1.30"
+            !v132_results.is_empty(),
+            "Matrix must contain results for version 1.32"
         );
 
-        for result in &v130_results {
+        for result in &v132_results {
             assert!(
                 result.passed,
-                "Feature test '{}' must pass for version 1.30",
+                "Feature test '{}' must pass for version 1.32",
                 result.test_name
             );
         }
@@ -727,7 +811,10 @@ mod tests {
     fn test_matrix_table_non_empty() {
         let matrix = build_compatibility_matrix();
         let table = print_matrix_table(&matrix);
-        assert!(!table.is_empty(), "print_matrix_table must return non-empty output");
+        assert!(
+            !table.is_empty(),
+            "print_matrix_table must return non-empty output"
+        );
 
         // Print to stdout when running with --nocapture so developers can
         // inspect the table visually.
@@ -739,7 +826,7 @@ mod tests {
     fn test_json_summary_total() {
         let matrix = build_compatibility_matrix();
         let json = matrix_to_json(&matrix);
-        let expected_total = (4 * CompatibilityFeature::all().len()) as u64;
+        let expected_total = (6 * CompatibilityFeature::all().len()) as u64;
         let actual_total = json["summary"]["total"]
             .as_u64()
             .expect("summary.total must be a number");

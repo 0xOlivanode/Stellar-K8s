@@ -1,3 +1,15 @@
+// Copyright 2024 Stellar-K8s Contributors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //! Organizational Standards Validator
 //!
 //! Validates that all StellarNode resources meet organizational standards:
@@ -195,7 +207,7 @@ fn validate_resource_limits(node: &StellarNode, errors: &mut Vec<OrgValidationEr
 
 /// In production mode, ensure resource *requests* meet per-node-type minimums.
 ///
-/// Non-production nodes (Testnet/Futurenet/Custom) are exempt. Unparseable
+/// Non-production nodes (Testnet/Futurenet/Custom) are exempt. Unparsable
 /// quantities are skipped here — `validate_resource_presence` already rejects
 /// empty/zero values, and the Kubernetes API server rejects malformed ones.
 fn validate_minimum_resources(node: &StellarNode, errors: &mut Vec<OrgValidationError>) {
@@ -267,6 +279,8 @@ fn validate_required_labels(node: &StellarNode, errors: &mut Vec<OrgValidationEr
 /// Supports: "500m", "1", "2.5", "4000m"
 fn parse_cpu_millicores(s: &str) -> Option<u64> {
     let s = s.trim();
+    if let Some(rest) = s.strip_suffix('m') {
+        rest.parse::<u64>().ok()
     if let Some(stripped) = s.strip_suffix('m') {
         stripped.parse::<u64>().ok()
     } else {
@@ -279,6 +293,14 @@ fn parse_cpu_millicores(s: &str) -> Option<u64> {
 /// Supports: "512Mi", "1Gi", "2048M", "1073741824" (bytes)
 fn parse_memory_mib(s: &str) -> Option<u64> {
     let s = s.trim();
+    if let Some(rest) = s.strip_suffix("Gi") {
+        rest.parse::<f64>().ok().map(|v| (v * 1024.0) as u64)
+    } else if let Some(rest) = s.strip_suffix("Mi") {
+        rest.parse::<u64>().ok()
+    } else if let Some(rest) = s.strip_suffix('G') {
+        rest.parse::<f64>().ok().map(|v| (v * 953.674) as u64) // 1 GB ≈ 953.674 MiB
+    } else if let Some(rest) = s.strip_suffix('M') {
+        rest.parse::<f64>().ok().map(|v| (v * 0.953674) as u64)
     if let Some(stripped) = s.strip_suffix("Gi") {
         stripped.parse::<f64>().ok().map(|v| (v * 1024.0) as u64)
     } else if let Some(stripped) = s.strip_suffix("Mi") {

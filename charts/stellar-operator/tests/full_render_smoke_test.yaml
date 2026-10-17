@@ -11,6 +11,7 @@ templates:
   - templates/operator-config.yaml
   - templates/feature-flags-configmap.yaml
   - templates/secret.yaml
+  - templates/mtls-peer-authentication.yaml
 
 tests:
   - it: deployment renders without errors with default values
@@ -28,6 +29,41 @@ tests:
           path: spec.template.spec.containers[0].readinessProbe
       - isNotNull:
           path: spec.template.spec.securityContext
+
+  - it: mTLS enables Istio injection and operator certificate setup
+    template: templates/deployment.yaml
+    set:
+      mtls.enabled: true
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations["sidecar.istio.io/inject"]
+          value: "true"
+      - equal:
+          path: spec.template.metadata.labels["stellar.org/mtls-mode"]
+          value: strict
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: --enable-mtls
+
+  - it: mTLS enforces strict Istio peer authentication for StellarNode workloads
+    template: templates/mtls-peer-authentication.yaml
+    set:
+      mtls.enabled: true
+    asserts:
+      - isKind:
+          of: PeerAuthentication
+      - equal:
+          path: spec.selector.matchLabels["stellar.org/mtls-mode"]
+          value: strict
+      - equal:
+          path: spec.mtls.mode
+          value: STRICT
+
+  - it: peer authentication is absent when mTLS is disabled
+    template: templates/mtls-peer-authentication.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
 
   - it: service renders without errors with default values
     template: templates/service.yaml
@@ -82,10 +118,10 @@ tests:
           path: spec.template.spec.containers[0].image
           value: ghcr.io/stellar/stellar-k8s:0.1.0
 
-  - it: deployment does not include sidecar container by default
+  - it: deployment includes sidecar container by default
     template: templates/deployment.yaml
     asserts:
-      - notContains:
+      - contains:
           path: spec.template.spec.containers
           content:
             name: crash-analyzer
@@ -97,6 +133,17 @@ tests:
       sidecar.enabled: true
     asserts:
       - contains:
+          path: spec.template.spec.containers
+          content:
+            name: crash-analyzer
+          any: true
+
+  - it: sidecar container absent when sidecar.enabled is false
+    template: templates/deployment.yaml
+    set:
+      sidecar.enabled: false
+    asserts:
+      - notContains:
           path: spec.template.spec.containers
           content:
             name: crash-analyzer

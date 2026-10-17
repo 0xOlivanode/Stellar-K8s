@@ -1,3 +1,15 @@
+// Copyright 2024 Stellar-K8s Contributors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //! Condition management helpers following Kubernetes API conventions
 
 use chrono::Utc;
@@ -9,6 +21,16 @@ pub const CONDITION_TYPE_READY: &str = "Ready";
 pub const CONDITION_TYPE_PROGRESSING: &str = "Progressing";
 pub const CONDITION_TYPE_DEGRADED: &str = "Degraded";
 pub const CONDITION_TYPE_AVAILABLE: &str = "Available";
+
+/// Compliance condition type for testnet validation warnings
+pub const CONDITION_TYPE_COMPLIANCE: &str = "Compliance";
+
+/// Peer reachability condition for validator overlay connectivity.
+///
+/// `True` means at least one configured peer answered, `False` means every
+/// configured peer is unreachable, and `Unknown` means no peers are configured.
+/// See [`crate::controller::peer_connectivity`].
+pub const CONDITION_TYPE_PEER_CONNECTIVITY: &str = "PeerConnectivity";
 
 /// Standard condition statuses
 pub const CONDITION_STATUS_TRUE: &str = "True";
@@ -105,18 +127,6 @@ pub fn progressing_condition(reason: &str, message: &str) -> Condition {
     }
 }
 
-/// Create a Progressing=False condition
-pub fn not_progressing_condition(reason: &str, message: &str) -> Condition {
-    Condition {
-        type_: CONDITION_TYPE_PROGRESSING.to_string(),
-        status: CONDITION_STATUS_FALSE.to_string(),
-        last_transition_time: Utc::now().to_rfc3339(),
-        reason: reason.to_string(),
-        message: message.to_string(),
-        observed_generation: None,
-    }
-}
-
 /// Create a Degraded=True condition
 pub fn degraded_condition(reason: &str, message: &str) -> Condition {
     Condition {
@@ -125,18 +135,6 @@ pub fn degraded_condition(reason: &str, message: &str) -> Condition {
         last_transition_time: Utc::now().to_rfc3339(),
         reason: reason.to_string(),
         message: message.to_string(),
-        observed_generation: None,
-    }
-}
-
-/// Create a Degraded=False condition
-pub fn not_degraded_condition() -> Condition {
-    Condition {
-        type_: CONDITION_TYPE_DEGRADED.to_string(),
-        status: CONDITION_STATUS_FALSE.to_string(),
-        last_transition_time: Utc::now().to_rfc3339(),
-        reason: "NoIssues".to_string(),
-        message: "No degradation detected".to_string(),
         observed_generation: None,
     }
 }
@@ -640,16 +638,6 @@ mod tests {
     }
 
     #[test]
-    fn test_not_progressing_condition_constructor() {
-        let condition = not_progressing_condition("Idle", "No active sync");
-
-        assert_eq!(condition.type_, CONDITION_TYPE_PROGRESSING);
-        assert_eq!(condition.status, CONDITION_STATUS_FALSE);
-        assert_eq!(condition.reason, "Idle");
-        assert_eq!(condition.message, "No active sync");
-    }
-
-    #[test]
     fn test_degraded_condition_constructor() {
         let condition = degraded_condition("HighLatency", "Network latency detected");
 
@@ -657,16 +645,6 @@ mod tests {
         assert_eq!(condition.status, CONDITION_STATUS_TRUE);
         assert_eq!(condition.reason, "HighLatency");
         assert_eq!(condition.message, "Network latency detected");
-    }
-
-    #[test]
-    fn test_not_degraded_condition_constructor() {
-        let condition = not_degraded_condition();
-
-        assert_eq!(condition.type_, CONDITION_TYPE_DEGRADED);
-        assert_eq!(condition.status, CONDITION_STATUS_FALSE);
-        assert_eq!(condition.reason, "NoIssues");
-        assert_eq!(condition.message, "No degradation detected");
     }
 
     // ── complex scenarios ─────────────────────────────────────────────────────
