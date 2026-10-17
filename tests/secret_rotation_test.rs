@@ -1,3 +1,15 @@
+// Copyright 2024 Stellar-K8s Contributors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //! Isolated fixture suite for secret rotation types.
 //!
 //! Refactored in issue #1140: cluster-dependent test (`test_password_generation`)
@@ -38,6 +50,19 @@ async fn test_secret_rotation_config_serialization() {
 }
 
 #[tokio::test]
+async fn test_password_generation() {
+    // This test requires a Kubernetes client, so we'll skip it in CI
+    // In a real environment, you would use a test cluster
+    if std::env::var("KUBERNETES_SERVICE_HOST").is_err() {
+        return;
+    }
+
+    let config = SecretRotationConfig::default();
+    let client = kube::Client::try_default().await.unwrap();
+    let _scheduler = SecretRotationScheduler::new(config.clone(), client);
+
+    // Test password generation through the public interface
+    // Note: generate_secure_password is private, so we test indirectly
 async fn test_secret_rotation_config_round_trip_preserves_all_fields() {
     let config = secret_rotation_full();
     let deserialized: SecretRotationConfig =
@@ -56,7 +81,10 @@ async fn test_secret_rotation_config_round_trip_preserves_all_fields() {
         deserialized.audit_log_destination,
         config.audit_log_destination
     );
-    assert_eq!(deserialized.notification_webhook, config.notification_webhook);
+    assert_eq!(
+        deserialized.notification_webhook,
+        config.notification_webhook
+    );
 }
 
 // ── Cluster tests (require a live Kubernetes API) ─────────────────────────────

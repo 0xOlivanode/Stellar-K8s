@@ -14,6 +14,18 @@ If you run into issues, jump to the relevant section below:
 
 ## 1. Fork and Pull Request Workflow
 
+Maintainers can follow the [issue label review guide](docs/development/issue-label-review.md)
+to check template labels and triage issues.
+
+Reviewer routing lives in [CODEOWNERS](.github/CODEOWNERS). Keep the default
+rule first and specific overrides last: GitHub uses the last matching rule,
+not a union of matching owners. Remove shadowed duplicate patterns when trimming
+the file, while preserving the effective owners. In particular, `/src/webhook/`
+routes to `@security-team`, and the performance workflow overrides the general
+workflow owners. Verify edits by comparing effective owners for those paths,
+ordinary controller files, and an unmatched path before and after the change.
+Maintainers should also check GitHub's CODEOWNERS view for syntax or access errors.
+
 We use a fork-and-pull-request model. The basic flow is:
 
 1. **Fork** the repository on GitHub.
@@ -64,6 +76,15 @@ We prefer a clean history. When your PR is approved, maintainers will typically 
 
 If your PR contains multiple logical changes, split it into separate branches and PRs.
 
+### Branch Protection
+
+Changes to `main` must go through a pull request. The `main` branch protection rule should require:
+
+- A pull request before merging.
+- Passing status checks before merging: `ci / build`, `ci / test`, `ci / security-audit`.
+
+See [Dependency Update Process](docs/dependency-update-process.md#branch-protection-prerequisites) for the full list of settings that auto-merge depends on.
+
 ## 3. PR Checklist
 
 Before opening a PR, confirm the following:
@@ -79,26 +100,33 @@ Before opening a PR, confirm the following:
 - [ ] The PR description is filled out completely using the template.
 - [ ] The PR includes links to any related issues or design discussions.
 
+### Code owners
+
+Reviewers are assigned automatically from [`.github/CODEOWNERS`](.github/CODEOWNERS)
+(last matching rule wins). Paths such as `src/webhook/`, `charts/`, and `docs/` route
+to specific teams, so expect those reviews when you touch them. Keep the file in sync
+when paths move or teams change.
+
 ### Required checks
 
-Run these locally before submitting. Always use the `make` targets — they
-wrap the underlying `cargo` commands with the workspace's feature flags
-(`rest-api`, `metrics`, `admission-webhook`, `k8s-v1-30`, `reconciler-fuzz`)
-and `K8S_OPENAPI_ENABLED_VERSION`, so plain `cargo fmt`/`cargo clippy`/`cargo
-test` invocations will not match CI exactly.
+Before submitting, run the contributor health gates via `make` (not raw
+`cargo` — Make targets set the workspace feature flags so results match CI):
 
 ```bash
-make fmt          # Auto-format (wraps `cargo fmt --all`)
-make lint         # Clippy with project feature flags (wraps `cargo clippy ...`)
-make test         # Workspace tests + doc tests (wraps `cargo test ...`)
-make ci-local     # Full local CI gate: fmt-check + lint + audit + test + build + link-check
+make health        # Format + lint + tests + docs
+make ci-local      # Full local CI gate (includes audit + link-check)
 ```
 
-If your change adds shell scripts or repository tooling, also run:
+The full checklist, command rationale, and per-step details live in the
+[Canonical Repository Health Checklist](docs/development/repo-health-checklist.md).
+If your change adds shell scripts, also run `make shellcheck`.
 
+Spell checking runs in the `Codespell` CI job; run the same check locally with:
 ```bash
-make shellcheck
+pip install codespell
+make codespell
 ```
+Add genuine false positives (one lowercase word per line) to `.codespellignore`.
 
 ## 4. Commit Message Examples
 
@@ -163,7 +191,7 @@ The template ensures your change includes:
 
 ### Prerequisites
 
-- Rust stable (1.88+)
+- Rust 1.92+ (CI-enforced minimum — see `scripts/lib/versions.sh`)
 - Kubernetes local cluster (`kind`, `minikube`, etc.)
 - Docker
 - `cargo-audit`
@@ -171,43 +199,101 @@ The template ensures your change includes:
 
 ### Setup
 
-Use the OS setup script to install and pin all required tools, then run `make dev-setup` to install Rust components and pre-commit hooks:
+Docker, kind, kubectl, Helm, and `gh` must currently be installed manually
+for your OS (automated installers for these are tracked separately — see
+[DEVELOPMENT.md § Prerequisites](DEVELOPMENT.md#prerequisites) for the
+per-tool install links). Then run:
 
 ```bash
-# macOS
-bash scripts/setup-mac.sh
-
-# Linux (Ubuntu/Debian/Fedora)
-bash scripts/setup-linux.sh
-
-# Both platforms: install Rust components and pre-commit hooks
 make dev-setup
 ```
 
-Both setup scripts are idempotent and print a summary of installed versions.
+`make dev-setup` installs the Rust toolchain/components, `cargo-audit` and
+`cargo-watch`, and the `pre-commit` hooks, then runs
+`stellar-bootstrap-verify` as a final step and prints a pass/fail report of
+every required tool and version pin — see
+[DEVELOPMENT.md § Troubleshooting](DEVELOPMENT.md#missing-or-outdated-tools)
+if it reports anything missing or outdated.
 
 ### Local checks — Canonical Workflow
 
-Always drive the local pipeline through `make` targets. They wrap `cargo`
-with the workspace's feature flags so the results match CI exactly:
+Always drive the local pipeline through `make` targets so results match CI:
 
 ```bash
-make dev-setup     # One-time: install Rust toolchain, tools, and pre-commit hooks
-make quick         # Fast pre-commit check (fmt-check + cargo check)
-make ci-local      # Full CI pipeline (fmt-check + lint + audit + test + build + link-check)
-make health        # Full contributor health gate
+make health        # Contributor health gate
+make ci-local      # Full CI pipeline (fmt-check + lint + docs-lint + audit + test + build + link-check)
 ```
 
-Or run individual steps:
+See the [Canonical Repository Health Checklist](docs/development/repo-health-checklist.md)
+for the full command set and per-step expectations.
+
+### Script tests — bats harness
+
+Shell scripts under `scripts/` are covered by a [bats](https://github.com/bats-core/bats-core)
+test harness in `scripts/tests/`. CI runs these suites on every PR that touches
+`scripts/`, so add or extend a suite whenever you change a script.
+
+**Prerequisites** — install bats (and its helper libraries) locally:
 
 ```bash
-make fmt           # Format (wraps `cargo fmt --all`)
-make lint          # Clippy with project feature flags
-make test          # Workspace tests + doc tests
-make security-all  # Audit + shellcheck
-make link-check    # Markdown link/anchor check (PR-time)
-make link-check-all # Repo-wide link check via lychee (markdown + source + configs)
+# macOS
+brew install bats-core
+
+# Debian/Ubuntu
+sudo apt-get install -y bats
+
+# Any platform via npm
+npm install -g bats
 ```
+
+**Run the suites** — the same target the `Bats Suites` CI job uses (every suite
+except `helm-drift.bats`, which needs `helm` and runs via `make test-helm-drift`):
+
+```bash
+make test-bats
+```
+
+To run a single suite while iterating:
+
+```bash
+bats scripts/tests/preflight.bats
+```
+
+**Adding a new suite** — create `scripts/tests/<script-name>.bats` next to the
+script it exercises, then:
+
+1. Start the file with `#!/usr/bin/env bats` and load shared helpers with
+   `load 'test_helper'` if the suite needs common fixtures.
+2. Add one `@test "<description>"` block per behavior you want to lock in.
+3. Use `run <command>` and assert on `$status` / `$output` so failures are
+   reported per test case.
+4. Keep each suite self-contained: create any temp files under `$BATS_TEST_TMPDIR`
+   and clean up after the test.
+5. Verify locally with `bats scripts/tests/<script-name>.bats` before pushing.
+
+**Reference suite** — [`scripts/tests/preflight.bats`](scripts/tests/preflight.bats)
+is the canonical example: it shows the expected file layout, helper loading, and
+assertion style to follow when adding new suites.
+
+### Operational scripts index
+
+[`scripts/README.md`](scripts/README.md) indexes every operational script in the
+repository: what it does, the canonical invocation (and the `make` target that
+wraps it, where one exists), and the suite in `scripts/tests/` that covers it. It
+also separates the CI-only helpers in `scripts/ci/` from the scripts you are
+expected to run locally.
+
+To lint the GitHub issue templates locally — the same check CI runs when
+`.github/ISSUE_TEMPLATE/` or the linter changes:
+
+```bash
+make issue-template-lint
+```
+
+The command exits non-zero and lists every offending template when an Issue Form
+is missing required keys (`name`, `description`, `body`), uses an unsupported
+`body` field type, or has a malformed `config.yml`. It is also part of
+`make health`.
 
 ## 8. Coding Standards
 
@@ -225,77 +311,32 @@ make link-check-all # Repo-wide link check via lychee (markdown + source + confi
 - Unused imports must be removed before merging.
 - Feature-gated code that is no longer used should be deleted, not suppressed.
 
+### Container environment variable conventions
+
+- **Seed injection deduplication**: A `StellarNode` may configure its validator seed via the legacy `spec.validatorConfig.seedSecretRef` (a plain Kubernetes Secret reference) or the newer `spec.validatorConfig.seedSecretSource` (KMS/ESO/CSI/Vault-backed). Both paths inject an environment variable named `STELLAR_CORE_SEED` into the pod spec. To prevent the API server from rejecting the pod due to duplicate environment variable names, the pod builder merges env vars **by name** using `merge_env_overrides` (see `src/controller/resources.rs`) instead of appending. The last writer wins, which gives `seedSecretSource` precedence over `seedSecretRef` — matching the precedence in `ValidatorConfig::resolve_seed_source()`. If both fields are set, only one `STELLAR_CORE_SEED` entry appears in the rendered pod spec, sourced from `seedSecretSource`.
+- **No hard rejection**: The operator does **not** reject a CR that sets both `seedSecretRef` and `seedSecretSource`; it silently deduplicates. This preserves backward compatibility with existing clusters that may have both fields populated during migration.
+- **Auditing other env vars**: The same `merge_env_overrides` mechanism is used for `stellarCoreEnv` (Validator), `horizonEnv` (Horizon), and any custom env vars injected via CSI/Vault. Contributors adding new env var injection paths **must** route them through `merge_env_overrides` (or `build_container` for the legacy `seedSecretRef` path) rather than using `Vec::extend` on the container's `env` list. A property-based test in `src/controller/seed_env_dedupe_test.rs` asserts uniqueness of all env var names across all three node types.
+
 ### Documentation conventions
 
 - Documentation files use `kebab-case.md` (e.g., `disk-scaling.md`).
 - Files that belong to a topic area go in the matching `docs/<topic>/` subdirectory.
 - Root-level docs (`README.md`, `DEVELOPMENT.md`, `CONTRIBUTING.md`) are entry points only — detailed content belongs in `docs/`.
-- New doc files must be linked from `docs/README.md` under the appropriate section.
+- New doc files must be added to `mkdocs.yml` under the appropriate section.
 
 ### Script conventions
 
-- Scripts use `kebab-case.sh` (e.g., `setup-mac.sh`).
+- Scripts use `kebab-case.sh` (e.g., `cleanup.sh`).
 - Every script must pass `shellcheck -S error`.
-- Historical or one-off scripts should be moved to `scripts/archive/` rather than left in the root of `scripts/`.
+- Do not add one-off archive or batch scripts under `scripts/`. Use
+  `scripts/cleanup.sh` (`make cleanup`) as the single cleanup entrypoint, or
+  remove obsolete helpers entirely.
+- Historical or one-off scripts should not be committed to the repository; keep only operational scripts under `scripts/`.
 
 ### Manifest and config conventions
 
 - CRD YAML files follow the `stellar{feature}-crd.yaml` naming pattern under `config/crd/`.
 - Example manifests in `examples/` use descriptive, feature-based names — not issue numbers.
-- Generated manifests (CRDs, API reference, bundle) must be regenerated from their source before merging. See the [Regenerating Manifests](DEVELOPMENT.md#regenerating-manifests) table in DEVELOPMENT.md.
+- Generated manifests (CRDs, API reference, bundle) must be regenerated from their source before merg
 
-## 9. Repo Health Checklist
-
-Run through this before marking a PR ready for review:
-
-- [ ] `make health` passes (format + lint + test + docs) — or `make ci-local` for the full audit + link-check gate
-- [ ] `make validate` passes for a quick pre-push compile check
-- [ ] No new `#[allow(dead_code)]` without an explanatory comment
-- [ ] No unused imports in modified files
-- [ ] Generated manifests are up to date with their source
-- [ ] Shell scripts pass `shellcheck -S error`
-- [ ] New doc files are linked from `docs/README.md`
-- [ ] Commit messages follow Conventional Commits and include a `Signed-off-by` line
-Before requesting a review for a Pull Request, please ensure all checks listed in the [Canonical Repository Health Checklist](docs/development/repo-health-checklist.md) have been run and verified.
-
-## 10. Need Help?
-
-If you're stuck, open a Draft PR or create an issue to ask for guidance.
-
-Refer to [README.md](README.md) and [DEVELOPMENT.md](DEVELOPMENT.md) for additional project setup and workflow information.
-
-## Troubleshooting
-
-### Setup Issues
-- **Problem**: `make` or `cargo` commands not found.
-  - **Solution**: Ensure you have installed the necessary dependencies from `DEVELOPMENT.md`.
-- **Problem**: Minikube / Kind cluster fails to start.
-  - **Solution**: Check your Docker daemon is running and has enough resources allocated (minimum 4GB RAM, 2 CPUs).
-
-### Build Failures
-- **Problem**: Code fails to compile due to missing dependencies.
-  - **Solution**: Run `cargo fetch` or `cargo update` to ensure you have the latest crates. Also, ensure your system has `cmake`, `libssl-dev`, and `pkg-config` installed.
-- **Problem**: Tests fail locally but pass on CI.
-  - **Solution**: Run `make clean` and then rebuild. Sometimes local artifacts can get stale.
-
-### Cargo Issues
-- **Problem**: Cargo build is extremely slow.
-  - **Solution**: We highly recommend using `sccache` to cache intermediate build results. Follow the instructions in `DEVELOPMENT.md` to set it up.
-
-### Docker Issues
-- **Problem**: Docker build fails with out of space errors.
-  - **Solution**: Run `docker system prune` to free up space. The build requires at least 10GB of free space due to the multi-stage cargo caching.
-- **Problem**: `make quick` fails during docker validation.
-  - **Solution**: Make sure you have the latest base images pulled locally.
-
-### Kubernetes Issues
-- **Problem**: Operator pod is crashlooping.
-  - **Solution**: Check the operator logs using `kubectl logs -n stellar-system -l app.kubernetes.io/name=stellar-operator`. Often, this is due to invalid RBAC permissions or missing secrets.
-- **Problem**: Custom Resource Definitions (CRDs) not applying.
-  - **Solution**: Ensure your KUBECONFIG points to the correct cluster. Run `make install` to manually install the CRDs into your cluster.
-
-### CI Failures
-- **Problem**: GitHub Actions workflow fails on linting.
-  - **Solution**: Run `make fmt` and `make lint` locally before pushing. Also, check `.pre-commit-config.yaml` to ensure your pre-commit hooks are installed.
-- **Problem**: Link validation CI fails.
-  - **Solution**: Run `make link-check` for markdown link/anchor issues, or `make link-check-all` for the full repo-wide check (markdown + source + configs).
+/* … truncated 3674 chars — edit only what you need near the top … */
