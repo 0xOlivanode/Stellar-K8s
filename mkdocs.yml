@@ -106,6 +106,9 @@ nav:
     - multi-region-deployment-and-failover.md
   - Configuration:
     - configuration/index.md
+    - CRD Reference: api-reference.md
+    - Operators: operator-sdk-guide.md
+    - Storage: volume-snapshots.md
     - CRD Reference: configuration/crd-reference.md
     - Operators: configuration/operators.md
     - Storage: configuration/storage.md
@@ -114,6 +117,8 @@ nav:
   - Tutorials:
     - tutorials/index.md
     - Deploy Testnet Validator: tutorials/deploy-testnet-validator.md
+    - Configure HA Setup: deployment-patterns/validator-ha-topology.md
+    - Backup and Restore: backup-verification.md
     - Configure HA Setup: tutorials/configure-ha-setup.md
     - Backup and Restore: tutorials/backup-restore.md
   - Operations & Observability:
@@ -122,6 +127,7 @@ nav:
     - Monitoring and Dashboards Operational Runbook: MONITORING_OPERATIONAL_RUNBOOK.md
     - Production Profiling Runbook: operations/profiling-runbook.md
     - Core Blue/Green Runbook: operations/core-blue-green-runbook.md
+    - Observability Overview: observability/index.md
     - OpenTelemetry Tracing: observability/tracing.md
     - Distributed Rate Limiting: distributed-rate-limiting.md
     - Feature Flag Rollouts: feature-flag-rollouts.md
@@ -144,6 +150,7 @@ nav:
       - Client Libraries: api/client-libraries.md
   - Security:
     - Security Compliance Guide: security/compliance-guide.md
+    - Security Review: security/security-review.md
     - Container Image Security: container-image-security.md
     - Credentials & Secrets: security/credentials-and-secrets.md
     - Pod Security Standards: security/pss.md
@@ -153,8 +160,12 @@ nav:
   - Development:
     - Regeneration Guide: development/regeneration-guide.md
     - Repo Health Checklist: development/repo-health-checklist.md
+    - Scripts Reference: development/scripts-reference.md
     - Static Analysis Gates: development/static-analysis-gates.md
     - License Header Compliance: development/license-headers.md
+    - Documentation Build: development/docs-build.md
+    - Navigation Coverage: development/docs-nav-coverage.md
+    - Link Integrity: development/docs-link-integrity.md
     - Automated Load Testing: load-testing.md
     - YAML Schema Validation: yaml-schema-validation.md
     - Helm Chart Testing: helm-chart-testing.md
