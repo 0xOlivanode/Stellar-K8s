@@ -7,7 +7,7 @@
 <!-- CI / Quality -->
 <p align="center">
   <a href="https://github.com/OtowoOrg/Stellar-K8s/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/OtowoOrg/Stellar-K8s/ci.yml?branch=main&style=for-the-badge&label=CI&logo=github" alt="CI" />
+    <img src="https://img.shields.io/github/actions/workflow/status/OtowoOrg/Stellar-K8s/ci.yml?branch=main&style=for-the-badge&label=CI&logo=github" alt="CI Status" />
   </a>
   <a href="https://codecov.io/gh/OtowoOrg/Stellar-K8s">
     <img src="https://img.shields.io/codecov/c/github/OtowoOrg/Stellar-K8s/main?style=for-the-badge&logo=codecov" alt="Coverage" />
@@ -385,6 +385,8 @@ We welcome contributions! This project uses pre-commit hooks to ensure code qual
 
 Please see our **[Contributing Guide](CONTRIBUTING.md)** for details on our workflow, commit conventions, and pull request guidelines. For development setup instructions, see the **[Development Guide](DEVELOPMENT.md)**.
 
+Want the background story behind the project? Read the **[PITCH storyboards](docs/PITCH.md)** for the problem statement, target users, and the roadmap narrative.
+
 Report bugs, request features, propose epics, or submit maintenance and support requests using the [issue templates](https://github.com/OtowoOrg/Stellar-K8s/issues/new/choose).
 
 ---
@@ -720,6 +722,18 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and releases.
 
 ## Handsoff notes
+
+<!-- handsoff-issue-1674 -->
+- #1674: [EPIC] CI badge status — CI badge verified against `.github/workflows/ci.yml`; links resolve to the workflow page.
+
+<!-- handsoff-issue-1675 -->
+- #1675: [EPIC] README update — refreshed cross-references (CONTRIBUTING, PITCH storyboards) and badge block.
+
+<!-- handsoff-issue-1676 -->
+- #1676: [EPIC] CONTRIBUTING docs — linked from the Contributing section above.
+
+<!-- handsoff-issue-1677 -->
+- #1677: [EPIC] PITCH storyboards — linked from the Contributing section above (`docs/PITCH.md`).
 
 <!-- handsoff-issue-1630 -->
 - #1630: [EPIC] Add bats Coverage for secret-rotation-check Script

@@ -2,6 +2,18 @@
 
 Thank you for contributing to Stellar-K8s! This guide explains how to work with the project, keep your pull requests ready for review, and follow our commit and merge conventions.
 
+## Quick Start
+
+New to the project? Start here:
+
+1. [Development Environment](#7-development-environment) — install prerequisites and run `make dev-setup`.
+2. [Local checks](#local-checks--canonical-workflow) — run `make health` and `make ci-local` before pushing.
+3. [Commit Message Examples](#4-commit-message-examples) and [DCO](#5-developer-certificate-of-origin-dco) — format commits and sign off.
+4. [PR Checklist](#3-pr-checklist) — confirm your pull request is ready for review.
+
+For a narrative overview of the project's direction and design storyboards, see
+the [PITCH storyboards](docs/development/pitch-storyboards.md).
+
 ## Troubleshooting Quick Links
 
 If you run into issues, jump to the relevant section below:
@@ -224,6 +236,15 @@ make health        # Contributor health gate
 make ci-local      # Full CI pipeline (fmt-check + lint + docs-lint + audit + test + build + link-check)
 ```
 
+Individual targets, when you want to iterate on one step at a time:
+
+```bash
+make fmt           # Format Rust code
+make lint          # Clippy with the project's feature flags
+make test          # Run the test suite
+make docs-lint     # Validate documentation and links
+```
+
 See the [Canonical Repository Health Checklist](docs/development/repo-health-checklist.md)
 for the full command set and per-step expectations.
 
@@ -323,6 +344,10 @@ is missing required keys (`name`, `description`, `body`), uses an unsupported
 - Files that belong to a topic area go in the matching `docs/<topic>/` subdirectory.
 - Root-level docs (`README.md`, `DEVELOPMENT.md`, `CONTRIBUTING.md`) are entry points only — detailed content belongs in `docs/`.
 - New doc files must be added to `mkdocs.yml` under the appropriate section.
+- Design storyboards and pitch material live in
+  [`docs/development/pitch-storyboards.md`](docs/development/pitch-storyboards.md);
+  link to them from `CONTRIBUTING.md` or `DEVELOPMENT.md` rather than duplicating
+  their content.
 
 ### Script conventions
 

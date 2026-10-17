@@ -127,6 +127,7 @@ For a quick reference, key topic areas include:
 - Operations & Observability, Troubleshooting
 - API Reference, Security, Networking
 - Development, Contributing
+- PITCH Storyboards ([`pitch-storyboards.md`](./pitch-storyboards.md))
 
 ## Documentation Maintenance
 
