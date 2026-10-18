@@ -102,7 +102,7 @@ Related documentation:
 | [`health-check.sh`](health-check.sh) | See [Repository health](#repository-health-and-developer-setup). | `make health-check` | — |
 | [`quickstart-verify.sh`](quickstart-verify.sh) | End-to-end quickstart verification against a real kind cluster (creates and destroys it unless `SKIP_CLEANUP=1`). | `bash scripts/quickstart-verify.sh` (`CLUSTER_NAME=`, `SKIP_CLEANUP=`) | — |
 | [`quickstart-golden-path.sh`](quickstart-golden-path.sh) | Validates the documented quickstart path without a cluster: entry points exist, scripts parse, sample manifests are valid YAML. | `./scripts/quickstart-golden-path.sh` | — |
-| [`secret-rotation-check.sh`](secret-rotation-check.sh) | Checks operator secret rotation readiness. `--dry-run` validates arguments and prints the plan without a cluster. | `./scripts/secret-rotation-check.sh [--namespace NS] [--secret NAME] [--deployment NAME] [--window SECONDS] [--dry-run]` | — |
+| [`secret-rotation-check.sh`](secret-rotation-check.sh) | Checks operator secret rotation readiness. `--dry-run` validates arguments and prints the plan without a cluster. | `./scripts/secret-rotation-check.sh [--namespace NS] [--secret NAME] [--deployment NAME] [--window SECONDS] [--dry-run]` | [`tests/secret-rotation-check.bats`](tests/secret-rotation-check.bats) |
 | [`verify-mtls.sh`](verify-mtls.sh) | Verifies mTLS Certificates/Secrets and rotation readiness in `NAMESPACE` (default `stellar-system`). Needs `kubectl` and a cluster. | `NAMESPACE=stellar-system bash scripts/verify-mtls.sh` | — |
 | [`sync-federation-secrets.sh`](sync-federation-secrets.sh) | Copies a federation secret from a source cluster/namespace to a target cluster/namespace. Needs `kubectl` access to both clusters. | `./scripts/sync-federation-secrets.sh --source-cluster SRC --target-cluster DST --name NAME --namespace NS [--dry-run]` | — |
 | [`soak-test.sh`](soak-test.sh) | Long-running stability test: samples operator memory over `SOAK_DURATION` seconds and fails on RSS growth beyond the threshold. Needs a cluster. | `OPERATOR_NAMESPACE=stellar-system SOAK_DURATION=3600 ./scripts/soak-test.sh` | — |
@@ -161,6 +161,7 @@ Python suites use `unittest` and are run individually, e.g.
 | [`tests/dead-code-report.bats`](tests/dead-code-report.bats) | `dead-code-report.sh` report generation |
 | [`tests/helm-drift.bats`](tests/helm-drift.bats) | `check-helm-drift.sh` (requires `helm` and `python3`) |
 | [`tests/bump-chart-version.bats`](tests/bump-chart-version.bats) | `bump-chart-version.sh` SemVer rules and `min-bump` floor |
+| [`tests/secret-rotation-check.bats`](tests/secret-rotation-check.bats) | `secret-rotation-check.sh` non-destructive secret rotation verification |
 | [`tests/failure-diagnostics.bats`](tests/failure-diagnostics.bats) | `ci/collect-failure-diagnostics.sh` bundle layout |
 | [`tests/test_check_shell_safety.py`](tests/test_check_shell_safety.py) | `check-shell-safety.py` rules (both positive and negative cases) |
 | [`tests/test_validate_yaml_manifests.py`](tests/test_validate_yaml_manifests.py) | `validate-yaml-manifests.py` validation layers |

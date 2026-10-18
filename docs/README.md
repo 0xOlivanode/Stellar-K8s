@@ -1,4 +1,4 @@
-﻿# Stellar-K8s Documentation
+# Stellar-K8s Documentation
 
 Production-grade Stellar infrastructure on Kubernetes. This directory contains all operator documentation.
 
@@ -128,6 +128,7 @@ For a quick reference, key topic areas include:
 - API Reference, Security, Networking
 - Development, Contributing
 - PITCH Storyboards ([`pitch-storyboards.md`](./pitch-storyboards.md))
+- Change Notes ([`change-notes.md`](./change-notes.md))
 
 ## Documentation Maintenance
 

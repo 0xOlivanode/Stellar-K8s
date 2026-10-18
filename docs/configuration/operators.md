@@ -27,7 +27,7 @@ column shows what the Helm chart's `deployment.yaml` sets.
 |---|---|---|---|---|
 | `OPERATOR_NAMESPACE` | `--namespace` | `default` | release namespace | Namespace the operator manages and provisions certificates in. |
 | `WATCH_NAMESPACE` | `--watch-namespace` | unset (all namespaces) | — | Restrict reconciliation to one namespace (allows namespace-scoped RBAC). |
-| `DRY_RUN` | `--dry-run` | `false` | — | Run reconciliation without Kubernetes API writes. Exclusive with `RUN_SCHEDULER`. |
+| `DRY_RUN` | `--dry-run` | `false` | `true` when `operator.dryRun` | Run reconciliation without Kubernetes API writes. Exclusive with `RUN_SCHEDULER`. |
 | `RUN_SCHEDULER` | `--scheduler` | `false` | — | Run the latency-aware scheduler instead of the reconciler. |
 | `SCHEDULER_NAME` | `--scheduler-name` | `stellar-scheduler` | — | Scheduler name matched against pod `schedulerName`. |
 | `RETRY_BUDGET_RETRIABLE_SECS` | `--retry-budget-retriable-secs` | `15` | — | Requeue interval for retriable reconcile errors. |
@@ -36,8 +36,8 @@ column shows what the Helm chart's `deployment.yaml` sets.
 | `PREFLIGHT_ONLY` | `--preflight-only` | `false` | — | Run preflight checks and exit. |
 | `GITHUB_REPOSITORY` | `--github-repo` | unset (skipped) | — | `owner/repo` for the GitHub label-readiness preflight. |
 | `ENABLE_MTLS` | `--enable-mtls` | `false` | — | Provision a CA and server certificate and require client certificates on the REST API. |
-| `LOG_LEVEL` | `--log-level` | `info` | — | `trace`, `debug`, `info`, `warn` or `error`. |
-| `LOG_FORMAT` | `--log-format` | `json` | — | `json` or `pretty`. |
+| `LOG_LEVEL` | `--log-level` | `info` | `operator.logLevel` | `trace`, `debug`, `info`, `warn` or `error`. |
+| `LOG_FORMAT` | `--log-format` | `json` | `operator.logFormat` when set | `json` or `pretty`. |
 | `STELLAR_OFFLINE` | `--offline` | `false` | — | Skip the background version check against GitHub releases. |
 | `STELLAR_OPERATOR_CONFIG` | — | `/etc/stellar-operator/config.yaml` | `/etc/stellar-operator/config.yaml` | Path of the operator `config.yaml`; built-in defaults are used if it is missing or invalid. |
 | `STELLAR_APPARMOR_ENABLED` | — | unset (off) | `true` when `operator.appArmorEnabled` | Add AppArmor annotations to generated pods; see [AppArmor](#apparmor). |

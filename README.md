@@ -1,4 +1,4 @@
-﻿<p align="center">
+<p align="center">
   <img src="assets/logo.png" alt="Stellar-K8s Logo" width="200" />
 </p>
 
@@ -722,6 +722,18 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and releases.
 
 ## Handsoff notes
+
+<!-- handsoff-issue-1702 -->
+- #1702: [EPIC] helm chart flag — exposed operator.dryRun, operator.appArmorEnabled, and operator.logFormat in Helm values with Deployment wiring and unit tests.
+
+<!-- handsoff-issue-1703 -->
+- #1703: [EPIC] sample manifests — added sample manifests for maintenance plans, dry-run validators, and policy bundles under config/samples/ with index updates.
+
+<!-- handsoff-issue-1704 -->
+- #1704: [EPIC] change notes — recorded unreleased changes in CHANGELOG.md and added docs/change-notes.md registered in mkdocs.yml.
+
+<!-- handsoff-issue-1705 -->
+- #1705: [EPIC] bats coverage — added scripts/tests/secret-rotation-check.bats covering dry-run, argument parsing, error cases, and kubectl rotation flows.
 
 <!-- handsoff-issue-1674 -->
 - #1674: [EPIC] CI badge status — CI badge verified against `.github/workflows/ci.yml`; links resolve to the workflow page.
