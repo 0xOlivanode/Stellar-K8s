@@ -189,8 +189,8 @@ impl SnapshotOps {
         let pdbs = pdb_api
             .list(&ListParams::default())
             .await
+            .map(|list| list.items)
             .unwrap_or_default()
-            .items
             .into_iter()
             .map(|pdb| {
                 let workload = pdb

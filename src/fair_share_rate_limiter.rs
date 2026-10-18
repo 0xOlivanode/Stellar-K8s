@@ -164,12 +164,23 @@ pub struct FairShareRateLimiter {
     tuner: Arc<RwLock<RetryPolicyTuner>>, // Reuse for adaptive behavior
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 struct GlobalUsageTracker {
     total_requests: u64,
     total_rejected: u64,
     per_consumer: HashMap<ConsumerId, ConsumerUsage>,
     window_start: Instant,
+}
+
+impl Default for GlobalUsageTracker {
+    fn default() -> Self {
+        Self {
+            total_requests: 0,
+            total_rejected: 0,
+            per_consumer: HashMap::new(),
+            window_start: Instant::now(),
+        }
+    }
 }
 
 #[derive(Debug, Default, Clone)]

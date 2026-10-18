@@ -23,6 +23,19 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
+use super::types::{
+    AuditConfig, AutoscalingConfig, CertManagerConfig, Condition, CoreSyncState,
+    CrossClusterConfig, DisasterRecoveryConfig, DisasterRecoveryStatus, ExternalDatabaseConfig,
+    ForensicSnapshotConfig, GasAutoscalingConfig, GlobalDiscoveryConfig, HistoryMode,
+    HorizonConfig, IngressConfig, LabelPropagationConfig, LoadBalancerConfig, LogShipperConfig,
+    ManagedDatabaseConfig, NetworkPolicyConfig, NodeType, OciSnapshotConfig, PlacementConfig,
+    BackupConfig, QueueAutoscalingConfig,
+    PodAntiAffinityStrength, PolicyConfig, ProbeConfig, RbacConfig, ResourceRequirements,
+    RestoreFromSnapshotConfig, RetentionPolicy, RolloutStrategy, SnapshotScheduleConfig,
+    SorobanConfig, StellarNetwork, StorageConfig, SyncStateScalingConfig, ValidatorConfig,
+    VpaConfig,
+};
+
 
 
 /// Structured validation error for `StellarNodeSpec`
@@ -622,6 +635,8 @@ impl Default for StellarNodeSpec {
             policy: None,
             priority_class_name: None,
             security_context: None,
+            command: None,
+            args: None,
         }
     }
 }

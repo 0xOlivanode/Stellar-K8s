@@ -155,8 +155,7 @@ impl FirewallEngine {
             let blacklist = self.blacklist.clone();
             let metrics = self.metrics.clone();
             tokio::spawn(async move {
-                let mut interval =
-                    tokio::time::interval(Duration::from_secs(PRUNE_INTERVAL_SECS));
+                let mut interval = tokio::time::interval(Duration::from_secs(PRUNE_INTERVAL_SECS));
                 loop {
                     interval.tick().await;
                     match blacklist.prune_expired().await {
@@ -296,12 +295,7 @@ mod tests {
         let metrics = FirewallMetrics::new();
 
         let blacklist_clone = blacklist.clone();
-        tokio::spawn(analysis_loop(
-            analyzer,
-            blacklist_clone,
-            metrics,
-            rx,
-        ));
+        tokio::spawn(analysis_loop(analyzer, blacklist_clone, metrics, rx));
 
         // Send clean SCP TX packets.
         let payload = make_valid_xdr_bytes(5, 64);
@@ -335,12 +329,7 @@ mod tests {
         let metrics = FirewallMetrics::new();
 
         let blacklist_clone = blacklist.clone();
-        tokio::spawn(analysis_loop(
-            analyzer,
-            blacklist_clone,
-            metrics,
-            rx,
-        ));
+        tokio::spawn(analysis_loop(analyzer, blacklist_clone, metrics, rx));
 
         let src = IpAddr::V4(Ipv4Addr::new(192, 168, 99, 99));
         let payload = make_valid_xdr_bytes(5, 64);

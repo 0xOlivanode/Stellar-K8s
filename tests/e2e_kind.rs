@@ -16,7 +16,7 @@ use common::skip_if_tools_missing;
 // Issue #934: import RAII teardown guards from common so new tests can use
 // TestHarnessGuard (cluster + resources) instead of ad-hoc local Drop impls.
 #[allow(unused_imports)]
-use common::{KindClusterGuard, TestHarnessGuard, TempFileGuard};
+use common::{KindClusterGuard, TempFileGuard, TestHarnessGuard};
 use std::collections::HashMap;
 use std::error::Error;
 use std::process::{Command, Stdio};

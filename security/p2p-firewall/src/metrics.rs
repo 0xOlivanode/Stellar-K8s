@@ -219,10 +219,13 @@ impl FirewallMetrics {
 
     /// Encode all metrics into the Prometheus text exposition format.
     pub fn encode(&self) -> Result<String> {
-        let registry = self.inner.registry.lock().expect("metrics registry lock poisoned");
+        let registry = self
+            .inner
+            .registry
+            .lock()
+            .expect("metrics registry lock poisoned");
         let mut output = String::new();
-        encode(&mut output, &registry)
-            .map_err(|e| anyhow::anyhow!("metrics encode error: {e}"))?;
+        encode(&mut output, &registry).map_err(|e| anyhow::anyhow!("metrics encode error: {e}"))?;
         Ok(output)
     }
 

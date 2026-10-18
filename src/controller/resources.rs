@@ -9,7 +9,7 @@ use crate::controller::resource_meta::merge_resource_meta;
 use super::kms_secret;
 use super::label_propagation::LabelPropagator;
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use k8s_openapi::api::apps::v1::{Deployment, DeploymentSpec, StatefulSet, StatefulSetSpec};
 use k8s_openapi::api::autoscaling::v2::{
@@ -19,9 +19,6 @@ use k8s_openapi::api::autoscaling::v2::{
 };
 use k8s_openapi::api::core::v1::{
     Affinity, Capabilities, ConfigMap, Container, ContainerPort, EnvVar, EnvVarSource,
-    PersistentVolumeClaim, PersistentVolumeClaimSpec, PodAffinityTerm, PodAntiAffinity,
-    PodSecurityContext, PodSpec, PodTemplateSpec, ResourceRequirements as K8sResources,
-    SeccompProfile, SecretKeySelector, SecurityContext, Service, ServicePort, ServiceSpec,
     NodeSelector, NodeSelectorRequirement, NodeSelectorTerm, PersistentVolumeClaim,
     PersistentVolumeClaimSpec, PodAffinityTerm, PodAntiAffinity, PodSecurityContext, PodSpec,
     PodTemplateSpec, PreferredSchedulingTerm, ResourceRequirements as K8sResources, SeccompProfile,
@@ -42,7 +39,7 @@ use kube::api::{Api, DeleteParams, Patch, PatchParams, PostParams};
 use kube::{Client, Resource, ResourceExt};
 use tracing::{info, instrument, warn};
 
-use crate::crd::types::{PodAntiAffinityStrength, ReplicationRole};
+use crate::crd::types::{PodAntiAffinityStrength, ReplicationRole, ResourceRequirements};
 use crate::crd::{
     BackupConfiguration, BarmanObjectStore, BootstrapConfiguration, Cluster, ClusterSpec,
     ExternalCluster, HistoryMode, HsmProvider, IngressConfig, InitDbConfiguration, KeySource,
@@ -602,18 +599,6 @@ pub(crate) fn build_config_map(
             let mut header = crate::controller::config_scope::OperatorHeader::default();
 
             if enable_mtls {
-                core_cfg.push_str("\n# mTLS Configuration\n");
-                core_cfg.push_str("HTTP_PORT_SECURE=true\n");
-                core_cfg.push_str("TLS_CERT_FILE=\"/etc/stellar/tls/tls.crt\"\n");
-                core_cfg.push_str("TLS_KEY_FILE=\"/etc/stellar/tls/tls.key\"\n");
-                // NOTE: these keys are written best-effort and have not been verified
-                // against a real stellar-core build; stellar-core's admin/HTTP endpoint
-                // does not have documented native HTTPS termination in upstream
-                // releases as of this writing, so this may be a no-op depending on the
-                // stellar-core version in use. The client certificate material is still
-                // correctly issued and mounted at /etc/stellar/tls regardless. See the
-                // "Known Limitation" section in docs/mtls-guide.md and
-                // docs/security/e2e-encryption-architecture.md.
                 header.comment("mTLS Configuration (best-effort; see docs/mtls-guide.md)");
                 header.key_value("HTTP_PORT_SECURE", "true");
                 header.key_value("TLS_CERT_FILE", "\"/etc/stellar/tls/tls.crt\"");
@@ -1004,7 +989,7 @@ pub async fn ensure_statefulset(
     Ok(())
 }
 
-
+pub(crate) fn build_statefulset(
     node: &StellarNode,
     enable_mtls: bool,
     seed_injection: Option<&kms_secret::SeedInjectionSpec>,
@@ -1172,8 +1157,6 @@ pub async fn ensure_canary_service(
 }
 
 pub(crate) fn build_service(node: &StellarNode, enable_mtls: bool) -> Service {
-    let labels = standard_labels(node);
-pub(crate) fn build_service(node: &StellarNode, _enable_mtls: bool) -> Service {
     let mut labels = standard_labels(node);
     merge_service_metadata_labels(&mut labels, node);
     let name = node.name_any();
@@ -3596,77 +3579,6 @@ fn build_cache_proxy_container(cache: &crate::crd::SorobanCacheConfig) -> Contai
     let mut limits = BTreeMap::new();
     limits.insert("cpu".to_string(), Quantity("250m".to_string()));
     limits.insert("memory".to_string(), Quantity("256Mi".to_string()));
-fn build_diagnostic_sidecar_resources(
-    override_resources: Option<&ResourceRequirements>,
-) -> K8sResources {
-    let requests_cpu = override_resources
-        .map(|resources| resources.requests.cpu.as_str())
-        .filter(|value| !value.trim().is_empty())
-        .unwrap_or(DIAGNOSTIC_SIDECAR_DEFAULT_CPU);
-    let requests_memory = override_resources
-        .map(|resources| resources.requests.memory.as_str())
-        .filter(|value| !value.trim().is_empty())
-        .unwrap_or(DIAGNOSTIC_SIDECAR_DEFAULT_MEMORY);
-    let limits_cpu = override_resources
-        .map(|resources| resources.limits.cpu.as_str())
-        .filter(|value| !value.trim().is_empty())
-        .unwrap_or(DIAGNOSTIC_SIDECAR_DEFAULT_CPU);
-    let limits_memory = override_resources
-        .map(|resources| resources.limits.memory.as_str())
-        .filter(|value| !value.trim().is_empty())
-        .unwrap_or(DIAGNOSTIC_SIDECAR_DEFAULT_MEMORY);
-
-    K8sResources {
-        requests: Some(
-            [
-                ("cpu".to_string(), Quantity(requests_cpu.to_string())),
-                ("memory".to_string(), Quantity(requests_memory.to_string())),
-            ]
-            .into_iter()
-            .collect(),
-        ),
-        limits: Some(
-            [
-                ("cpu".to_string(), Quantity(limits_cpu.to_string())),
-                ("memory".to_string(), Quantity(limits_memory.to_string())),
-            ]
-            .into_iter()
-            .collect(),
-        ),
-        claims: None,
-    }
-}
-
-/// Merge `overrides` into `base`, keyed by env var name.
-///
-/// This is the single place where container env vars are combined, and it is
-/// what keeps a rendered pod spec free of duplicate env var names. A container
-/// with two entries of the same name is rejected by the API server, so every
-/// injection site (CRD `stellarCoreEnv`/`horizonEnv` overrides and the
-/// `seedSecretSource` injection) must go through here rather than
-/// `Vec::extend`.
-///
-/// The last writer wins, which is what gives `seedSecretSource` precedence
-/// over the legacy `seedSecretRef` when a node sets both.
-fn merge_env_overrides(base: &mut Vec<EnvVar>, overrides: &[EnvVar]) {
-    for override_var in overrides {
-        if let Some(existing) = base.iter_mut().find(|env| env.name == override_var.name) {
-            *existing = override_var.clone();
-        } else {
-            base.push(override_var.clone());
-        }
-    }
-}
-
-fn build_workload_tolerations(node: &StellarNode) -> Option<Vec<Toleration>> {
-    let mut tolerations = node.spec.tolerations.clone();
-
-    if let Some(jurisdiction) = node.spec.placement.jurisdiction.as_ref() {
-        crate::controller::jurisdiction::merge_jurisdiction_tolerations(
-            &mut tolerations,
-            jurisdiction,
-        );
-    }
 
     Container {
         name: "soroban-cache".to_string(),
@@ -3747,6 +3659,73 @@ fn build_workload_tolerations(node: &StellarNode) -> Option<Vec<Toleration>> {
             ..Default::default()
         }),
         ..Default::default()
+    }
+}
+
+const DIAGNOSTIC_SIDECAR_DEFAULT_CPU: &str = "50m";
+const DIAGNOSTIC_SIDECAR_DEFAULT_MEMORY: &str = "64Mi";
+
+fn build_diagnostic_sidecar_resources(    override_resources: Option<&ResourceRequirements>,
+) -> K8sResources {
+    let requests_cpu = override_resources
+        .map(|resources| resources.requests.cpu.as_str())
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or(DIAGNOSTIC_SIDECAR_DEFAULT_CPU);
+    let requests_memory = override_resources
+        .map(|resources| resources.requests.memory.as_str())
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or(DIAGNOSTIC_SIDECAR_DEFAULT_MEMORY);
+    let limits_cpu = override_resources
+        .map(|resources| resources.limits.cpu.as_str())
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or(DIAGNOSTIC_SIDECAR_DEFAULT_CPU);
+    let limits_memory = override_resources
+        .map(|resources| resources.limits.memory.as_str())
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or(DIAGNOSTIC_SIDECAR_DEFAULT_MEMORY);
+
+    K8sResources {
+        requests: Some(
+            [
+                ("cpu".to_string(), Quantity(requests_cpu.to_string())),
+                ("memory".to_string(), Quantity(requests_memory.to_string())),
+            ]
+            .into_iter()
+            .collect(),
+        ),
+        limits: Some(
+            [
+                ("cpu".to_string(), Quantity(limits_cpu.to_string())),
+                ("memory".to_string(), Quantity(limits_memory.to_string())),
+            ]
+            .into_iter()
+            .collect(),
+        ),
+        claims: None,
+    }
+}
+
+fn merge_env_overrides(base: &mut Vec<EnvVar>, overrides: &[EnvVar]) {
+    for override_var in overrides {
+        if let Some(existing) = base.iter_mut().find(|env| env.name == override_var.name) {
+            *existing = override_var.clone();
+        } else {
+            base.push(override_var.clone());
+        }
+    }
+}
+
+
+fn build_workload_tolerations(node: &StellarNode) -> Option<Vec<Toleration>> {
+    let mut tolerations = node.spec.tolerations.clone();
+
+    if let Some(jurisdiction) = node.spec.placement.jurisdiction.as_ref() {
+        crate::controller::jurisdiction::merge_jurisdiction_tolerations(
+            &mut tolerations,
+            jurisdiction,
+        );
+    }
+
     if crate::scheduler::capacity::classify_stellar_node(node)
         == crate::crd::WorkloadTier::BestEffort
     {

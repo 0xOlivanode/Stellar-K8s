@@ -710,7 +710,7 @@ peer-2 = "G..."
     #[test]
     fn test_statefulset_has_standard_labels_and_owner_ref() {
         let node = make_node(NodeType::Validator);
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         assert_standard_labels(&sts.metadata, &node);
         assert_owner_reference(&sts.metadata, &node);
     }
@@ -825,7 +825,7 @@ peer-2 = "G..."
     fn test_statefulset_has_labels_and_owner_ref() {
         use crate::controller::resources::build_statefulset;
         let node = make_node(NodeType::Validator);
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         assert_standard_labels(&sts.metadata, &node);
         assert_owner_reference(&sts.metadata, &node);
     }
@@ -872,7 +872,7 @@ peer-2 = "G..."
         let mut node = make_node(NodeType::Validator);
         node.spec.sidecars = Some(vec![make_sidecar("log-forwarder")]);
 
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let containers = sts.spec.unwrap().template.spec.unwrap().containers;
 
         assert!(
@@ -904,7 +904,7 @@ peer-2 = "G..."
             make_sidecar("custom-proxy"),
         ]);
 
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let containers = sts.spec.unwrap().template.spec.unwrap().containers;
 
         for name in &["log-forwarder", "metrics-proxy", "custom-proxy"] {
@@ -920,7 +920,7 @@ peer-2 = "G..."
         let node = make_node(NodeType::Validator);
         // sidecars is None by default in minimal_spec
 
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let containers = sts.spec.unwrap().template.spec.unwrap().containers;
 
         // Main container plus operator-managed health-check sidecar
@@ -942,7 +942,7 @@ peer-2 = "G..."
             "/stellar-data",
         )]);
 
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let pod_spec = sts.spec.unwrap().template.spec.unwrap();
 
         // The "data" volume must exist in the pod spec
@@ -978,7 +978,7 @@ peer-2 = "G..."
             "/stellar-config",
         )]);
 
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let pod_spec = sts.spec.unwrap().template.spec.unwrap();
 
         let volumes = pod_spec.volumes.expect("pod spec must have volumes");
@@ -1009,7 +1009,7 @@ peer-2 = "G..."
         let mut node = make_node(NodeType::Validator);
         node.spec.sidecars = Some(vec![make_sidecar("log-forwarder")]);
 
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let containers = sts.spec.unwrap().template.spec.unwrap().containers;
 
         assert_eq!(
@@ -1381,7 +1381,7 @@ mod init_containers_tests {
     #[test]
     fn test_no_user_init_containers_validator() {
         let node = make_node(NodeType::Validator, None);
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let init_containers = sts
             .spec
             .unwrap()
@@ -1401,7 +1401,7 @@ mod init_containers_tests {
     fn test_single_user_init_container_appended_to_statefulset() {
         let user_init = make_init_container("fetch-config");
         let node = make_node(NodeType::Validator, Some(vec![user_init]));
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let init_containers = sts
             .spec
             .unwrap()
@@ -1426,7 +1426,7 @@ mod init_containers_tests {
             make_init_container("step-two"),
         ];
         let node = make_node(NodeType::Validator, Some(containers));
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let init_containers = sts
             .spec
             .unwrap()
@@ -1446,7 +1446,7 @@ mod init_containers_tests {
         let mut container = make_init_container("restore-state");
         container.image = Some("my-registry/restore:v1.2.3".to_string());
         let node = make_node(NodeType::Validator, Some(vec![container]));
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let init_containers = sts
             .spec
             .unwrap()
@@ -1660,7 +1660,7 @@ mod diagnostic_sidecar_resource_tests {
     #[test]
     fn applies_default_diagnostic_sidecar_resources_to_statefulset() {
         let node = make_node(NodeType::Validator);
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let pod_spec = sts.spec.unwrap().template.spec.unwrap();
         let resources = health_sidecar(&pod_spec.containers)
             .resources
@@ -1753,7 +1753,7 @@ mod advanced_probe_tests {
     #[test]
     fn test_validator_liveness_probe_is_tcp_socket() {
         let node = validator_node("v-liveness");
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let containers = sts.spec.unwrap().template.spec.unwrap().containers;
         let container = containers
             .iter()
@@ -1781,7 +1781,7 @@ mod advanced_probe_tests {
     #[test]
     fn test_validator_readiness_probe_is_exec_checking_info() {
         let node = validator_node("v-readiness");
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let containers = sts.spec.unwrap().template.spec.unwrap().containers;
         let container = containers
             .iter()
@@ -1809,7 +1809,7 @@ mod advanced_probe_tests {
     #[test]
     fn test_readiness_script_rejects_catching_up_state() {
         let node = validator_node("v-sync-check");
-        let sts = build_statefulset(&node, false, None);
+        let sts = build_statefulset(&node, false, None, node.spec.pod_anti_affinity.clone());
         let containers = sts.spec.unwrap().template.spec.unwrap().containers;
         let health_sidecar = containers
             .iter()

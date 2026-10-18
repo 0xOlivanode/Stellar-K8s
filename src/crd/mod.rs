@@ -270,9 +270,8 @@ pub use stellar_security::{
 };
 
 // Issue #1577 — Ledger-Close Webhook CRD exports
-pub mod namespace_teardown;
 
-// Issue #1577 â€” Ledger-Close Webhook CRD exports
+// Issue #1577 - Ledger-Close Webhook CRD exports
 pub use ledger_close_webhook::{
     DeliveryLogEntry, DeliveryPhase, LedgerCloseEventType, LedgerClosePayload,
     LedgerCloseWebhook, LedgerCloseWebhookSpec, LedgerCloseWebhookStatus,
@@ -287,10 +286,6 @@ pub use incident::{
     IncidentSeverity as NetworkIncidentSeverity, IncidentSpec,
     IncidentStatus as NetworkIncidentStatus, IncidentTimelineEntry, IncidentType, PartitionDetails,
     QuorumAdjustmentRecommendation,
-};
-pub use ledger_close_webhook::{
-    DeliveryLogEntry, DeliveryPhase, LedgerCloseEventType, LedgerClosePayload, LedgerCloseWebhook,
-    LedgerCloseWebhookSpec, LedgerCloseWebhookStatus,
 };
 pub use namespace_teardown::{
     ArchiveSpec, NamespaceTeardown, NamespaceTeardownSpec, NamespaceTeardownStatus,

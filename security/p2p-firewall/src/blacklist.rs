@@ -251,7 +251,11 @@ impl BlacklistManager {
     /// Returns a snapshot of all active (non-expired) blacklist entries.
     pub fn active_entries(&self) -> Vec<BlacklistEntry> {
         let entries = self.inner.entries.lock().expect("blacklist lock poisoned");
-        entries.values().filter(|e| !e.is_expired()).cloned().collect()
+        entries
+            .values()
+            .filter(|e| !e.is_expired())
+            .cloned()
+            .collect()
     }
 
     /// Returns the count of currently active blacklisted IPs.
@@ -325,14 +329,8 @@ impl BlacklistManager {
                 }),
                 annotations: Some({
                     let mut a = std::collections::BTreeMap::new();
-                    a.insert(
-                        "p2p-firewall/blocked-ips".into(),
-                        except_cidrs.join(","),
-                    );
-                    a.insert(
-                        "p2p-firewall/updated-at".into(),
-                        Utc::now().to_rfc3339(),
-                    );
+                    a.insert("p2p-firewall/blocked-ips".into(), except_cidrs.join(","));
+                    a.insert("p2p-firewall/updated-at".into(), Utc::now().to_rfc3339());
                     a
                 }),
                 ..Default::default()
@@ -381,11 +379,16 @@ impl BlacklistManager {
         // Check if rule already exists to avoid duplicates.
         let check = tokio::process::Command::new("iptables")
             .args([
-                "-C", "INPUT",
-                "-s", &ip_str,
-                "-p", "tcp",
-                "--dport", &port.to_string(),
-                "-j", "DROP",
+                "-C",
+                "INPUT",
+                "-s",
+                &ip_str,
+                "-p",
+                "tcp",
+                "--dport",
+                &port.to_string(),
+                "-j",
+                "DROP",
             ])
             .output()
             .await;
@@ -407,13 +410,21 @@ impl BlacklistManager {
 
         let insert = tokio::process::Command::new("iptables")
             .args([
-                "-I", "INPUT", "1",
-                "-s", &ip_str,
-                "-p", "tcp",
-                "--dport", &port.to_string(),
-                "-j", "DROP",
-                "-m", "comment",
-                "--comment", "p2p-firewall-blocklist",
+                "-I",
+                "INPUT",
+                "1",
+                "-s",
+                &ip_str,
+                "-p",
+                "tcp",
+                "--dport",
+                &port.to_string(),
+                "-j",
+                "DROP",
+                "-m",
+                "comment",
+                "--comment",
+                "p2p-firewall-blocklist",
             ])
             .output()
             .await
@@ -437,13 +448,20 @@ impl BlacklistManager {
 
         let out = tokio::process::Command::new("iptables")
             .args([
-                "-D", "INPUT",
-                "-s", &ip_str,
-                "-p", "tcp",
-                "--dport", &port.to_string(),
-                "-j", "DROP",
-                "-m", "comment",
-                "--comment", "p2p-firewall-blocklist",
+                "-D",
+                "INPUT",
+                "-s",
+                &ip_str,
+                "-p",
+                "tcp",
+                "--dport",
+                &port.to_string(),
+                "-j",
+                "DROP",
+                "-m",
+                "comment",
+                "--comment",
+                "p2p-firewall-blocklist",
             ])
             .output()
             .await
@@ -467,10 +485,8 @@ mod tests {
     fn make_manager() -> BlacklistManager {
         BlacklistManager::new(
             None, // no K8s client in unit tests
-            "stellar",
-            60,     // 60s duration
-            11625,
-            false,  // no iptables in unit tests
+            "stellar", 60, // 60s duration
+            11625, false, // no iptables in unit tests
         )
     }
 
@@ -547,14 +563,9 @@ mod tests {
         let mgr = make_manager();
         let ip = IpAddr::V4(Ipv4Addr::new(99, 99, 99, 99));
 
-        mgr.blacklist(
-            ip,
-            BlacklistReason::HandshakeFailure,
-            ThreatLevel::High,
-            7,
-        )
-        .await
-        .unwrap();
+        mgr.blacklist(ip, BlacklistReason::HandshakeFailure, ThreatLevel::High, 7)
+            .await
+            .unwrap();
 
         let entries = mgr.active_entries();
         assert_eq!(entries.len(), 1);

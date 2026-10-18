@@ -1116,7 +1116,7 @@ async fn delete_job(
     let api: Api<Job> = Api::namespaced(client.clone(), namespace);
     api.delete(
         name,
-        &DeleteParams::default().grace_period(grace_period_seconds),
+        &DeleteParams::default().grace_period(grace_period_seconds.max(0) as u32),
     )
     .await?;
     Ok(())
@@ -1131,7 +1131,7 @@ async fn delete_pod(
     let api: Api<Pod> = Api::namespaced(client.clone(), namespace);
     api.delete(
         name,
-        &DeleteParams::default().grace_period(grace_period_seconds),
+        &DeleteParams::default().grace_period(grace_period_seconds.max(0) as u32),
     )
     .await?;
     Ok(())
@@ -1403,7 +1403,7 @@ pub async fn reconcile_job_retention(
     record_metrics(&namespace, &plan, &outcome);
     let status = sweep_status(&spec, &plan, &outcome, now);
 
-    let api: Api<JobRetentionPolicy> = Api::namespaced(client.clone(), &namespace);
+    let api: Api<JobRetentionPolicy> = Api::all(client.clone());
     api.patch_status(
         &policy.name_any(),
         &PatchParams::apply("stellar-operator"),

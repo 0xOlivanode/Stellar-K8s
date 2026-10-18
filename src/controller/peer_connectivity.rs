@@ -359,7 +359,7 @@ fn endpoint_from_entry(entry: &str) -> Option<PeerEndpoint> {
 ///
 /// A failed dial is data, not an error: the returned result always describes
 /// what happened so the caller can surface it.
-pub async fn probe_peer(endpoint: &PeerEndpoint, timeout: Duration) -> PeerProbeResult {
+pub async fn probe_peer(endpoint: PeerEndpoint, timeout: Duration) -> PeerProbeResult {
     let started = Instant::now();
     let target = endpoint.to_socket_target();
 
@@ -388,7 +388,8 @@ pub async fn probe_peers(
     timeout: Duration,
     interval_secs: u64,
 ) -> PeerConnectivityReport {
-    let mut in_flight = futures::stream::iter(peers.iter())
+    let owned: Vec<PeerEndpoint> = peers.iter().cloned().collect();
+    let mut in_flight = futures::stream::iter(owned)
         .map(|peer| probe_peer(peer, timeout))
         .buffer_unordered(MAX_CONCURRENT_PROBES)
         .peekable();

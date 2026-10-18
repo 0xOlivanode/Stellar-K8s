@@ -174,7 +174,6 @@ pub mod sdk;
 pub mod sla;
 pub mod secrets_broker;
 pub mod search;
-pub mod secrets_broker;
 pub mod security;
 #[path = "telemetry.rs"]
 pub mod telemetry;

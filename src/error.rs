@@ -135,6 +135,14 @@ pub enum Error {
     /// bug in the reconcile pipeline rather than a bad user input.
     #[error("[SK8S-023] Invalid reconcile phase transition: {0}")]
     PhaseTransitionError(String),
+
+    /// A generic catch-all for errors that do not fit other categories.
+    #[error("[SK8S-024] Other error: {0}")]
+    Other(String),
+
+    /// A security policy violation detected at runtime.
+    #[error("[SK8S-025] Security violation: {0}")]
+    SecurityViolation(String),
 }
 
 /// Result type alias for operator operations

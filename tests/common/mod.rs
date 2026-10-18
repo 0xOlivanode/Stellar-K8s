@@ -720,7 +720,6 @@ pub fn skip_if_tools_missing(tools: &[&str]) -> bool {
     true
 }
 
-
 // ---------------------------------------------------------------------------
 // TempFileGuard (issue #934)
 // ---------------------------------------------------------------------------
@@ -1011,8 +1010,7 @@ mod tests {
 
     #[test]
     fn test_test_harness_guard_without_cluster() {
-        let harness = TestHarnessGuard::without_cluster()
-            .track_namespace("stellar-system");
+        let harness = TestHarnessGuard::without_cluster().track_namespace("stellar-system");
         assert!(harness.cluster.is_none());
         assert_eq!(harness.e2e.namespaces, vec!["stellar-system".to_string()]);
     }

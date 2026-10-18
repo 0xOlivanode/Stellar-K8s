@@ -3,8 +3,10 @@
 pub mod autoscaler;
 pub mod benchmark;
 pub mod blue_green;
+pub mod blue_green_core;
 
 pub mod canary;
+pub mod cache_aware_queue;
 pub mod cross_cloud_failover;
 pub mod event_taxonomy;
 pub mod feature_flags;
@@ -32,6 +34,7 @@ pub mod quota;
 pub mod registry_controller;
 pub mod registry_gate;
 pub mod resource_meta;
+pub mod resource_optimization;
 
 
 pub mod anomaly_detection;
@@ -57,16 +60,16 @@ pub mod cross_region_sync;
 pub mod cve;
 pub(crate) mod cve_reconciler;
 pub mod cve_scanner;
-[cfg(test)]
+#[cfg(test)]
 pub(crate) mod cve_test;
 pub mod db_pool;
 pub mod diff;
 pub mod disk_scaler;
-[cfg(test)]
+#[cfg(test)]
 mod disk_scaler_test;
 pub mod dr;
 pub mod dr_drill;
-[cfg(test)]
+#[cfg(test)]
 mod dr_test;
 pub(crate) mod finalizers;
 pub(crate) mod forensic_snapshot;
@@ -76,7 +79,7 @@ mod health_test;
 pub mod ingestion;
 pub mod kms_secret;
 pub mod ledger_migration;
-[cfg(feature = "metrics")]
+#[cfg(feature = "metrics")]
 pub mod lifecycle_hooks;
 #[cfg(feature = "metrics")]
 pub mod metrics;
@@ -87,10 +90,9 @@ pub mod operator_config;
 pub mod ownership_registry;
 pub mod peer_connectivity;
 pub mod peer_discovery;
-[cfg(test)]
+#[cfg(test)]
 mod peer_discovery_test;
 pub mod performance;
-pub mod phases;
 pub mod policy_bundle;
 pub mod preemptive_spot_migration;
 pub mod pruning_reconciler;
@@ -98,22 +100,24 @@ pub mod pruning_worker;
 pub mod quorum;
 pub mod read_pool;
 pub(crate) mod reconciler;
-[cfg(test)]
+#[cfg(test)]
 mod reconciler_test;
 pub(crate) mod remediation;
-[cfg(test)]
+#[cfg(test)]
 mod remediation_test;
-pub mod resource_optimization;
 pub(crate) mod resources;
-[cfg(test)]
+#[cfg(test)]
 mod resources_test;
+pub mod retry_policy_tuner;
 pub mod secret_policy_controller;
 pub(crate) mod secret_watcher;
+pub mod security;
 #[cfg(test)]
 mod seed_env_dedupe_test;
 pub mod service_mesh;
 mod csi_snapshot;
 pub mod snapshot;
+pub mod snapshot_integrity;
 pub mod snapshot_worker;
 pub mod spot_drain;
 pub mod storage_migration;
@@ -124,13 +128,14 @@ pub mod testnet_compliance;
 
 pub mod topology;
 pub mod traffic;
-[cfg(test)]
+#[cfg(test)]
 pub mod traffic_shift;
 #[cfg(test)]
 mod traffic_shift_test;
 #[cfg(test)]
 mod traffic_test;
 pub mod vpa;
+pub mod volume_resizer;
 pub(crate) mod vsl;
 pub mod webhook_delivery;
 pub mod zk_archive_verifier;
@@ -139,6 +144,8 @@ pub mod zk_archive_verifier;
 pub mod ledger_close_dispatcher;
 // Issue #1564 — Horizon Ingestion Failover for Validator Groups
 pub mod horizon_failover;
+pub mod soroban_cache;
+pub mod soroban_contracts;
 // Issue #1565 — Soroban RPC Caching and Pagination Limits
 pub mod soroban_rpc;
 
@@ -152,7 +159,7 @@ pub use archive_health::{
 pub use audit_log::{AdminAction, AuditEntry, AuditLog};
 pub use audit_recorder::AuditRecorder;
 pub use background_jobs::{JobKind, JobRecord, JobRegistry, JobState, MAX_JOBS};
-pub use captive::{CaptiveCoreProcess, CaptiveCoreSupervisor, SupervisorConfig, SupervisorState};
+pub use captive::{CaptiveCoreProcess, CaptiveCoreSupervisor, SupervisorConfig};
 pub use benchmark::run_benchmark_controller;
 pub use blue_green::{
     cleanup_blue_deployment, create_green_deployment, rollback_to_blue, run_smoke_tests,
@@ -224,7 +231,7 @@ pub use pss::{
     ensure_namespace_pss_labels, restricted_container_security_context,
     restricted_pod_security_context, validate_pss_compliance, PssViolation,
 };
-[cfg(feature = "reconciler-fuzz")]
+#[cfg(feature = "reconciler-fuzz")]
 pub use reconciler::reconcile_for_fuzzz;
 pub use reconciler::{run_controller, BatchSummaryReport, ControllerState};
 
@@ -254,12 +261,9 @@ pub use topology::{
 pub mod cross_signal_anomaly;
 pub mod health_check_sidecar;
 pub mod index_sharding;
-pub mod ml_pipeline;
 pub mod observability_dashboard;
-pub mod observability_pipeline;
 pub mod orphan_audit;
 pub mod pvc_autoscaler;
-pub mod resource_optimization;
 
 // Issue #1577 — Ledger-Close Webhook Dispatcher exports
 pub use ledger_close_dispatcher::{run_ledger_close_poll_loop, LedgerCloseDispatcher};

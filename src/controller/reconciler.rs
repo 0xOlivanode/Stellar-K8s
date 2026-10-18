@@ -103,6 +103,14 @@ use super::vpa as vpa_controller;
 use super::vsl;
 use chrono::Utc;
 
+// Annotation keys for pre-upgrade PVC snapshot gating.
+const PRE_UPGRADE_SNAPSHOT_NAME_ANNOTATION: &str = "stellar.org/pre-upgrade-snapshot-name";
+const PRE_UPGRADE_SNAPSHOT_STARTED_AT_ANNOTATION: &str =
+    "stellar.org/pre-upgrade-snapshot-started-at";
+const PRE_UPGRADE_SNAPSHOT_TARGET_VERSION_ANNOTATION: &str =
+    "stellar.org/pre-upgrade-snapshot-target-version";
+const PRE_UPGRADE_SNAPSHOT_STATUS_ANNOTATION: &str = "stellar.org/pre-upgrade-snapshot-status";
+
 
 trait ToStellarNodeArc {
     fn to_arc(&self) -> Arc<StellarNode>;
