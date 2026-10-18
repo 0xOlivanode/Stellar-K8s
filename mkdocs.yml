@@ -125,6 +125,7 @@ nav:
     - Configure HA Setup: tutorials/configure-ha-setup.md
     - Backup and Restore: tutorials/backup-restore.md
   - Operations & Observability:
+    - Cost Estimate: cost-estimate.md
     - SCP Consensus Topology and Monitoring: scp-consensus-topology-and-monitoring.md
     - Monitoring and Dashboards Setup Guide: MONITORING_SETUP_GUIDE.md
     - Monitoring and Dashboards Operational Runbook: MONITORING_OPERATIONAL_RUNBOOK.md
