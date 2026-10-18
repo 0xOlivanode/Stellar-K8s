@@ -345,9 +345,11 @@ is missing required keys (`name`, `description`, `body`), uses an unsupported
 - Root-level docs (`README.md`, `DEVELOPMENT.md`, `CONTRIBUTING.md`) are entry points only — detailed content belongs in `docs/`.
 - New doc files must be added to `mkdocs.yml` under the appropriate section.
 - Design storyboards and pitch material live in
-  [`docs/development/pitch-storyboards.md`](docs/development/pitch-storyboards.md);
+  [`docs/pitch-storyboards.md`](docs/pitch-storyboards.md);
   link to them from `CONTRIBUTING.md` or `DEVELOPMENT.md` rather than duplicating
   their content.
+- Change notes and release tracking procedures live in
+  [`docs/change-notes.md`](docs/change-notes.md).
 
 ### Script conventions
 

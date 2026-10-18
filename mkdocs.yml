@@ -178,6 +178,7 @@ nav:
     - contributing/index.md
     - Development Setup: contributing/development-setup.md
     - Report an Issue: issue-reporting.md
+    - Change Notes: change-notes.md
   - Documentation Site: doc-site.md
 
 extra:

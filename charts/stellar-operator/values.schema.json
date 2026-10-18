@@ -95,6 +95,15 @@
           "type": "string",
           "enum": ["trace", "debug", "info", "warn", "error"]
         },
+        "logFormat": {
+          "type": "string",
+          "enum": ["", "json", "pretty"],
+          "description": "Log output format (json or pretty; empty uses operator default)"
+        },
+        "dryRun": {
+          "type": "boolean",
+          "description": "Enable dry-run mode to simulate reconciliation without cluster writes"
+        },
         "appArmorEnabled": {
           "type": "boolean",
           "description": "Enable AppArmor annotations on operator-managed workload pods"

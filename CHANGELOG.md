@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 • `make test-bats` and a `Bats Suites` CI job covering every bats suite except helm-drift (#1680).
 • `make issue-template-lint`; the CI job now also runs when the linter changes (#1681).
 • Operator process environment variable reference in `docs/configuration/operators.md` (#1678).
+• Helm chart flags `operator.dryRun`, `operator.appArmorEnabled`, and `operator.logFormat` wired to Deployment (#1702).
+• Sample manifests for MaintenancePlan, dry-run validator, and policy bundle under `config/samples/` (#1703).
+• Change notes documentation and release note guidelines in `docs/change-notes.md` (#1704).
+• Bats test coverage for `scripts/secret-rotation-check.sh` (#1705).
 
 ### Fixed
 
