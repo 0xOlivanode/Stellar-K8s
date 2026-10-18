@@ -7,7 +7,7 @@
 <!-- CI / Quality -->
 <p align="center">
   <a href="https://github.com/OtowoOrg/Stellar-K8s/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/OtowoOrg/Stellar-K8s/ci.yml?branch=main&style=for-the-badge&label=CI&logo=github" alt="CI" />
+    <img src="https://img.shields.io/github/actions/workflow/status/OtowoOrg/Stellar-K8s/ci.yml?branch=main&style=for-the-badge&label=CI&logo=github" alt="CI Status" />
   </a>
   <a href="https://codecov.io/gh/OtowoOrg/Stellar-K8s">
     <img src="https://img.shields.io/codecov/c/github/OtowoOrg/Stellar-K8s/main?style=for-the-badge&logo=codecov" alt="Coverage" />
@@ -322,7 +322,7 @@ test "$(wc -c < target/wasm32-unknown-unknown/release/stellar_wasm_cache.wasm)" 
 
 ---
 
-## 📊 Monitoring & Observability
+## Monitoring & Observability
 
 Stellar-K8s comes with built-in Prometheus metrics and a pre-configured Grafana dashboard that provides a comprehensive overview of both the operator's health and the managed Stellar nodes.
 
@@ -350,7 +350,7 @@ The operator exposes the following production-readiness metrics:
 
 ---
 
-## ⚙️ Runtime Feature Flags
+## Runtime Feature Flags
 
 The operator supports runtime feature flags via the `stellar-operator-config` ConfigMap. Changes are picked up **without restart**.
 
@@ -384,6 +384,8 @@ featureFlags:
 We welcome contributions! This project uses pre-commit hooks to ensure code quality.
 
 Please see our **[Contributing Guide](CONTRIBUTING.md)** for details on our workflow, commit conventions, and pull request guidelines. For development setup instructions, see the **[Development Guide](DEVELOPMENT.md)**.
+
+Want the background story behind the project? Read the **[PITCH storyboards](docs/PITCH.md)** for the problem statement, target users, and the roadmap narrative.
 
 Report bugs, request features, propose epics, or submit maintenance and support requests using the [issue templates](https://github.com/OtowoOrg/Stellar-K8s/issues/new/choose).
 
@@ -720,6 +722,30 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and releases.
 
 ## Handsoff notes
+
+<!-- handsoff-issue-1702 -->
+- #1702: [EPIC] helm chart flag — exposed operator.dryRun, operator.appArmorEnabled, and operator.logFormat in Helm values with Deployment wiring and unit tests.
+
+<!-- handsoff-issue-1703 -->
+- #1703: [EPIC] sample manifests — added sample manifests for maintenance plans, dry-run validators, and policy bundles under config/samples/ with index updates.
+
+<!-- handsoff-issue-1704 -->
+- #1704: [EPIC] change notes — recorded unreleased changes in CHANGELOG.md and added docs/change-notes.md registered in mkdocs.yml.
+
+<!-- handsoff-issue-1705 -->
+- #1705: [EPIC] bats coverage — added scripts/tests/secret-rotation-check.bats covering dry-run, argument parsing, error cases, and kubectl rotation flows.
+
+<!-- handsoff-issue-1674 -->
+- #1674: [EPIC] CI badge status — CI badge verified against `.github/workflows/ci.yml`; links resolve to the workflow page.
+
+<!-- handsoff-issue-1675 -->
+- #1675: [EPIC] README update — refreshed cross-references (CONTRIBUTING, PITCH storyboards) and badge block.
+
+<!-- handsoff-issue-1676 -->
+- #1676: [EPIC] CONTRIBUTING docs — linked from the Contributing section above.
+
+<!-- handsoff-issue-1677 -->
+- #1677: [EPIC] PITCH storyboards — linked from the Contributing section above (`docs/PITCH.md`).
 
 <!-- handsoff-issue-1630 -->
 - #1630: [EPIC] Add bats Coverage for secret-rotation-check Script

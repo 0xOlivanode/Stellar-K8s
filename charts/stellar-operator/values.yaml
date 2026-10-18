@@ -157,6 +157,10 @@ podDisruptionBudget:
 operator:
   # Log level: debug, info, warn, error
   logLevel: info
+  # Log format: json or pretty (empty uses operator default: json)
+  logFormat: ""
+  # Enable dry-run mode (simulates reconciliation without modifying cluster state)
+  dryRun: false
   # Enables AppArmor annotations on operator-managed workload pods.
   appArmorEnabled: false
   # Enable REST API

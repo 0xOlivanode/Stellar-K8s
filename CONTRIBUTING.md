@@ -2,6 +2,18 @@
 
 Thank you for contributing to Stellar-K8s! This guide explains how to work with the project, keep your pull requests ready for review, and follow our commit and merge conventions.
 
+## Quick Start
+
+New to the project? Start here:
+
+1. [Development Environment](#7-development-environment) — install prerequisites and run `make dev-setup`.
+2. [Local checks](#local-checks--canonical-workflow) — run `make health` and `make ci-local` before pushing.
+3. [Commit Message Examples](#4-commit-message-examples) and [DCO](#5-developer-certificate-of-origin-dco) — format commits and sign off.
+4. [PR Checklist](#3-pr-checklist) — confirm your pull request is ready for review.
+
+For a narrative overview of the project's direction and design storyboards, see
+the [PITCH storyboards](docs/development/pitch-storyboards.md).
+
 ## Troubleshooting Quick Links
 
 If you run into issues, jump to the relevant section below:
@@ -76,6 +88,15 @@ We prefer a clean history. When your PR is approved, maintainers will typically 
 
 If your PR contains multiple logical changes, split it into separate branches and PRs.
 
+### Branch Protection
+
+Changes to `main` must go through a pull request. The `main` branch protection rule should require:
+
+- A pull request before merging.
+- Passing status checks before merging: `ci / build`, `ci / test`, `ci / security-audit`.
+
+See [Dependency Update Process](docs/dependency-update-process.md#branch-protection-prerequisites) for the full list of settings that auto-merge depends on.
+
 ## 3. PR Checklist
 
 Before opening a PR, confirm the following:
@@ -91,6 +112,13 @@ Before opening a PR, confirm the following:
 - [ ] The PR description is filled out completely using the template.
 - [ ] The PR includes links to any related issues or design discussions.
 
+### Code owners
+
+Reviewers are assigned automatically from [`.github/CODEOWNERS`](.github/CODEOWNERS)
+(last matching rule wins). Paths such as `src/webhook/`, `charts/`, and `docs/` route
+to specific teams, so expect those reviews when you touch them. Keep the file in sync
+when paths move or teams change.
+
 ### Required checks
 
 Before submitting, run the contributor health gates via `make` (not raw
@@ -105,11 +133,12 @@ The full checklist, command rationale, and per-step details live in the
 [Canonical Repository Health Checklist](docs/development/repo-health-checklist.md).
 If your change adds shell scripts, also run `make shellcheck`.
 
-You can also run spell checking locally using `codespell`:
+Spell checking runs in the `Codespell` CI job; run the same check locally with:
 ```bash
 pip install codespell
-codespell --ignore-words=.codespellignore --skip="Cargo.lock,package-lock.json,target,node_modules,vendor,*-vendor" docs/ src/ *.md
+make codespell
 ```
+Add genuine false positives (one lowercase word per line) to `.codespellignore`.
 
 ## 4. Commit Message Examples
 
@@ -207,6 +236,15 @@ make health        # Contributor health gate
 make ci-local      # Full CI pipeline (fmt-check + lint + docs-lint + audit + test + build + link-check)
 ```
 
+Individual targets, when you want to iterate on one step at a time:
+
+```bash
+make fmt           # Format Rust code
+make lint          # Clippy with the project's feature flags
+make test          # Run the test suite
+make docs-lint     # Validate documentation and links
+```
+
 See the [Canonical Repository Health Checklist](docs/development/repo-health-checklist.md)
 for the full command set and per-step expectations.
 
@@ -229,10 +267,11 @@ sudo apt-get install -y bats
 npm install -g bats
 ```
 
-**Run the suites** — the same invocation CI uses:
+**Run the suites** — the same target the `Bats Suites` CI job uses (every suite
+except `helm-drift.bats`, which needs `helm` and runs via `make test-helm-drift`):
 
 ```bash
-bats scripts/tests/
+make test-bats
 ```
 
 To run a single suite while iterating:
@@ -266,10 +305,10 @@ also separates the CI-only helpers in `scripts/ci/` from the scripts you are
 expected to run locally.
 
 To lint the GitHub issue templates locally — the same check CI runs when
-`.github/ISSUE_TEMPLATE/` changes:
+`.github/ISSUE_TEMPLATE/` or the linter changes:
 
 ```bash
-python3 scripts/issue_template_lint.py
+make issue-template-lint
 ```
 
 The command exits non-zero and lists every offending template when an Issue Form
@@ -305,6 +344,12 @@ is missing required keys (`name`, `description`, `body`), uses an unsupported
 - Files that belong to a topic area go in the matching `docs/<topic>/` subdirectory.
 - Root-level docs (`README.md`, `DEVELOPMENT.md`, `CONTRIBUTING.md`) are entry points only — detailed content belongs in `docs/`.
 - New doc files must be added to `mkdocs.yml` under the appropriate section.
+- Design storyboards and pitch material live in
+  [`docs/pitch-storyboards.md`](docs/pitch-storyboards.md);
+  link to them from `CONTRIBUTING.md` or `DEVELOPMENT.md` rather than duplicating
+  their content.
+- Change notes and release tracking procedures live in
+  [`docs/change-notes.md`](docs/change-notes.md).
 
 ### Script conventions
 

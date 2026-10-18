@@ -1,6 +1,9 @@
 site_name: Stellar-K8s Documentation
 site_url: https://m1s0g1.github.io/Stellar-K8s/
 site_description: Comprehensive documentation for deploying and managing Stellar blockchain nodes on Kubernetes
+# Fail the build on any warning (missing nav targets, broken links, plugin
+# issues) so docs regressions are caught in CI (#1691).
+strict: true
 repo_url: https://github.com/OtowoOrg/Stellar-K8s
 repo_name: OtowoOrg/Stellar-K8s
 edit_uri: edit/main/docs/
@@ -106,6 +109,9 @@ nav:
     - multi-region-deployment-and-failover.md
   - Configuration:
     - configuration/index.md
+    - CRD Reference: api-reference.md
+    - Operators: operator-sdk-guide.md
+    - Storage: volume-snapshots.md
     - CRD Reference: configuration/crd-reference.md
     - Operators: configuration/operators.md
     - Storage: configuration/storage.md
@@ -114,6 +120,8 @@ nav:
   - Tutorials:
     - tutorials/index.md
     - Deploy Testnet Validator: tutorials/deploy-testnet-validator.md
+    - Configure HA Setup: deployment-patterns/validator-ha-topology.md
+    - Backup and Restore: backup-verification.md
     - Configure HA Setup: tutorials/configure-ha-setup.md
     - Backup and Restore: tutorials/backup-restore.md
   - Operations & Observability:
@@ -122,6 +130,7 @@ nav:
     - Monitoring and Dashboards Operational Runbook: MONITORING_OPERATIONAL_RUNBOOK.md
     - Production Profiling Runbook: operations/profiling-runbook.md
     - Core Blue/Green Runbook: operations/core-blue-green-runbook.md
+    - Observability Overview: observability/index.md
     - OpenTelemetry Tracing: observability/tracing.md
     - Distributed Rate Limiting: distributed-rate-limiting.md
     - Feature Flag Rollouts: feature-flag-rollouts.md
@@ -155,6 +164,7 @@ nav:
   - Development:
     - Regeneration Guide: development/regeneration-guide.md
     - Repo Health Checklist: development/repo-health-checklist.md
+    - Scripts Reference: development/scripts-reference.md
     - Static Analysis Gates: development/static-analysis-gates.md
     - License Header Compliance: development/license-headers.md
     - Documentation Build: development/docs-build.md
@@ -169,6 +179,7 @@ nav:
     - contributing/index.md
     - Development Setup: contributing/development-setup.md
     - Report an Issue: issue-reporting.md
+    - Change Notes: change-notes.md
   - Documentation Site: doc-site.md
 
 extra:

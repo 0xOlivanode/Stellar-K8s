@@ -86,6 +86,14 @@ spec:
             - name: STELLAR_APPARMOR_ENABLED
               value: "true"
             {{- end }}
+            {{- if .Values.operator.dryRun }}
+            - name: DRY_RUN
+              value: "true"
+            {{- end }}
+            {{- if .Values.operator.logFormat }}
+            - name: LOG_FORMAT
+              value: {{ .Values.operator.logFormat | quote }}
+            {{- end }}
             {{- if .Values.operator.restApiEnabled }}
             - name: REST_API_PORT
               value: {{ .Values.operator.restApiPort | quote }}
@@ -137,9 +145,15 @@ spec:
           args:
             - run
             - --log-level={{ .Values.operator.logLevel }}
+            {{- if .Values.operator.logFormat }}
+            - --log-format={{ .Values.operator.logFormat }}
+            {{- end }}
             - --namespace={{ .Release.Namespace }}
             {{- if .Values.operator.watchNamespace }}
             - --watch-namespace={{ .Values.operator.watchNamespace }}
+            {{- end }}
+            {{- if .Values.operator.dryRun }}
+            - --dry-run
             {{- end }}
           ports:
             - name: http

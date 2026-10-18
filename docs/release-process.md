@@ -34,6 +34,15 @@ Pre-release versions use `-alpha.N`, `-beta.N`, or `-rc.N` suffixes (e.g. `v1.2.
   git push origin v1.2.3
   ```
 
+To run these checks and create the tag in one step, use the helper script (add `PUSH=1` to also push):
+
+```bash
+make tag-release TAG=v1.2.3 DRY_RUN=1   # validate and print the command only
+make tag-release TAG=v1.2.3             # create annotated tag locally
+```
+
+The script enforces the rules above: semver format, `Cargo.toml` version match, `main` branch, and a clean tree.
+
 Pushing a `v*.*.*` tag automatically triggers the [release workflow](#automated-pipeline).
 
 ---

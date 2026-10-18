@@ -22,7 +22,12 @@
 .PHONY: help \
 	fmt fmt-check lint lint-strict shellcheck audit audit-quick verify-mtls security-scan security-all security-report \
 	build test chaos-test ci-local quick watch \
+	fmt fmt-check lint lint-strict shellcheck audit verify-mtls security-scan security-all security-report \
+	build cache-warm test chaos-test ci-local quick watch \
 	docker-build docker-build-ci docker-multiarch docker-cache-purge \
+	fmt fmt-check lint lint-strict lint-all shellcheck codespell audit verify-mtls security-scan security-all security-report \
+	build test chaos-test ci-local quick watch \
+	docker-build docker-build-ci docker-multiarch docker-cache-purge docker-image-prune \
 	dev-setup dev-setup-rust dev-setup-tools dev-setup-hooks health-check pre-commit pre-commit-install run run-local run-dev \
 	install-crd apply-samples crd-gen regenerate completions completions-bash completions-zsh completions-fish \
 	helm-lint helm-unittest helm-upgrade-test link-check link-check-all changelog \
@@ -35,6 +40,8 @@
 	bundle bundle-render bundle-generate bundle-validate bundle-build \
 	quickstart quickstart-setup quickstart-build quickstart-deploy \
 	health health-fast validate preflight test-shell all \
+	shell-safety test-shell-safety tag-release validate-yaml test-yaml-validation \
+	health health-fast validate preflight test-shell test-bats issue-template-lint all \
 	shell-safety test-shell-safety validate-yaml test-yaml-validation \
 	yaml-schema-validate test-db-migrations \
 	lint-observability-contract test-observability-contract \
@@ -46,6 +53,8 @@
 	check-api-contract check-api-coverage check-breaking-changes \
 	crd-benchmark \
 	compliance-test \
+	lint-scripts scripts-convention-check \
+	ci-badge \
 	cleanup clean
 
 # Default target
@@ -59,7 +68,7 @@ IMAGE_NAME := stellar-operator
 IMAGE_TAG ?= latest
 
 # Bundle variables
-VERSION ?= 0.1.0
+VERSION ?= 0.2.0
 BUNDLE_IMG ?= $(IMAGE_NAME)-bundle:v$(VERSION)
 CHANNELS ?= "alpha"
 DEFAULT_CHANNEL ?= "alpha"
@@ -67,7 +76,6 @@ DEFAULT_CHANNEL ?= "alpha"
 help: ## Show this help
 	@echo 'Usage: make [target]'
 	@echo ''
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo 'Canonical Command Flow:'
 	@echo '  Setup:    make dev-setup         One-time environment setup'
 	@echo '  Check:    make quick             Fast pre-commit (fmt + cargo check)'
@@ -81,6 +89,7 @@ help: ## Show this help
 	@echo '  Docker:   make docker-build       Local Docker image'
 	@echo '  Cleanup:  make cleanup            Scratch artifacts + obsolete-path check'
 	@echo '  Clean:    make clean              Remove build artifacts'
+	@echo '  Badge:    make ci-badge           Regenerate the CI status badge SVG'
 	@echo ''
 	@echo 'Workflows:'
 	@echo '  make quickstart                  End-to-end local quickstart (kind cluster)'
@@ -172,6 +181,28 @@ shellcheck: ## Run shellcheck on all shell scripts
 	@echo "→ Running shellcheck..."
 	@find scripts -type f -name "*.sh" -print0 | xargs -0 shellcheck -S error || true
 
+CODESPELL_SKIP ?= Cargo.lock,package-lock.json,target,node_modules,vendor,*-vendor,THIRD_PARTY_LICENSES.md
+
+codespell: ## Spell-check docs/, src/ and top-level Markdown (same command as the CI codespell job) (#1682)
+	@echo "→ Running codespell..."
+	@codespell --ignore-words=.codespellignore --skip="$(CODESPELL_SKIP)" docs/ src/ *.md
+
+# ── Issue #1706: make targets ─────────────────────────────────────────────────
+
+lint-scripts: ## Run shellcheck + shell-safety + scripts-convention-check in one step (#1706)
+	@echo "→ Linting all shell scripts..."
+	$(MAKE) shellcheck
+	$(MAKE) shell-safety
+	$(MAKE) scripts-convention-check
+	@echo "✓ All script lint checks passed"
+
+scripts-convention-check: ## Verify scripts follow CONVENTIONS.md naming & placement rules (#1706, #1707)
+	@echo "→ Checking scripts conventions..."
+	@bash scripts/ci/check-scripts-convention.sh
+
+lint-all: lint-scripts lint ## Run all lint gates: Rust (clippy/fmt) + shell + conventions (#1706, #1708)
+	@echo "✓ lint-all complete"
+
 compliance-test: ## Validate kube-bench compliance fixtures (CIS custom controls) (#1380)
 	@echo "→ Running kube-bench compliance static checks..."
 	@bash security/kube-bench/run-local.sh --check-only
@@ -182,6 +213,10 @@ shell-safety: ## Static analysis gate for unsafe shell patterns (#1049)
 test-shell-safety: ## Unit tests for the shell safety gate (#1049)
 	@echo "→ Testing shell safety gate..."
 	@python3 -m unittest scripts.tests.test_check_shell_safety
+
+tag-release: ## Create annotated release tag: make tag-release TAG=vX.Y.Z [PUSH=1] [DRY_RUN=1]
+	@test -n "$(TAG)" || { echo "usage: make tag-release TAG=vX.Y.Z [PUSH=1] [DRY_RUN=1]"; exit 1; }
+	@bash scripts/tag-release.sh $(TAG) $(if $(PUSH),--push) $(if $(DRY_RUN),--dry-run)
 
 # ── Manifest validation & drift ───────────────────────────────────────────────
 
@@ -238,6 +273,21 @@ build: ## Build release
 	@echo "→ Building release..."
 	@$(CARGO) build --release --locked
 
+cache-warm: ## Warm the Cargo cache: fetch locked deps and pre-compile the lib and bins
+	@echo "→ Fetching locked dependencies..."
+	@$(CARGO) fetch --locked
+	@echo "→ Pre-compiling lib and bins (dependency cache warm-up)..."
+	@$(CARGO) build --locked --lib --bins
+	@echo "✓ Cargo cache warmed"
+build-debug: ## Build an unoptimised debug binary (faster iteration than build)
+	@echo "Building debug binary..."
+	@$(CARGO) build --locked
+
+build-check: ## Type-check all targets without producing binaries (fast gate)
+	@$(CARGO) check --locked --all-targets
+
+build-all: build docs-build ## Build the release binary and the documentation site
+
 wasm-cache-build: ## Build the bounded Soroban cache Wasm artifact and enforce its size limit
 	@echo "→ Building Soroban cache Wasm artifact..."
 	@$(CARGO) build --release --locked --target wasm32-unknown-unknown -p stellar-wasm-cache
@@ -262,6 +312,10 @@ chaos-report: ## Aggregate chaos drill results into a summary report (scripts/ag
 docker-cache-purge: ## Purge all unused Docker builder cache (asks for confirmation)
 	@echo "→ Purging unused build cache on the current Docker daemon..."
 	$(DOCKER) builder prune --all
+
+docker-image-prune: ## Remove dangling local images from the Docker daemon (asks for confirmation)
+	@echo "→ Pruning dangling images on the current Docker daemon..."
+	$(DOCKER) image prune
 
 docker-build: ## Fast local Docker build using host release binaries
 	@echo "→ Building Docker image (fast local mode)..."
@@ -324,6 +378,9 @@ pre-commit-install: dev-setup-hooks ## Install pre-commit hooks (alias for dev-s
 
 clean: ## Clean build artifacts
 	$(CARGO) clean
+
+cleanup: ## Remove repo scratch artifacts and check for obsolete cleanup paths (DRY_RUN=1 to preview)
+	@bash scripts/cleanup.sh $(if $(filter 1,$(DRY_RUN)),--dry-run)
 
 generate-api-docs: ## Generate API reference docs from CRD schema
 	@echo "→ Generating API reference docs..."
@@ -439,6 +496,17 @@ test-shell: ## Run bats unit tests for the cleanup tool and shared shell helpers
 	@command -v bats >/dev/null 2>&1 || (echo "✗ bats not installed. See https://github.com/bats-core/bats-core" && exit 1)
 	@bats scripts/tests/cleanup.bats
 
+# helm-drift.bats is excluded: it needs helm and runs via `make test-helm-drift`.
+BATS_SUITES ?= $(filter-out scripts/tests/helm-drift.bats,$(wildcard scripts/tests/*.bats))
+
+test-bats: ## Run every bats suite under scripts/tests/ except helm-drift (#1680)
+	@echo "→ Running bats suites..."
+	@command -v bats >/dev/null 2>&1 || (echo "✗ bats not installed. See https://github.com/bats-core/bats-core" && exit 1)
+	@bats $(BATS_SUITES)
+
+issue-template-lint: ## Lint GitHub Issue Forms in .github/ISSUE_TEMPLATE/ (#1681)
+	@python3 scripts/issue_template_lint.py
+
 collect-failure-diagnostics: ## Assemble a local CI failure diagnostics bundle (#1151)
 	@echo "→ Assembling failure diagnostics bundle..."
 	@chmod +x scripts/ci/collect-failure-diagnostics.sh
@@ -486,6 +554,13 @@ check-breaking-changes: ## Detect breaking API changes vs base branch (#1288)
 	@python3 scripts/check-api-contract.py breaking \
 		--base /tmp/base-openapi.yaml \
 		--head docs/api/openapi.yaml
+
+# ── Issue #1674: CI badge status ─────────────────────────────────────────────
+
+ci-badge: ## Regenerate the CI status badge SVG (#1674)
+	@echo "→ Generating CI status badge..."
+	@bash scripts/ci/generate-badge.sh
+	@echo "✓ CI badge regenerated"
 
 completions: ## Generate shell completion scripts
 	@echo "→ Generating shell completions..."

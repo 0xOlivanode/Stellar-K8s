@@ -1,8 +1,10 @@
 # Operator Environment
 
-Two things live here, because both are properties of the workloads the operator
-generates rather than of the `StellarNode` spec:
+This page covers the environment of the operator process itself and of the
+workloads it generates:
 
+- [Operator process environment variables](#operator-process-environment-variables)
+  — the variables `stellar-operator run` reads at startup.
 - [Pod hardening](#pod-hardening) — the security context and AppArmor
   annotations applied to every generated pod.
 - [Seed environment variables](#seed-environment-variables) — how the validator
@@ -13,6 +15,49 @@ The operator's own startup configuration is a separate concern: it is the
 release's `operator-config` ConfigMap, located via the `STELLAR_OPERATOR_CONFIG`
 environment variable on the operator Deployment. It does not affect the
 workloads described on this page.
+
+## Operator process environment variables
+
+Variables read by `stellar-operator run`. Each one marked with a flag is the
+environment form of that CLI flag (`stellar-operator run --help`); the flag wins
+when both are set. Boolean variables are enabled with `true`. The **Chart**
+column shows what the Helm chart's `deployment.yaml` sets.
+
+| Variable | Flag | Default | Chart | Purpose |
+|---|---|---|---|---|
+| `OPERATOR_NAMESPACE` | `--namespace` | `default` | release namespace | Namespace the operator manages and provisions certificates in. |
+| `WATCH_NAMESPACE` | `--watch-namespace` | unset (all namespaces) | — | Restrict reconciliation to one namespace (allows namespace-scoped RBAC). |
+| `DRY_RUN` | `--dry-run` | `false` | `true` when `operator.dryRun` | Run reconciliation without Kubernetes API writes. Exclusive with `RUN_SCHEDULER`. |
+| `RUN_SCHEDULER` | `--scheduler` | `false` | — | Run the latency-aware scheduler instead of the reconciler. |
+| `SCHEDULER_NAME` | `--scheduler-name` | `stellar-scheduler` | — | Scheduler name matched against pod `schedulerName`. |
+| `RETRY_BUDGET_RETRIABLE_SECS` | `--retry-budget-retriable-secs` | `15` | — | Requeue interval for retriable reconcile errors. |
+| `RETRY_BUDGET_NONRETRIABLE_SECS` | `--retry-budget-nonretriable-secs` | `60` | — | Requeue interval for non-retriable reconcile errors. |
+| `RETRY_BUDGET_MAX_ATTEMPTS` | `--retry-budget-max-attempts` | `3` | — | Maximum HTTP retries for SCP and quorum queries. |
+| `PREFLIGHT_ONLY` | `--preflight-only` | `false` | — | Run preflight checks and exit. |
+| `GITHUB_REPOSITORY` | `--github-repo` | unset (skipped) | — | `owner/repo` for the GitHub label-readiness preflight. |
+| `ENABLE_MTLS` | `--enable-mtls` | `false` | — | Provision a CA and server certificate and require client certificates on the REST API. |
+| `LOG_LEVEL` | `--log-level` | `info` | `operator.logLevel` | `trace`, `debug`, `info`, `warn` or `error`. |
+| `LOG_FORMAT` | `--log-format` | `json` | `operator.logFormat` when set | `json` or `pretty`. |
+| `STELLAR_OFFLINE` | `--offline` | `false` | — | Skip the background version check against GitHub releases. |
+| `STELLAR_OPERATOR_CONFIG` | — | `/etc/stellar-operator/config.yaml` | `/etc/stellar-operator/config.yaml` | Path of the operator `config.yaml`; built-in defaults are used if it is missing or invalid. |
+| `STELLAR_APPARMOR_ENABLED` | — | unset (off) | `true` when `operator.appArmorEnabled` | Add AppArmor annotations to generated pods; see [AppArmor](#apparmor). |
+| `POD_NAMESPACE` | — | `default` | `metadata.namespace` | Namespace of the leader-election Lease. |
+| `POD_NAME` | — | hostname | `metadata.name` | Leader-election holder identity. |
+| `OPERATOR_LEASE_NAME` | — | `stellar-operator-leader` | — | Name of the leader-election Lease. |
+| `REST_API_PORT` | — | `9090` | `operator.restApiPort` when `operator.restApiEnabled` | REST API listen port. |
+| `CERT_ROTATION_THRESHOLD_DAYS` | — | `30` | — | Days before expiry at which the mTLS server certificate is rotated (with `ENABLE_MTLS`). |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | — | unset (tracing off) | `otel.endpoint` when `otel.enabled` | OTLP endpoint; setting it enables trace export. |
+| `OTEL_SERVICE_NAME` | — | `stellar-operator` | `otel.serviceName` when `otel.enabled` | Service name on exported spans. |
+| `OTEL_TRACES_SAMPLER` | — | `parentbased_traceidratio` | — | OpenTelemetry sampler. |
+| `OTEL_TRACES_SAMPLER_ARG` | — | `1.0` | `otel.samplingRatio` when set | Sampling ratio, clamped to `0.0`–`1.0`. |
+| `FEE_MARKET_RPC_URL` | — | unset (monitor off) | — | Soroban RPC URL; setting it starts the fee-market monitor (`metrics` feature). |
+| `FEE_MARKET_NETWORK` | — | `unknown` | — | Network label for fee-market metrics. |
+| `FEE_MARKET_SPIKE_THRESHOLD_STROOPS` | — | `10000` | — | Fee spike threshold in stroops. |
+| `SNAPSHOT_INTEGRITY_CONFIG` | — | unset (checker off) | — | JSON `SnapshotIntegrityConfig` for the snapshot integrity checker. |
+
+Variables the chart does not set can be added to the operator Deployment's `env`
+list (for a one-off, `kubectl set env deployment/<operator-deployment> LOG_LEVEL=debug`;
+the next `helm upgrade` reverts it).
 
 For the `StellarNode` fields, see [CRD Reference](crd-reference.md).
 
