@@ -178,6 +178,7 @@ nav:
     - Database Migrations: database/migrations.md
     - Reconciler Phases: reconciler-phases.md
   - GitOps:
+    - ArgoCD GitOps: gitops/argocd.md
     - Flux CD: gitops/flux.md
   - Contributing:
     - contributing/index.md
