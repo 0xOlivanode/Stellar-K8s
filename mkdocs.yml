@@ -177,6 +177,8 @@ nav:
     - Helm Chart Testing: helm-chart-testing.md
     - Database Migrations: database/migrations.md
     - Reconciler Phases: reconciler-phases.md
+  - GitOps:
+    - Flux CD: gitops/flux.md
   - Contributing:
     - contributing/index.md
     - Development Setup: contributing/development-setup.md
