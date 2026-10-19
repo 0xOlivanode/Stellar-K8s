@@ -99,6 +99,7 @@ nav:
     - Prerequisites: getting-started/prerequisites.md
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quick-start.md
+    - Testnet Onboarding: getting-started/testnet-onboarding.md
   - Deployment Guides:
     - deployment-guides/index.md
     - Validator Node: deployment-guides/validator.md
@@ -110,6 +111,7 @@ nav:
   - Configuration:
     - configuration/index.md
     - CRD Reference: api-reference.md
+    - Testnet Peer Configuration: configuration/testnet-peer-configuration.md
     - Operators: operator-sdk-guide.md
     - Storage: volume-snapshots.md
     - CRD Reference: configuration/crd-reference.md
