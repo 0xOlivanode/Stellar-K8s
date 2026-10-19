@@ -53,7 +53,7 @@
 	check-api-contract check-api-coverage check-breaking-changes \
 	crd-benchmark \
 	compliance-test \
-	lint-scripts scripts-convention-check \
+	lint-scripts scripts-convention-check python-lint \
 	ci-badge \
 	cleanup clean
 
@@ -189,18 +189,24 @@ codespell: ## Spell-check docs/, src/ and top-level Markdown (same command as th
 
 # ── Issue #1706: make targets ─────────────────────────────────────────────────
 
-lint-scripts: ## Run shellcheck + shell-safety + scripts-convention-check in one step (#1706)
+lint-scripts: ## Run shellcheck + shell-safety + scripts-convention-check + python-lint in one step (#1706, #1793)
 	@echo "→ Linting all shell scripts..."
 	$(MAKE) shellcheck
 	$(MAKE) shell-safety
 	$(MAKE) scripts-convention-check
+	$(MAKE) python-lint
 	@echo "✓ All script lint checks passed"
 
 scripts-convention-check: ## Verify scripts follow CONVENTIONS.md naming & placement rules (#1706, #1707)
 	@echo "→ Checking scripts conventions..."
 	@bash scripts/ci/check-scripts-convention.sh
 
-lint-all: lint-scripts lint ## Run all lint gates: Rust (clippy/fmt) + shell + conventions (#1706, #1708)
+python-lint: ## Lint Python tools (py_compile) + TOML configs (tomllib parse), stdlib only (#1793, #1795)
+	@echo "→ Linting Python and TOML files..."
+	@bash scripts/ci/check-python-toml-lint.sh
+	@echo "✓ Python/TOML lint passed"
+
+lint-all: lint-scripts lint ## Run all lint gates: Rust (clippy/fmt) + shell + conventions + Python/TOML (#1706, #1708, #1793, #1795)
 	@echo "✓ lint-all complete"
 
 compliance-test: ## Validate kube-bench compliance fixtures (CIS custom controls) (#1380)

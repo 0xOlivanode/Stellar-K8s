@@ -22,6 +22,8 @@ Related documentation:
   predate the rule and are kept for compatibility).
 - Every shell script must pass `shellcheck -S error` (`make shellcheck`) and
   `scripts/check-shell-safety.py` (`make shell-safety`).
+- Every Python tool must be `py_compile`-clean and every TOML file must parse
+  with stdlib `tomllib` (`make python-lint`, `scripts/ci/check-python-toml-lint.sh`).
 - Anything in [`scripts/ci/`](ci/) is **CI-only**: those scripts are designed to
   run inside a GitHub Actions runner and have no `make` target or local wrapper.
   They are listed separately below and marked `CI-only`.
@@ -123,8 +125,9 @@ failure.
 | [`ci/extract-crd-json-schemas.py`](ci/extract-crd-json-schemas.py) | Derives `schemas/crd/*.json` from the repository's own CRDs; `--check` fails on drift. | `ci.yml` → `repo-hygiene` |
 | [`ci/lint-observability-contract.py`](ci/lint-observability-contract.py) | Blocks resource attributes that are absent from the published observability JSON Schema. | `ci.yml` → `lint` (`make lint-observability-contract`) |
 | [`ci/validate-yaml.sh`](ci/validate-yaml.sh) | yamllint + CRD JSON-schema drift + kubeconform on Helm-rendered manifests. | `ci.yml` → `yaml-schema` (`make yaml-schema-validate`) |
-| [`ci/lint.sh`](ci/lint.sh) | Unified lint runner: shellcheck, shell-safety, scripts-convention, yamllint, and optionally Rust lints. Flags: `--fast` (skip Rust), `--rust-only`. | `ci.yml` → `scripts-convention` (`make lint-all`) |
+| [`ci/lint.sh`](ci/lint.sh) | Unified lint runner: shellcheck, shell-safety, scripts-convention, python-lint, yamllint, and optionally Rust lints. Flags: `--fast` (skip Rust), `--rust-only`. | `ci.yml` → `scripts-convention` (`make lint-all`) |
 | [`ci/check-scripts-convention.sh`](ci/check-scripts-convention.sh) | Enforces CONVENTIONS.md §Shell scripts: kebab-case naming, no root-level scripts, Usage: headers, and lib/ placement rules. `--report` never fails. | `ci.yml` → `scripts-convention` (`make scripts-convention-check`) |
+| [`ci/check-python-toml-lint.sh`](ci/check-python-toml-lint.sh) | Stdlib-only syntax gate: `py_compile` for `scripts/**/*.py` plus `tomllib` parse for tracked `*.toml`. No network deps. | `ci.yml` → `python-toml-lint` (`make python-lint`) |
 | [`ci/test-db-migrations.sh`](ci/test-db-migrations.sh) | Forward/rollback SQL migration harness. Requires a `DATABASE_URL` pointing at an isolated Postgres instance. | `ci.yml` → `db-migrations` (`make test-db-migrations`) |
 | [`ci/helm-upgrade-test.sh`](ci/helm-upgrade-test.sh) | Asserts that Helm upgrade overrides preserve resources, selectors, affinity, and ports. | `ci.yml` → `helm-test` (`make helm-upgrade-test`) |
 | [`ci/k8s-compat-smoke-tests.sh`](ci/k8s-compat-smoke-tests.sh) | Kubernetes version compatibility smoke tests for a given `TARGET_VERSION`. | `k8s-compat.yml` |
