@@ -17,6 +17,10 @@ Production-grade Stellar infrastructure on Kubernetes. This directory contains a
 - [Horizon API](deployment-guides/horizon.md)
 - [Soroban RPC](deployment-guides/soroban-rpc.md)
 - [OLM / OpenShift](deploy-olm.md)
+- [Deployment Patterns](deployment-patterns/index.md)
+- [Horizon / RPC Farm](deployment-patterns/horizon-rpc-farm.md)
+- [Multi-Region and DR](deployment-patterns/multi-region-dr.md)
+- [GitOps, Scaling and Upgrades](deployment-patterns/gitops-scaling-upgrades.md)
 
 ## CRD & API Reference
 
