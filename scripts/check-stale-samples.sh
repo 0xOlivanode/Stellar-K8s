@@ -18,7 +18,6 @@
 # 2. Conform to the current CRD schema
 # 3. Not missing required fields
 #
-# Related: #1146 - Create automated stale sample manifest detector and fixe
 # Related: #1146 - Create automated stale sample manifest detector and fixer
 
 set -euo pipefail
