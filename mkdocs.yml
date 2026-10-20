@@ -141,6 +141,7 @@ nav:
     - Diagnostic Decision Trees: troubleshooting/diagnostic-decision-trees.md
     - Operator Runbooks: troubleshooting/operator-runbooks.md
     - Metrics and Alerting: troubleshooting/metrics-alerting.md
+  - Frequently Asked Questions: faq.md
   - API Reference:
     - api-reference.md
     - Operator REST API:
