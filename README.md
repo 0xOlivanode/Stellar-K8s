@@ -384,7 +384,7 @@ featureFlags:
 
 We welcome contributions! This project uses pre-commit hooks to ensure code quality.
 
-Please see our **[Contributing Guide](CONTRIBUTING.md)** for details on our workflow, commit conventions, and pull request guidelines. For development setup instructions, see the **[Development Guide](DEVELOPMENT.md)**.
+Please see our **[Contributing Guide](CONTRIBUTING.md)** for details on our workflow, commit conventions, and pull request guidelines. For development setup instructions, see the **[Development Guide](DEVELOPMENT.md)**. An index of operational and helper scripts is available in **[`scripts/README.md`](scripts/README.md)**.
 
 Want the background story behind the project? Read the **[PITCH storyboards](docs/PITCH.md)** for the problem statement, target users, and the roadmap narrative.
 

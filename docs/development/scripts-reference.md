@@ -1,10 +1,12 @@
 # Scripts Reference
 
-Developer and CI helper scripts live in `scripts/`. Library helpers shared by
-several scripts are in `scripts/lib/` (`common.sh`, `errors.sh`,
-`health-steps.sh`, `batch.sh`). Bats tests for the shell helpers are in
-`scripts/tests/`. Legacy one-off scripts are archived under
-`scripts/archive/` (see `scripts/archive/README.md`).
+Developer and CI helper scripts live in `scripts/`. For a comprehensive directory
+index of all available scripts, their usage, and coverage, see the
+[Operational Scripts Index](../../scripts/README.md).
+
+Library helpers shared by several scripts are in `scripts/lib/` (`common.sh`,
+`errors.sh`, `health-steps.sh`, `batch.sh`). Bats tests for the shell helpers
+are in `scripts/tests/`.
 
 Run the standard gates locally before pushing:
 

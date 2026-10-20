@@ -243,7 +243,7 @@ export function parseAppState(appResponse) {
 
 /**
  * Lightweight ArgoCD API client with efficient polling.
- * Re-uses a single AbortController per poll cycle.
+ * Reuses a single AbortController per poll cycle.
  */
 export class ArgoCdPoller {
   /**
