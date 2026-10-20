@@ -723,6 +723,9 @@ See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and releases.
 
 ## Handsoff notes
 
+<!-- handsoff-issue-1732 -->
+- #1732: [EPIC] cost estimate — added `docs/cost-estimate.md` with AWS on-demand and HA pricing tables for Testnet and Mainnet deployments; registered in `mkdocs.yml` under Operations & Observability.
+
 <!-- handsoff-issue-1702 -->
 - #1702: [EPIC] helm chart flag — exposed operator.dryRun, operator.appArmorEnabled, and operator.logFormat in Helm values with Deployment wiring and unit tests.
 

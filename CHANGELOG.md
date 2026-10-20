@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 • Sample manifests for MaintenancePlan, dry-run validator, and policy bundle under `config/samples/` (#1703).
 • Change notes documentation and release note guidelines in `docs/change-notes.md` (#1704).
 • Bats test coverage for `scripts/secret-rotation-check.sh` (#1705).
+• Cost estimate reference document added at `docs/cost-estimate.md` with AWS on-demand and HA pricing tables for Testnet and Mainnet deployments (#1732).
 
 ### Fixed
 
