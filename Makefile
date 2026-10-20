@@ -350,7 +350,7 @@ check-unreachable-modules: ## Static check for unreachable modules and dead code
 	@echo "→ Checking unreachable modules and dead code paths..."
 	@$(CARGO) run --quiet --locked --bin check-unreachable-modules
 
-ci-local: fmt-check lint audit test build ## Run full CI locally
+ci-local: fmt-check lint audit test build issue-template-lint test-bats ## Run full CI locally
 	@echo ""
 	@echo "✓ All CI checks passed!"
 

@@ -437,7 +437,7 @@ make dev-setup     # One-time environment setup (Rust toolchain, tools, pre-comm
 make quick         # Fast pre-commit check (fmt-check + cargo check)
 make health-fast   # Fast compile path: format + lint + compile check (no tests)
 make health        # Full contributor health gate (format + lint + tests + docs)
-make ci-local      # Full CI pipeline locally (fmt-check + lint + audit + test + build + link-check)
+make ci-local      # Full CI pipeline locally (fmt-check + lint + audit + test + build + issue-template-lint + test-bats + link-check)
 ```
 
 `make validate` is kept as a back-compat alias for `make health-fast`.
