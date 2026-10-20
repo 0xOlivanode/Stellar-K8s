@@ -9,7 +9,7 @@ failure.
 It complements the operator-native `spec.backupVerification` scheduler
 documented in [Automated Backup Verification](../backup-verification.md).
 Use that CRD field when the operator should own the loop. Use the CronJob
-in [`examples/cronjobs/backup-verifier.yaml`](../../examples/cronjobs/backup-verifier.yaml)
+in [`examples/cronjobs/backup-verifier.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/cronjobs/backup-verifier.yaml)
 when you want an independent nightly drill that does not reconcile
 production `StellarNode` objects.
 
@@ -169,7 +169,7 @@ These steps match CSI restore as implemented for Validators
 
 S3 and pgBackRest sources follow the same isolation rules: restore into
 the test namespace only. See
-[examples/backup-verification-example.yaml](../../examples/backup-verification-example.yaml)
+[examples/backup-verification-example.yaml](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/backup-verification-example.yaml)
 for the CRD-shaped equivalents.
 
 ---
@@ -519,9 +519,9 @@ python3 -c "import yaml,sys; list(yaml.safe_load_all(open(sys.argv[1])))" \
 
 ## References
 
-- [`src/backup/verification.rs`](../../src/backup/verification.rs) — SQL checks, temp namespace, cleanup
-- [`src/controller/snapshot.rs`](../../src/controller/snapshot.rs) — CSI VolumeSnapshot create/retain
-- [`src/fork_detector/detector.rs`](../../src/fork_detector/detector.rs) — live ledger-hash comparison
-- [`examples/cronjobs/backup-verifier.yaml`](../../examples/cronjobs/backup-verifier.yaml)
-- [`examples/backup-verification-example.yaml`](../../examples/backup-verification-example.yaml)
-- [`examples/validator-volume-snapshots.yaml`](../../examples/validator-volume-snapshots.yaml)
+- [`src/backup/verification.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/backup/verification.rs) — SQL checks, temp namespace, cleanup
+- [`src/controller/csi_snapshot.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/controller/csi_snapshot.rs) — CSI VolumeSnapshot create/retain
+- [`src/fork_detector/detector.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/fork_detector/detector.rs) — live ledger-hash comparison
+- [`examples/cronjobs/backup-verifier.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/cronjobs/backup-verifier.yaml)
+- [`examples/backup-verification-example.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/backup-verification-example.yaml)
+- [`examples/validator-volume-snapshots.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/validator-volume-snapshots.yaml)

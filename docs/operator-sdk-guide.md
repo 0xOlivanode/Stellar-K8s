@@ -37,7 +37,7 @@ let registry = std::sync::Arc::new(
 
 ## CI/CD Template
 
-Use [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) as the starting point
+Use [`.github/workflows/ci.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/ci.yml) as the starting point
 for extension CI (lint, test, helm, and security-scan jobs). Reuse composite actions
 under `.github/actions/` (especially `setup-rust` and `security-scan`) rather than
 copying inline bootstrap.

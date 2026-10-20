@@ -21,7 +21,7 @@ security patching in an automated, auditable way.
 
 ## Dependabot Configuration
 
-The configuration lives in [`.github/dependabot.yml`](../.github/dependabot.yml).
+The configuration lives in [`.github/dependabot.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/dependabot.yml).
 
 ### Grouping Strategy
 
@@ -49,7 +49,7 @@ Related crates are grouped to minimise PR noise:
 
 ## Auto-Merge Workflow
 
-[`.github/workflows/dep-auto-merge.yml`](../.github/workflows/dep-auto-merge.yml)
+[`.github/workflows/dep-auto-merge.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/dep-auto-merge.yml)
 runs on every Dependabot PR and:
 
 1. Fetches Dependabot metadata (update type, package ecosystem).
@@ -93,7 +93,7 @@ When `cargo-audit` or Dependabot finds a **security advisory**:
 2. The auto-merge workflow posts a comment requiring human review.
 3. A maintainer reviews the advisory, the diff, and the upstream changelog.
 4. If the fix is safe, the maintainer approves and merges.
-5. A patch release is cut following the [Release Process](../docs/release-process.md).
+5. A patch release is cut following the [Release Process](release-process.md).
 
 ### Emergency Patching (Critical CVE)
 

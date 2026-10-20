@@ -7,8 +7,8 @@ playbook covers diagnosing that condition and recovering the database
 in-place, without a full resync/restore, when that's viable.
 
 > **Before you start:** repairing a database in place is a **last resort**.
-> If you have a recent [VolumeSnapshot](../volume-snapshots.md) or
-> [verified backup](../backup-verification.md), restoring from it is safer
+> If you have a recent [VolumeSnapshot](volume-snapshots.md) or
+> [verified backup](backup-verification.md), restoring from it is safer
 > and usually faster than manual repair. Use this playbook when no usable
 > backup exists, or when the corruption is shallow enough that a targeted
 > repair is clearly faster than a resync (e.g. a multi-hundred-GB Mainnet
@@ -23,7 +23,7 @@ in-place, without a full resync/restore, when that's viable.
 
 Horizon and Soroban RPC don't store their database on the node's own PVC —
 they connect out to a Postgres instance. If that instance is a plain
-StatefulSet (as used for [backup verification](../backup-verification.md)),
+StatefulSet (as used for [backup verification](backup-verification.md)),
 the repair steps in this playbook apply directly to its PVC. If it's a
 managed database (CNPG or an external provider), follow that system's own
 recovery tooling instead — do not attach a debug pod to a PVC owned by
@@ -52,7 +52,7 @@ Look for:
 
 If instead you see connection refused, auth failures, or the pod scheduled
 but pending on a PVC, that's a networking/RBAC/quota issue — this playbook
-won't help; see [docs/troubleshooting/networking.md](../troubleshooting/networking.md).
+won't help; see [docs/troubleshooting/networking.md](troubleshooting/networking.md).
 
 ## 2. Stop writers to the affected PVC
 
@@ -107,7 +107,7 @@ repair command.
 
 ## 4. Launch a debug pod attached to the corrupted PVC
 
-Use [`examples/debug/repair-pod.yaml`](../../examples/debug/repair-pod.yaml)
+Use [`examples/debug/repair-pod.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/debug/repair-pod.yaml)
 as a starting point. It mounts the node's existing PVC read-write and sleeps,
 so you can `kubectl exec` into it and run repair commands interactively. Fill
 in the placeholders (namespace, PVC name, storage class if relevant) before
@@ -181,13 +181,13 @@ Exit the debug pod, then jump to step 6 to validate.
 > what's corrupted, in-place repair generally isn't viable — `stellar-core`
 > validates bucket hashes against the ledger header on startup and will
 > refuse to run on mismatched buckets. In that case, restore from a
-> [VolumeSnapshot](../volume-snapshots.md) or let the node resync via
+> [VolumeSnapshot](volume-snapshots.md) or let the node resync via
 > `historyArchiveUrls` instead of continuing this playbook.
 
 ## 6. Repair — PostgreSQL (Horizon / Soroban RPC database)
 
 PostgreSQL page-level corruption is riskier to hand-repair than SQLite —
-prefer restoring from a [verified backup](../backup-verification.md)
+prefer restoring from a [verified backup](backup-verification.md)
 (S3/pgBackRest/VolumeSnapshot) whenever one exists. The steps below are for
 cases where no usable backup exists and the corruption is isolated to a
 small number of pages/indexes.

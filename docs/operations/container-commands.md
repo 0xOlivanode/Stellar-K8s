@@ -431,10 +431,9 @@ See `examples/custom-commands/` for complete working examples:
 
 ## Related Documentation
 
-- [Container Images](../configuration/container-images.md)
-- [Resource Configuration](../configuration/resources.md)
+- [Image Pinning](../image-pinning.md)
+- [Resource Limits](../resource-limits.md)
 - [Sidecars](../sidecars.md)
-- [Init Containers](../configuration/init-containers.md)
 
 ## References
 

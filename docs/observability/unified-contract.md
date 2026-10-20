@@ -6,7 +6,7 @@ not translate field names by hand.
 
 ## Schema
 
-Published catalog: [`schemas/observability/resource-attributes.v1.json`](../../schemas/observability/resource-attributes.v1.json)
+Published catalog: [`schemas/observability/resource-attributes.v1.json`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/schemas/observability/resource-attributes.v1.json)
 
 | Field | Required | Source |
 |-------|----------|--------|

@@ -65,10 +65,15 @@ jobs:
 
       - name: Install lychee
         run: |
-          LYCHEE_VERSION="0.15.1"
+          # Releases are tagged lychee-vX.Y.Z and the archive wraps the binary
+          # in a lychee-<target>/ directory.
+          LYCHEE_VERSION="0.24.2"
+          RELEASES="https://github.com/lycheeverse/lychee/releases/download"
+          tmp="$(mktemp -d)"
           curl -sSLf \
-            "https://github.com/lycheeverse/lychee/releases/download/v${LYCHEE_VERSION}/lychee-x86_64-unknown-linux-gnu.tar.gz" \
-            | tar -xz -C /usr/local/bin lychee
+            "${RELEASES}/lychee-v${LYCHEE_VERSION}/lychee-x86_64-unknown-linux-gnu.tar.gz" \
+            | tar -xz -C "$tmp"
+          sudo install -m 0755 "$tmp/lychee-x86_64-unknown-linux-gnu/lychee" /usr/local/bin/lychee
           lychee --version
 
       - name: Run lychee (internal + optional external)

@@ -21,7 +21,7 @@ Static reachability audit for Rust sources under `src/`. Introduced for
 ## Allowlist
 
 Known WIP orphans may be listed in
-[`config/unreachable-modules-allowlist.txt`](../config/unreachable-modules-allowlist.txt).
+[`config/unreachable-modules-allowlist.txt`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/config/unreachable-modules-allowlist.txt).
 Allowlisted orphans are reported but do not fail CI. New orphans that are
 not on the allowlist fail the check so accidental dead modules cannot land
 unnoticed.

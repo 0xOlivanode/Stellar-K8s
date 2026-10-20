@@ -81,7 +81,7 @@ spec:
     flushBeforeSnapshot: false
 ```
 
-Samples: [`config/samples/snapshot-bootstrap-csi.yaml`](../config/samples/snapshot-bootstrap-csi.yaml).
+Samples: [`config/samples/snapshot-bootstrap-csi.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/config/samples/snapshot-bootstrap-csi.yaml).
 
 ### 3.2 Managed database backup (Horizon)
 
@@ -98,7 +98,7 @@ spec:
       retentionPolicy: 30d
 ```
 
-See [`config/crd/stellarnode-crd.yaml`](../config/crd/stellarnode-crd.yaml) (`managedDatabase.backup`).
+See [`config/crd/stellarnode-crd.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/config/crd/stellarnode-crd.yaml) (`managedDatabase.backup`).
 
 ### 3.3 Velero (cluster-level)
 
@@ -151,7 +151,7 @@ See [forensic-snapshot.md](forensic-snapshot.md).
 | VolumeSnapshot | `0 2 * * *` (daily 02:00 UTC) | `retentionCount: 7` in examples |
 | managedDatabase.backup | Configure per cluster | `retentionPolicy: 30d` in CRD default |
 | Velero Schedule | `0 2 * * *` | `ttl: 720h` in pattern doc |
-| backupVerification | `0 2 * * 0` (weekly) | Example in [`examples/backup-verification-example.yaml`](../examples/backup-verification-example.yaml) |
+| backupVerification | `0 2 * * 0` (weekly) | Example in [`examples/backup-verification-example.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/backup-verification-example.yaml) |
 
 If a field is absent in your manifest, define it explicitly before assuming a schedule exists.
 
@@ -174,7 +174,7 @@ spec:
     strategy: standard
 ```
 
-Full example: [`examples/backup-verification-example.yaml`](../examples/backup-verification-example.yaml).
+Full example: [`examples/backup-verification-example.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/backup-verification-example.yaml).
 
 **Verify reports** (when S3 report storage configured):
 
@@ -285,10 +285,10 @@ Follow [dr-failover.md](dr-failover.md) and [multi-cluster.md](multi-cluster.md)
 
 | Item | Path |
 |------|------|
-| Backup verification example | [`examples/backup-verification-example.yaml`](../examples/backup-verification-example.yaml) |
-| Snapshot samples | [`config/samples/snapshot-bootstrap-backup.yaml`](../config/samples/snapshot-bootstrap-backup.yaml) |
-| Backup verification tests | [`tests/backup_verification_test.rs`](../tests/backup_verification_test.rs) |
-| DR E2E tests | [`tests/dr_failover_e2e.rs`](../tests/dr_failover_e2e.rs) |
+| Backup verification example | [`examples/backup-verification-example.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/backup-verification-example.yaml) |
+| Snapshot samples | [`config/samples/snapshot-bootstrap-backup.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/config/samples/snapshot-bootstrap-backup.yaml) |
+| Backup verification tests | [`tests/backup_verification_test.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/tests/backup_verification_test.rs) |
+| DR E2E tests | [`tests/dr_failover_e2e.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/tests/dr_failover_e2e.rs) |
 | Operations overview | [operations/index.md](operations/index.md) |
 
 ---

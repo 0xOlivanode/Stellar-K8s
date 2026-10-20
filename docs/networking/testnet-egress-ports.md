@@ -1,6 +1,6 @@
 # Testnet Peer Egress Port Requirements
 
-> **TL;DR:** Validators need **outbound TCP 3510 and 11625** to reach the SDF testnet peers. Without these egress rules a node boots fine, logs `Joining SCP`, and sits there forever with **zero peers**. Check the [Symptom Checklist](#8-symptom-checklist-zero-peers--joining-scp) before you debug anything else.
+> **TL;DR:** Validators need **outbound TCP 3510 and 11625** to reach the SDF testnet peers. Without these egress rules a node boots fine, logs `Joining SCP`, and sits there forever with **zero peers**. Check the [Symptom Checklist](#8-symptom-checklist-zero-peers-joining-scp) before you debug anything else.
 
 This page documents the outbound (egress) port requirements for connecting a Stellar-K8s validator to the SDF testnet. Inbound ports (advertising your own peer port, exposing Horizon) are covered by [troubleshooting/networking.md](../troubleshooting/networking.md) and [bgp-edge-routing.md](bgp-edge-routing.md) — this page is specifically about the **outbound** direction, which is the one most often forgotten in firewalls, NAT gateways, and cloud security groups because "the node doesn't serve anything on it."
 
@@ -184,7 +184,7 @@ Map the kubectl-visible state to the cause. If rows 1–3 are all true, missing 
 Escalation path when symptoms match but ports verify as open:
 
 1. Wrong `NETWORK_PASSPHRASE` (testnet vs mainnet mismatch — see §3).
-2. Quorum set does not include reachable validators ([testnet compliance checks](../../src/controller/testnet_compliance.rs) surface this at reconcile time).
+2. Quorum set does not include reachable validators ([testnet compliance checks](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/controller/testnet_compliance.rs) surface this at reconcile time).
 3. Inbound direction blocked on the *remote* side, or your node's own inbound `11625` is blocked so peers can't dial back (see §6 note).
 4. DNS resolution failing inside the pod ([DNS section of the troubleshooting guide](../troubleshooting/networking.md#7-dns-resolution-issues)).
 

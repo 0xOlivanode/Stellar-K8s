@@ -5,7 +5,7 @@ issues #1064, #1065, #1066, and #1067.
 
 ## Periodic dead-code and unused-config report (#1064)
 
-The [`dead-code-report.yml`](../.github/workflows/dead-code-report.yml)
+The [`dead-code-report.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/dead-code-report.yml)
 workflow runs every Monday (and on manual dispatch). It executes
 `scripts/dead-code-report.sh`, which collects:
 
@@ -69,7 +69,7 @@ CI smoke-tests the dry-run mode on every pull request.
 
 ## Golden-path quickstart validation pipeline (#1067)
 
-The [`quickstart-validation.yml`](../.github/workflows/quickstart-validation.yml)
+The [`quickstart-validation.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/quickstart-validation.yml)
 workflow guards the documented "golden path" for new users. Its
 `golden-path` job runs `scripts/quickstart-golden-path.sh`, which checks
 that:

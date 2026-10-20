@@ -4,11 +4,11 @@ Welcome to the Stellar-K8s FAQ! This document addresses common questions and iss
 
 **Table of Contents:**
 - [Security](#security-questions) (mTLS, Certificates, Authentication)
-- [Performance & Scaling](#performance--scaling-questions) (Storage, Disk Management, Resource Usage)
+- [Performance & Scaling](#performance-scaling-questions) (Storage, Disk Management, Resource Usage)
 - [Troubleshooting](#troubleshooting-questions) (Health Checks, Peer Discovery, Networking)
 - [General Operations](#general-operations-questions) (Deployment, Updates, Monitoring)
 - [Deployment FAQ](#deployment-faq) (First Validator, Testnet Onboarding)
-- [Documentation & Build](#documentation--build-questions) (Deployment Guides, Observability, Make Targets)
+- [Documentation & Build](#documentation-build-questions) (Deployment Guides, Observability, Make Targets)
 
 ---
 
@@ -647,7 +647,7 @@ kubectl create secret generic validator-seed-testnet \
 
 For KMS/Vault-backed seed handling and rotation, see [Secrets Management](./secret-management-kms.md).
 
-**3. Apply the example manifest.** Use [`examples/validator-testnet.yaml`](../examples/validator-testnet.yaml) as-is for your first boot — it is the canonical source for Testnet defaults (`network: testnet` selects the SDF Test Network passphrase and default history archives, with balanced 500m/1Gi requests and 100Gi storage):
+**3. Apply the example manifest.** Use [`examples/validator-testnet.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/validator-testnet.yaml) as-is for your first boot — it is the canonical source for Testnet defaults (`network: testnet` selects the SDF Test Network passphrase and default history archives, with balanced 500m/1Gi requests and 100Gi storage):
 
 ```bash
 kubectl apply -f examples/validator-testnet.yaml

@@ -4,7 +4,7 @@
 
 This guide walks you through setting up a fully functional Stellar development environment on your local machine using [k3d](https://k3d.io) — K3s running inside Docker. No cloud account required.
 
-For repository scratch cleanup and contributor gates, see root [`DEVELOPMENT.md`](../DEVELOPMENT.md) (`make cleanup`, `make health`) and [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+For repository scratch cleanup and contributor gates, see root [`DEVELOPMENT.md`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/DEVELOPMENT.md) (`make cleanup`, `make health`) and [`CONTRIBUTING.md`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/CONTRIBUTING.md).
 
 ---
 

@@ -156,4 +156,4 @@ Action items must be **SMART**: specific, measurable, assigned, with due dates.
 
 ## Appendix: severity reference
 
-See [Incident Response Framework](../operations/incident-response.md#severity-classification) for SEV-1 through SEV-4 definitions.
+See the [Incident Response Playbook](../security/incident-response-playbook.md#1-containment-priority-matrix) for severity definitions.

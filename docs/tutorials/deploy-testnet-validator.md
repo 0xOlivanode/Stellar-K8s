@@ -138,7 +138,7 @@ cd /tmp
 kubectl run -it --rm netdebug --image=nicolaka/netshoot --restart=Never -n stellar-testnet -- \
   sh -c 'nc -zv -w 5 <sdf-testnet-host> 3510 && nc -zv -w 5 <sdf-testnet-host> 11625'
 ```
-Blocked egress to `3510`/`11625` is the most common cause of a testnet validator stuck at `Joining SCP`. See the [egress port requirements](../networking/testnet-egress-ports.md#8-symptom-checklist-zero-peers--joining-scp) for the full checklist.
+Blocked egress to `3510`/`11625` is the most common cause of a testnet validator stuck at `Joining SCP`. See the [egress port requirements](../networking/testnet-egress-ports.md#8-symptom-checklist-zero-peers-joining-scp) for the full checklist.
 
 ### Slow sync
 This is normal - initial catchup can take 30+ minutes.

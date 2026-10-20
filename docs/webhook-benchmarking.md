@@ -405,4 +405,4 @@ To improve the benchmarking suite:
 4. Optimize webhook performance
 5. Update documentation
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](https://github.com/OtowoOrg/Stellar-K8s/blob/main/CONTRIBUTING.md) for guidelines.

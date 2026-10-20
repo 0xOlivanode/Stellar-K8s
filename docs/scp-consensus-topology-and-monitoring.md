@@ -99,7 +99,7 @@ The topology engine marks validators whose removal would break **quorum intersec
 - `stellar_quorum_min_overlap` — minimum overlap between quorum sets
 - `stellar_quorum_consensus_latency_ms` — consensus latency used by the scheduler proximity optimizer
 
-Implementation: [`src/controller/quorum/`](../src/controller/quorum/) and [`src/controller/metrics.rs`](../src/controller/metrics.rs).
+Implementation: [`src/controller/quorum/`](https://github.com/OtowoOrg/Stellar-K8s/tree/main/src/controller/quorum) and [`src/controller/metrics.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/controller/metrics.rs).
 
 ---
 
@@ -194,7 +194,7 @@ histogram_quantile(0.99,
 )
 ```
 
-Grafana dashboard JSON: [monitoring/grafana-validator-dashboard.json](../monitoring/grafana-validator-dashboard.json) (see [GRAFANA_DASHBOARD_GUIDE.md](monitoring/GRAFANA_DASHBOARD_GUIDE.md)).
+Grafana dashboard JSON: [monitoring/grafana-validator-dashboard.json](https://github.com/OtowoOrg/Stellar-K8s/blob/main/monitoring/grafana-validator-dashboard.json) (see [GRAFANA_DASHBOARD_GUIDE.md](monitoring/GRAFANA_DASHBOARD_GUIDE.md)).
 
 ### Health indicators
 
@@ -234,7 +234,7 @@ wscat -c ws://localhost:9090/api/v1/quorum/topology/stream
 
 Response schema and UI behavior: [scp-topology-dashboard.md](scp-topology-dashboard.md#response-schema).
 
-Implementation: [`src/rest_api/scp_topology.rs`](../src/rest_api/scp_topology.rs).
+Implementation: [`src/rest_api/scp_topology.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/rest_api/scp_topology.rs).
 
 ---
 
@@ -276,12 +276,12 @@ Follow [scp-analytics-pipeline.md](scp-analytics-pipeline.md) to stream SCP mess
 
 | Component | Path |
 |-----------|------|
-| Topology HTTP/WebSocket handlers | [`src/rest_api/scp_topology.rs`](../src/rest_api/scp_topology.rs) |
-| SCP client and graph analysis | [`src/controller/quorum/`](../src/controller/quorum/) |
-| Prometheus quorum metrics | [`src/controller/metrics.rs`](../src/controller/metrics.rs) |
-| `StellarNode` CRD | [`config/crd/stellarnode-crd.yaml`](../config/crd/stellarnode-crd.yaml) |
-| Validator example | [`examples/`](../examples/) (search for `nodeType: Validator`) |
-| Chaos: peer partition test | [`tests/chaos/04-validator-peer-partition.yaml`](../tests/chaos/04-validator-peer-partition.yaml) |
+| Topology HTTP/WebSocket handlers | [`src/rest_api/scp_topology.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/rest_api/scp_topology.rs) |
+| SCP client and graph analysis | [`src/controller/quorum/`](https://github.com/OtowoOrg/Stellar-K8s/tree/main/src/controller/quorum) |
+| Prometheus quorum metrics | [`src/controller/metrics.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/controller/metrics.rs) |
+| `StellarNode` CRD | [`config/crd/stellarnode-crd.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/config/crd/stellarnode-crd.yaml) |
+| Validator example | [`examples/`](https://github.com/OtowoOrg/Stellar-K8s/tree/main/examples) (search for `nodeType: Validator`) |
+| Chaos: peer partition test | [`tests/chaos/04-validator-peer-partition.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/tests/chaos/04-validator-peer-partition.yaml) |
 
 ---
 

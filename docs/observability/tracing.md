@@ -52,7 +52,7 @@ Helm values. The bundled collector image is `otel/opentelemetry-collector-contri
 ## Unified resource-attribute contract (issue #1481)
 
 Logs, metrics, and traces share the catalog in
-[`schemas/observability/resource-attributes.v1.json`](../../schemas/observability/resource-attributes.v1.json).
+[`schemas/observability/resource-attributes.v1.json`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/schemas/observability/resource-attributes.v1.json).
 Every accepted payload includes `stellar.observability.contract.version`.
 The collector quarantines violations to `file/deadletter` instead of dropping
 them. See [unified-contract.md](unified-contract.md).

@@ -9,7 +9,7 @@ chmod +x scripts/validate-metrics.sh
 ./scripts/validate-metrics.sh
 ```
 
-Scrape configuration: [`examples/monitoring/pod-monitor.yaml`](../../examples/monitoring/pod-monitor.yaml).
+Scrape configuration: [`examples/monitoring/pod-monitor.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/monitoring/pod-monitor.yaml).
 
 ## Common label sets
 

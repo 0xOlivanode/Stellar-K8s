@@ -73,10 +73,10 @@ docker image inspect --format='{{.RepoDigests}}' stellar-operator:latest
 Both runs should output the **same** digest (e.g. `stellar-operator@sha256:abcd1234…`).
 
 ## CI integration
-Multi-arch images are built and published by the GitHub workflow [`release.yml`](../.github/workflows/release.yml) (multi-arch publish job). Release re-tagging is handled by [`.github/workflows/release.yml`](../.github/workflows/release.yml).
-Multi-arch images are built and published by the CI multi-arch workflow (see [CI commands](../.github/CI_COMMANDS.md)). Release re-tagging is handled by [`.github/workflows/release.yml`](../.github/workflows/release.yml).
+Multi-arch images are built and published by the GitHub workflow [`release.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/release.yml) (multi-arch publish job). Release re-tagging is handled by [`.github/workflows/release.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/release.yml).
+Multi-arch images are built and published by the CI multi-arch workflow (see [CI commands](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/CI_COMMANDS.md)). Release re-tagging is handled by [`.github/workflows/release.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/release.yml).
 
-Local kind/e2e tests should prefer `make docker-build` or the shared [setup-kind-cluster](../.github/actions/setup-kind-cluster/action.yml) composite action instead of ad-hoc `docker build` scripts.
+Local kind/e2e tests should prefer `make docker-build` or the shared [setup-kind-cluster](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/actions/setup-kind-cluster/action.yml) composite action instead of ad-hoc `docker build` scripts.
 
 ---
 For any questions or to suggest additional deterministic steps, please open an issue.

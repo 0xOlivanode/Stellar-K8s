@@ -1,6 +1,6 @@
 # Stellar-K8s security hardening and least-privilege RBAC
 
-This reference defines a deployable least-privilege profile for the stock `stellar-k8s run` process. The companion manifest is [`examples/security/strict-rbac.yaml`](../../examples/security/strict-rbac.yaml); the companion audit is [`examples/security/audit-rbac.sh`](../../examples/security/audit-rbac.sh).
+This reference defines a deployable least-privilege profile for the stock `stellar-k8s run` process. The companion manifest is [`examples/security/strict-rbac.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/security/strict-rbac.yaml); the companion audit is [`examples/security/audit-rbac.sh`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/security/audit-rbac.sh).
 
 The reference deployment assumes:
 

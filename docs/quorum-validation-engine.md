@@ -455,6 +455,6 @@ if !validation_result.is_valid {
 ## References
 
 - [Stellar Consensus Protocol (SCP)](https://stellar.org/papers/stellar-consensus-protocol.pdf)
-- [Quorum Analysis Documentation](../../docs/quorum-analysis.md)
+- [Quorum Optimization](quorum-optimization.md)
 - [Byzantine Fault Tolerance](https://en.wikipedia.org/wiki/Byzantine_fault)
 - [Threshold Cryptography](https://en.wikipedia.org/wiki/Threshold_cryptography)

@@ -355,7 +355,7 @@ annotations:
 
 ## Examples
 
-See [ingress-example.yaml](../examples/ingress-example.yaml) for complete working examples including:
+See [ingress-example.yaml](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/ingress-example.yaml) for complete working examples including:
 
 - Horizon with Let's Encrypt TLS
 - Soroban RPC with mTLS setup

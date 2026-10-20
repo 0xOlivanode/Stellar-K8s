@@ -237,7 +237,7 @@ cargo test --test compat_matrix test_matrix_json_export -- --nocapture 2>/dev/nu
 
 ## References
 
-- [`tests/compat_matrix.rs`](../tests/compat_matrix.rs) — source of truth
+- [`tests/compat_matrix.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/tests/compat_matrix.rs) — source of truth
 - [Kubernetes API deprecation policy](https://kubernetes.io/docs/reference/using-api/deprecation-policy/)
 - [kube-rs changelog](https://github.com/kube-rs/kube/blob/main/CHANGELOG.md)
 - [k8s-openapi version features](https://github.com/Arnavion/k8s-openapi#which-kubernetes-version-to-use)

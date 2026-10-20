@@ -45,7 +45,7 @@ A good bug report helps maintainers reproduce and fix the issue faster. Include:
 
 Report them privately to <security@stellar.org> or via
 [GitHub private vulnerability reporting](https://github.com/OtowoOrg/Stellar-K8s/security/advisories/new).
-See [SECURITY.md](../SECURITY.md) for the full disclosure policy.
+See [SECURITY.md](https://github.com/OtowoOrg/Stellar-K8s/blob/main/SECURITY.md) for the full disclosure policy.
 
 ## Contributing a fix
 

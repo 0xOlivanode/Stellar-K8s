@@ -50,4 +50,4 @@ make docs-build
 3. Run `make docs-serve` to preview your changes.
 4. Run `make link-check` to catch broken links before opening a PR.
 
-See [docs/README.md](README.md) for the full documentation maintenance guide.
+See [docs/README.md](https://github.com/OtowoOrg/Stellar-K8s/blob/main/docs/README.md) for the full documentation maintenance guide.

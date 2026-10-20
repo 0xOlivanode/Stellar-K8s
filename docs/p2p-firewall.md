@@ -442,5 +442,5 @@ All load-test assertions pass:
 - [Stellar SCP (Consensus Protocol)](https://developers.stellar.org/docs/learn/fundamentals/stellar-consensus-protocol)
 - [Kubernetes NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
 - [eBPF XDP](https://www.kernel.org/doc/html/latest/networking/af_xdp.html)
-- [Production Security Hardening](docs/production-security-hardening.md)
-- [Network Policy Zero Trust](docs/network-policy-zero-trust.md)
+- [Production Security Hardening](production-security-hardening.md)
+- [Network Policy Zero Trust](network-policy-zero-trust.md)

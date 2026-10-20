@@ -6,8 +6,8 @@ This document outlines the change tracking conventions, release note procedures,
 
 Stellar-K8s maintains a clear, structured record of code and configuration changes to support transparent releases and seamless upgrades for cluster operators:
 
-1. **[CHANGELOG.md](../CHANGELOG.md)** — The primary log of all notable features, bug fixes, and breaking changes following [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
-2. **[RELEASE_CHECKLIST.md](../RELEASE_CHECKLIST.md)** — The pre-release verification checklist ensuring testing, security scanning, and documentation gates pass before a release cut.
+1. **[CHANGELOG.md](https://github.com/OtowoOrg/Stellar-K8s/blob/main/CHANGELOG.md)** — The primary log of all notable features, bug fixes, and breaking changes following [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
+2. **[RELEASE_CHECKLIST.md](https://github.com/OtowoOrg/Stellar-K8s/blob/main/RELEASE_CHECKLIST.md)** — The pre-release verification checklist ensuring testing, security scanning, and documentation gates pass before a release cut.
 3. **[Release Process](release-process.md)** — The end-to-end automated and manual procedures for chart version bumps, git tagging, and GitHub Release notes publishing.
 
 ---
@@ -32,7 +32,7 @@ Additional canonical sample manifests have been provided under `config/samples/`
 - **`sample-maintenance-plan.yaml`**: Demonstrates declarative `MaintenancePlan` orchestration, including node selection, parallel drain control, PodDisruptionBudget surge recovery, and SLO safety abort thresholds.
 - **`sample-dryrun-validator.yaml`**: Demonstrates a testnet `StellarNode` validator configured for safe rollout verification.
 - **`sample-policy-bundle.yaml`**: Demonstrates a signed `StellarPolicyBundle` specification for admission-time policy enforcement.
-- **Index**: Registered and documented in [`config/samples/README.md`](../config/samples/README.md).
+- **Index**: Registered and documented in [`config/samples/README.md`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/config/samples/README.md).
 
 ### 3. Change Notes Documentation (#1704)
 
@@ -70,7 +70,7 @@ Contributors and maintainers should observe the following guidelines when introd
 
 ## Related Documentation
 
-- [Contributing Guide](../CONTRIBUTING.md) — Contributor workflow and PR guidelines
+- [Contributing Guide](https://github.com/OtowoOrg/Stellar-K8s/blob/main/CONTRIBUTING.md) — Contributor workflow and PR guidelines
 - [Release Process Guide](release-process.md) — Chart versioning and tag release automation
 - [Operator Configuration](configuration/operators.md) — Operator environment variables and flags
-- [Documentation Index](README.md) — Overview of available documentation topics
+- [Documentation Index](index.md) — Overview of available documentation topics
