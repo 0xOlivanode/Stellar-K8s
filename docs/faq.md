@@ -700,6 +700,40 @@ Run `make help` to list every target.
 ### Q: How do I build and preview the documentation site?
 
 **A:** Run `make docs-build` to build the site into `site/`, or `make docs-serve` to serve it at `http://127.0.0.1:8000`.
+
+### Q: Which build target should I use for a fast compile check?
+
+**A:** Use `make build-check` — it runs `cargo check --locked --all-targets` and type-checks every target without producing binaries, so it is much faster than a full `make build`. For an even quicker pre-commit loop, `make quick` combines the format check with a compile check. See the [Build Targets reference](./development/build-targets.md) for the full table of build-related targets.
+
+### Q: How do I run the documentation quality gates locally before opening a PR?
+
+**A:** Three targets mirror the documentation CI jobs:
+
+```bash
+make nav-coverage   # every mkdocs.yml nav entry resolves to a real file (#1711)
+make docs-ci-build  # strict mkdocs build — fails on broken links or nav warnings (#1710)
+make link-integrity # internal markdown links across docs/ are valid (#1712)
+```
+
+See [Navigation Coverage](./development/docs-nav-coverage.md), [Documentation Build](./development/docs-build.md), and [Link Integrity](./development/docs-link-integrity.md).
+
+### Q: Where can I find the metrics the operator and nodes expose?
+
+**A:** The [Metric Reference](./observability/metric-reference.md) lists every metric with its meaning and labels, the [Metric Naming Conventions](./observability/metric-naming-conventions.md) cover naming rules for new metrics, and the [Observability overview](./observability/index.md) is the entry point for metrics, logs, tracing, and dashboards. The operator REST metrics endpoint is documented under [Metrics API](./api/metrics.md).
+
+### Q: Which deployment guide should I follow for my node type?
+
+**A:** Start at the [Deployment Guides index](./deployment-guides/index.md):
+
+| You want to run | Guide |
+|-----------------|-------|
+| Stellar Core validator | [Validator Node](./deployment-guides/validator.md) |
+| Horizon REST API | [Horizon API](./deployment-guides/horizon.md) |
+| Soroban RPC endpoint | [Soroban RPC](./deployment-guides/soroban-rpc.md) |
+| Operator on OpenShift / OLM | [OLM / OpenShift](./deploy-olm.md) |
+
+For production topologies (HA validators, Horizon/RPC farms, multi-region DR, GitOps rollouts) see the [Deployment Patterns](./deployment-patterns/index.md) reference architectures.
+
 ## Related Documentation
 
 - [Getting Started Guide](./getting-started/quick-start.md)
@@ -723,6 +757,6 @@ Run `make help` to list every target.
 
 ---
 
-**Last Updated**: April 2026
+**Last Updated**: October 2026
 
 Have a question not covered here? Please open an issue on [GitHub](https://github.com/OtowoOrg/Stellar-K8s/issues) or start a discussion!

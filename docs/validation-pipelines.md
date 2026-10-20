@@ -20,6 +20,7 @@ informational and never fails the build.
 
 ```bash
 SKIP_CARGO=1 ./scripts/dead-code-report.sh
+make dead-code-report        # full report including the cargo pass
 cat target/reports/dead-code-report.md
 ```
 

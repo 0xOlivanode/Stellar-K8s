@@ -9,6 +9,13 @@ This page mirrors the index in
 update both when a script is added, renamed or removed. When a script and a
 `make` target both exist, prefer the `make` target: it pins the workspace feature flags
 so the result matches CI.
+Developer and CI helper scripts live in `scripts/`. For a comprehensive directory
+index of all available scripts, their usage, and coverage, see the
+[Operational Scripts Index](../../scripts/README.md).
+
+Library helpers shared by several scripts are in `scripts/lib/` (`common.sh`,
+`errors.sh`, `health-steps.sh`, `batch.sh`). Bats tests for the shell helpers
+are in `scripts/tests/`.
 
 Run the standard gates locally before pushing:
 
@@ -76,6 +83,13 @@ make docs-ci-build               # strict MkDocs build, same as the docs CI job
 | [`check_mkdocs_nav.py`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/scripts/check_mkdocs_nav.py) | Fails when a local `mkdocs.yml` nav entry points to a missing file under `docs/`. Needs PyYAML. | `make nav-coverage`, `python3 scripts/check_mkdocs_nav.py [mkdocs.yml]` |
 | [`validate-metrics.sh`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/scripts/validate-metrics.sh) | Cross-checks metric names registered in `src/controller/metrics.rs` against [`docs/observability/metric-reference.md`](../observability/metric-reference.md). | `./scripts/validate-metrics.sh` |
 | [`validate-crd-dryrun.mjs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/scripts/validate-crd-dryrun.mjs) | Generates a 3-zone topology manifest from the frontend builder, checks it against the StellarNode CRD, and runs `kubectl apply --dry-run=client`. Needs Node.js and `kubectl`. | `node scripts/validate-crd-dryrun.mjs` |
+| `repo-health.sh` | Single entry point for repo health checks (`--fast`, `--with-audit`, `--with-links`, `--with-helm`) | `bash scripts/repo-health.sh`; `make health` / `make health-fast` / `make health-full` |
+| `validate.sh` | Fast local validation (delegates to `repo-health.sh --fast`) | `bash scripts/validate.sh`; `make validate` |
+| `golden-path-pipeline-check.sh` | Golden-path full pipeline command test from a clean checkout (fmt, clippy, issue templates, API docs, helm, release gate, quickstart) | `bash scripts/golden-path-pipeline-check.sh`; `make golden-path-pipeline` |
+| `release-gate.sh` | Release validation mirroring `RELEASE_CHECKLIST.md` | `VERSION=1.2.0 bash scripts/release-gate.sh` |
+| `check-links.py` | Internal markdown file+anchor link check | `python3 scripts/check-links.py`; `make link-check`; `ci.yml` docs-link-check |
+| `check-stale-samples.sh` | Flags sample manifests that drifted from sources | `ci.yml` |
+| `crd_migration_lint.py` | Lints CRD migrations | `python3 scripts/crd_migration_lint.py --against origin/main`; `quickstart-validation.yml` |
 
 ## Code generation and documentation
 
@@ -86,6 +100,11 @@ make docs-ci-build               # strict MkDocs build, same as the docs CI job
 | [`generate-observability-instrumentation.py`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/scripts/generate-observability-instrumentation.py) | Generates the observability instrumentation Rust source for a service from its contract. | `python3 scripts/generate-observability-instrumentation.py --service NAME --out FILE` |
 | [`sort-manifests.py`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/scripts/sort-manifests.py) | Deterministic YAML manifest sorter (recursive key sort, documents ordered by kind/namespace/name). Reads stdin or a file argument. | `make crd-gen`, `make bundle-render`, `python3 scripts/sort-manifests.py FILE`, `helm template ... \| python3 scripts/sort-manifests.py` |
 | [`update-cap-matrix.py`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/scripts/update-cap-matrix.py) | Refreshes the stellar-core release/CAP matrix in `config/caps.toml` from GitHub releases. Needs network access. | `python3 scripts/update-cap-matrix.py` (scheduled by `cap-matrix-update.yml`) |
+| `check-secrets.sh` | Secret-handling checks for CI/runtime command paths | `bash scripts/check-secrets.sh`; `ci.yml` |
+| `secret-rotation-check.sh` | Verifies secret rotation without downtime (`--dry-run` for CI) | `make secret-rotation-check [DRY_RUN=1]`; `quickstart-validation.yml` |
+| `audit-features.sh` | Static audit for unused crate features and dead imports (`--report`) | `bash scripts/audit-features.sh --report`; `ci.yml` |
+| `dead-code-report.sh` | Periodic dead-code report to `target/reports/dead-code-report.md` (always exits 0) | `make dead-code-report`; `dead-code-report.yml` |
+| `generate-third-party-licenses.sh` | Regenerates `THIRD_PARTY_LICENSES.md` (requires `cargo-license`) | `make third-party-licenses`; `make check-third-party-licenses` in CI |
 
 ## Build, release, and packaging
 

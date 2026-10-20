@@ -132,6 +132,7 @@ nav:
       - 0004 CRD Versioning Strategy: adr/0004-crd-versioning-strategy.md
       - 0005 Dynamic Kafka Partitioning: adr/0005-dynamic-kafka-partitioning.md
       - 0005 Reentrancy Guard Middleware: adr/0005-reentrancy-guard-middleware.md
+    - Testnet Onboarding: getting-started/testnet-onboarding.md
   - Deployment Guides:
     - deployment-guides/index.md
     - Validator Node: deployment-guides/validator.md
@@ -150,6 +151,11 @@ nav:
       - Horizon RPC Farm: deployment-patterns/horizon-rpc-farm.md
       - Multi-Region and DR Patterns: deployment-patterns/multi-region-dr.md
   - Multi-Region & Disaster Recovery:
+    - Deployment Patterns: deployment-patterns/index.md
+    - Horizon / RPC Farm: deployment-patterns/horizon-rpc-farm.md
+    - Multi-Region and DR: deployment-patterns/multi-region-dr.md
+    - GitOps, Scaling and Upgrades: deployment-patterns/gitops-scaling-upgrades.md
+  - Multi-Region:
     - multi-region-deployment-and-failover.md
     - Multi-Region Failover Orchestration: multi-region-failover.md
     - Multi-Cluster Deployment: multi-cluster.md
@@ -166,6 +172,10 @@ nav:
       - DR Drill Results: dr-results-template.md
   - Configuration:
     - configuration/index.md
+    - CRD Reference: api-reference.md
+    - Testnet Peer Configuration: configuration/testnet-peer-configuration.md
+    - Operators: operator-sdk-guide.md
+    - Storage: volume-snapshots.md
     - CRD Reference: configuration/crd-reference.md
     - Operator Environment: configuration/operators.md
     - Storage: configuration/storage.md
@@ -192,12 +202,19 @@ nav:
     - Automated Backup Verification: backup-verification.md
     - HashiCorp Vault and Validators: vault-stellar-tutorial.md
   - Operations & Observability:
+    - Capacity Planning: capacity-planning.md
+    - Cost Estimate: cost-estimate.md
     - SCP Consensus Topology and Monitoring: scp-consensus-topology-and-monitoring.md
     - Monitoring and Dashboards Setup Guide: MONITORING_SETUP_GUIDE.md
     - Monitoring and Dashboards Operational Runbook: MONITORING_OPERATIONAL_RUNBOOK.md
     - Production Profiling Runbook: operations/profiling-runbook.md
     - Core Blue/Green Runbook: operations/core-blue-green-runbook.md
     - Observability Overview: observability/index.md
+    - Metric Reference: observability/metric-reference.md
+    - Metric Naming Conventions: observability/metric-naming-conventions.md
+    - Metrics and Dashboards: observability/metrics-and-dashboards.md
+    - Telemetry Architecture: observability/telemetry-architecture.md
+    - Unified Observability Contract: observability/unified-contract.md
     - OpenTelemetry Tracing: observability/tracing.md
     - Distributed Rate Limiting: distributed-rate-limiting.md
     - Feature Flag Rollouts: feature-flag-rollouts.md
@@ -248,6 +265,7 @@ nav:
     - PVC and Storage Recovery: operations/pvc-troubleshooting.md
     - Storage Repair Playbook: storage-repair.md
     - Incident Post-Mortem Template: incident-response/post-mortem.md
+  - Frequently Asked Questions: faq.md
   - API Reference:
     - api-reference.md
     - Operator REST API:
@@ -343,6 +361,7 @@ nav:
     - Regeneration Guide: development/regeneration-guide.md
     - Repo Health Checklist: development/repo-health-checklist.md
     - Scripts Reference: development/scripts-reference.md
+    - Build Targets: development/build-targets.md
     - Static Analysis Gates: development/static-analysis-gates.md
     - License Header Compliance: development/license-headers.md
     - Documentation Build: development/docs-build.md
@@ -370,6 +389,9 @@ nav:
     - Developer Experience Platform: developer-experience-platform.md
     - Service Ownership Registry: service-ownership-registry.md
     - Platform Engineering Epics: platform-epics-1477-1478-1479-1480.md
+  - GitOps:
+    - ArgoCD GitOps: gitops/argocd.md
+    - Flux CD: gitops/flux.md
   - Contributing:
     - contributing/index.md
     - Development Setup: contributing/development-setup.md

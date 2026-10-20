@@ -39,7 +39,7 @@
 	compose-up compose-dev compose-down compose-logs \
 	bundle bundle-render bundle-generate bundle-validate bundle-build \
 	quickstart quickstart-setup quickstart-build quickstart-deploy \
-	health health-fast validate preflight test-shell all \
+	health health-fast health-full validate preflight test-shell all \
 	shell-safety test-shell-safety tag-release validate-yaml test-yaml-validation \
 	health health-fast validate preflight test-shell test-bats issue-template-lint all \
 	shell-safety test-shell-safety validate-yaml test-yaml-validation \
@@ -47,13 +47,13 @@
 	lint-observability-contract test-observability-contract \
 	helm-drift helm-drift-update test-helm-drift test-helm-bump \
 	collect-failure-diagnostics test-failure-diagnostics \
-	check-unreachable-modules \
+	check-unreachable-modules golden-path-pipeline secret-rotation-check dead-code-report \
 	check-pipeline-log-redaction \
 	license-headers check-license-headers \
 	check-api-contract check-api-coverage check-breaking-changes \
 	crd-benchmark \
 	compliance-test \
-	lint-scripts scripts-convention-check \
+	lint-scripts scripts-convention-check python-lint \
 	ci-badge \
 	cleanup clean
 
@@ -183,24 +183,30 @@ shellcheck: ## Run shellcheck on all shell scripts
 
 CODESPELL_SKIP ?= Cargo.lock,package-lock.json,target,node_modules,vendor,*-vendor,THIRD_PARTY_LICENSES.md
 
-codespell: ## Spell-check docs/, src/ and top-level Markdown (same command as the CI codespell job) (#1682)
+codespell: ## Spell-check docs/, src/ and top-level Markdown (same command as the CI codespell job) (#1682, #1769)
 	@echo "→ Running codespell..."
 	@codespell --ignore-words=.codespellignore --skip="$(CODESPELL_SKIP)" docs/ src/ *.md
 
 # ── Issue #1706: make targets ─────────────────────────────────────────────────
 
-lint-scripts: ## Run shellcheck + shell-safety + scripts-convention-check in one step (#1706)
+lint-scripts: ## Run shellcheck + shell-safety + scripts-convention-check + python-lint in one step (#1706, #1793)
 	@echo "→ Linting all shell scripts..."
 	$(MAKE) shellcheck
 	$(MAKE) shell-safety
 	$(MAKE) scripts-convention-check
+	$(MAKE) python-lint
 	@echo "✓ All script lint checks passed"
 
 scripts-convention-check: ## Verify scripts follow CONVENTIONS.md naming & placement rules (#1706, #1707)
 	@echo "→ Checking scripts conventions..."
 	@bash scripts/ci/check-scripts-convention.sh
 
-lint-all: lint-scripts lint ## Run all lint gates: Rust (clippy/fmt) + shell + conventions (#1706, #1708)
+python-lint: ## Lint Python tools (py_compile) + TOML configs (tomllib parse), stdlib only (#1793, #1795)
+	@echo "→ Linting Python and TOML files..."
+	@bash scripts/ci/check-python-toml-lint.sh
+	@echo "✓ Python/TOML lint passed"
+
+lint-all: lint-scripts lint ## Run all lint gates: Rust (clippy/fmt) + shell + conventions + Python/TOML (#1706, #1708, #1793, #1795)
 	@echo "✓ lint-all complete"
 
 compliance-test: ## Validate kube-bench compliance fixtures (CIS custom controls) (#1380)
@@ -352,7 +358,19 @@ health: ## Run common repository health checks (format, lint, test, docs, links)
 health-fast: ## Fast health gate (format, lint, compile only)
 	@bash scripts/repo-health.sh --fast
 
+health-full: ## Full health gate plus cargo audit and helm lint (#1773)
+	@bash scripts/repo-health.sh --with-audit --with-helm
+
 validate: health-fast ## Fast validation (alias for health-fast)
+
+golden-path-pipeline: ## Run the golden-path full pipeline command test from a clean checkout (#1774)
+	@bash scripts/golden-path-pipeline-check.sh
+
+secret-rotation-check: ## Verify secret rotation without downtime (DRY_RUN=1 prints the plan without a cluster) (#1775)
+	@bash scripts/secret-rotation-check.sh $(if $(DRY_RUN),--dry-run)
+
+dead-code-report: ## Generate the informational dead-code report at target/reports/dead-code-report.md (#1776)
+	@bash scripts/dead-code-report.sh
 
 # ── Quality & Health ───────────────────────────────────────────────────────────
 

@@ -17,6 +17,10 @@ Production-grade Stellar infrastructure on Kubernetes. This directory contains a
 - [Horizon API](deployment-guides/horizon.md)
 - [Soroban RPC](deployment-guides/soroban-rpc.md)
 - [OLM / OpenShift](deploy-olm.md)
+- [Deployment Patterns](deployment-patterns/index.md)
+- [Horizon / RPC Farm](deployment-patterns/horizon-rpc-farm.md)
+- [Multi-Region and DR](deployment-patterns/multi-region-dr.md)
+- [GitOps, Scaling and Upgrades](deployment-patterns/gitops-scaling-upgrades.md)
 
 ## CRD & API Reference
 
@@ -52,6 +56,13 @@ Production-grade Stellar infrastructure on Kubernetes. This directory contains a
 
 ## Observability
 
+- [Observability Overview](observability/index.md)
+- [Metric Reference](observability/metric-reference.md)
+- [Metric Naming Conventions](observability/metric-naming-conventions.md)
+- [Metrics and Dashboards](observability/metrics-and-dashboards.md)
+- [Telemetry Architecture](observability/telemetry-architecture.md)
+- [Unified Observability Contract](observability/unified-contract.md)
+- [OpenTelemetry Tracing](observability/tracing.md)
 - [Metrics Guide](metrics/STELLAR_METRICS_GUIDE.md)
 - [Grafana Dashboard Guide](monitoring/GRAFANA_DASHBOARD_GUIDE.md)
 - [SCP Analytics Pipeline](scp-analytics-pipeline.md)
@@ -106,6 +117,7 @@ Production-grade Stellar infrastructure on Kubernetes. This directory contains a
 - [Development Setup](contributing/development-setup.md)
 - [Developer Onboarding](developer-onboarding/index.md)
 - [Development Reference](development.md)
+- [Build Targets](development/build-targets.md)
 - [Regenerating Charts & Bundle Manifests](development/regeneration-guide.md)
 - [Fuzzing](fuzzing.md)
 - [Docker Compose → Kubernetes Migration](docker-compose-to-kubernetes-migration.md)

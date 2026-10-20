@@ -166,6 +166,26 @@ make crd-gen
 git diff config/crd/stellarnode-crd.yaml  # should be empty if already sorted
 ```
 
+### Python & TOML lint gate (#1793, #1795, #1796)
+
+Stdlib-only syntax gate for automation files that previously had no lint:
+
+1. **`make python-lint`** — runs `scripts/ci/check-python-toml-lint.sh`:
+   `python3 -m py_compile` over `scripts/**/*.py` plus stdlib `tomllib`
+   parse over tracked `*.toml`. No pip installs, no network access.
+2. **`scripts/ci/lint.sh`** — includes the new `python-lint` step alongside
+   shellcheck, shell-safety, scripts-convention, and yamllint, so
+   `make lint-all` and the unified runner stay in sync.
+3. **`ci.yml` `python-toml-lint` job** — runs `make python-lint` on
+   `ubuntu-latest` with Python 3.12 when `scripts/`, `deps/` (`Cargo.toml`,
+   `Cargo.lock`), or Rust core files change.
+
+**Verification:**
+```bash
+make python-lint
+bash scripts/ci/lint.sh --fast
+```
+
 ---
 
 ### `ci.yml`

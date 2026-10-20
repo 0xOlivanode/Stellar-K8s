@@ -5,6 +5,12 @@ Use the GitHub issue tracker:
 
 **<https://github.com/OtowoOrg/Stellar-K8s/issues/new/choose>**
 
+## Quick Links
+
+- **Getting started?** See [Testnet Onboarding Guide](getting-started/testnet-onboarding.md) or [Quick Start](getting-started/quick-start.md)
+- **Documentation site:** [https://m1s0g1.github.io/Stellar-K8s/](https://m1s0g1.github.io/Stellar-K8s/)
+- **Testnet peer ports:** [Testnet Peer Configuration](configuration/testnet-peer-configuration.md)
+
 ## Issue templates
 
 Select the template that best matches your report:

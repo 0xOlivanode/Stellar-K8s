@@ -45,6 +45,16 @@ Additional canonical sample manifests have been provided under `config/samples/`
 - Covers command-line argument validation (`--dry-run`, `--namespace`, `--secret`, `--deployment`, `--window`), missing `kubectl` handling, baseline zero-replica failure paths, and mock rotation checks.
 - Automatically included in `make test-bats` and the GitHub Actions `Bats Suites` CI job.
 
+### 5. Comprehensive Shell Script Test Coverage (#1706)
+
+- Added comprehensive bats test suite: `scripts/tests/shell-script-coverage.bats` covering critical repository scripts:
+  - **Health & Validation**: `health-check.sh`, `repo-health.sh`, `validate-metrics.sh`
+  - **Release & Config**: `tag-release.sh`, `generate-third-party-licenses.sh`, `bump-chart-version.sh`
+  - **Operations**: `check-secrets.sh`, `check-stale-samples.sh`, `quickstart-golden-path.sh`, `audit-features.sh`
+- Documentation guide: `docs/development/bats-coverage.md` with test patterns, coverage gaps, and contribution guidelines
+- Updated `scripts/README.md` to index the new test suite and link to the coverage documentation
+- Automatically included in `make test-bats` and the GitHub Actions `Bats Suites` CI job (#1680)
+
 ---
 
 ## Change Note Maintenance Guidelines

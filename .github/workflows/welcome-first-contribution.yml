@@ -9,6 +9,7 @@ on:
 # Minimal permissions: only what is needed to post a comment.
 permissions:
   issues: write
+  pull-requests: write
   contents: read
 
 jobs:
