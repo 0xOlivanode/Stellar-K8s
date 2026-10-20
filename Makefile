@@ -39,7 +39,7 @@
 	compose-up compose-dev compose-down compose-logs \
 	bundle bundle-render bundle-generate bundle-validate bundle-build \
 	quickstart quickstart-setup quickstart-build quickstart-deploy \
-	health health-fast validate preflight test-shell all \
+	health health-fast health-full validate preflight test-shell all \
 	shell-safety test-shell-safety tag-release validate-yaml test-yaml-validation \
 	health health-fast validate preflight test-shell test-bats issue-template-lint all \
 	shell-safety test-shell-safety validate-yaml test-yaml-validation \
@@ -351,6 +351,9 @@ health: ## Run common repository health checks (format, lint, test, docs, links)
 
 health-fast: ## Fast health gate (format, lint, compile only)
 	@bash scripts/repo-health.sh --fast
+
+health-full: ## Full health gate plus cargo audit and helm lint (#1773)
+	@bash scripts/repo-health.sh --with-audit --with-helm
 
 validate: health-fast ## Fast validation (alias for health-fast)
 

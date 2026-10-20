@@ -27,7 +27,7 @@ make ci-local                    # fmt-check lint audit test build link-check
 
 | Script | Purpose | Usage / CI caller |
 | --- | --- | --- |
-| `repo-health.sh` | Single entry point for repo health checks (`--fast`, `--with-audit`, `--with-links`, `--with-helm`) | `bash scripts/repo-health.sh`; `make health` / `make health-fast` |
+| `repo-health.sh` | Single entry point for repo health checks (`--fast`, `--with-audit`, `--with-links`, `--with-helm`) | `bash scripts/repo-health.sh`; `make health` / `make health-fast` / `make health-full` |
 | `validate.sh` | Fast local validation (delegates to `repo-health.sh --fast`) | `bash scripts/validate.sh`; `make validate` |
 | `release-gate.sh` | Release validation mirroring `RELEASE_CHECKLIST.md` | `VERSION=1.2.0 bash scripts/release-gate.sh` |
 | `check-links.py` | Internal markdown file+anchor link check | `python3 scripts/check-links.py`; `make link-check`; `ci.yml` docs-link-check |
