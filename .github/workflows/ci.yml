@@ -973,6 +973,44 @@ jobs:
       - name: Strict docs build (fails on warnings)
         run: mkdocs build --strict
 
+  # ── 7d. Navigation coverage ────────────────────────────────────────────────────
+  # Issue #1711: Verify that every local path referenced in mkdocs.yml nav
+  # resolves to a real file under docs/
+  nav-coverage:
+    name: Navigation Coverage Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Check MkDocs navigation coverage
+        run: python scripts/check_mkdocs_nav.py
+
+  # ── 7e. Link integrity ─────────────────────────────────────────────────────────
+  # Issue #1712: Run link checker to verify internal markdown links
+  link-integrity:
+    name: Link Integrity Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Check internal links
+        run: python scripts/check-links.py --dir docs/
+
   # ── 8. Examples smoke test ────────────────────────────────────────────────────
   examples-smoke-test:
     name: Examples Smoke Test
