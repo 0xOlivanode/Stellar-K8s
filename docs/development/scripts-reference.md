@@ -40,7 +40,7 @@ make ci-local                    # fmt-check lint audit test build link-check
 | Script | Purpose | Usage / CI caller |
 | --- | --- | --- |
 | `check-secrets.sh` | Secret-handling checks for CI/runtime command paths | `bash scripts/check-secrets.sh`; `ci.yml` |
-| `secret-rotation-check.sh` | Verifies secret rotation without downtime (`--dry-run` for CI) | `quickstart-validation.yml` |
+| `secret-rotation-check.sh` | Verifies secret rotation without downtime (`--dry-run` for CI) | `make secret-rotation-check [DRY_RUN=1]`; `quickstart-validation.yml` |
 | `audit-features.sh` | Static audit for unused crate features and dead imports (`--report`) | `bash scripts/audit-features.sh --report`; `ci.yml` |
 | `dead-code-report.sh` | Periodic dead-code report to `target/reports/dead-code-report.md` (always exits 0) | `dead-code-report.yml` |
 | `generate-third-party-licenses.sh` | Regenerates `THIRD_PARTY_LICENSES.md` (requires `cargo-license`) | `make third-party-licenses`; `make check-third-party-licenses` in CI |

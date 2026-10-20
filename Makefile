@@ -47,7 +47,7 @@
 	lint-observability-contract test-observability-contract \
 	helm-drift helm-drift-update test-helm-drift test-helm-bump \
 	collect-failure-diagnostics test-failure-diagnostics \
-	check-unreachable-modules golden-path-pipeline \
+	check-unreachable-modules golden-path-pipeline secret-rotation-check \
 	check-pipeline-log-redaction \
 	license-headers check-license-headers \
 	check-api-contract check-api-coverage check-breaking-changes \
@@ -359,6 +359,9 @@ validate: health-fast ## Fast validation (alias for health-fast)
 
 golden-path-pipeline: ## Run the golden-path full pipeline command test from a clean checkout (#1774)
 	@bash scripts/golden-path-pipeline-check.sh
+
+secret-rotation-check: ## Verify secret rotation without downtime (DRY_RUN=1 prints the plan without a cluster) (#1775)
+	@bash scripts/secret-rotation-check.sh $(if $(DRY_RUN),--dry-run)
 
 # ── Quality & Health ───────────────────────────────────────────────────────────
 
