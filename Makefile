@@ -116,14 +116,6 @@ lint: ## Run clippy
 		-D clippy::perf \
 		-D clippy::style
 
-audit: ## Security audit
-	@echo "→ Running security audit..."
-	@command -v cargo-audit >/dev/null 2>&1 || cargo install --locked cargo-audit
-	@$(CARGO) audit --deny unsound || echo "⚠️  Security issues found - review before production"
-	@K8S_OPENAPI_ENABLED_VERSION=1.30 $(CARGO) clippy --workspace --all-targets \
-		--features $(CLIPPY_FEATURES) -- \
-		$(CLIPPY_BASE_FLAGS)
-
 lint-strict: ## Run clippy (adds complexity checks on top of lint; same base exceptions)
 	@echo "→ Running clippy (strict mode)..."
 	@K8S_OPENAPI_ENABLED_VERSION=1.30 $(CARGO) clippy --workspace --all-targets \
@@ -335,8 +327,6 @@ docker-build-ci: ## Reproducible CI Docker build (builds binaries in container)
 	@echo "→ Building Docker image (CI mode)..."
 	DOCKER_BUILDKIT=1 $(DOCKER) build --target runtime -t $(IMAGE_NAME):$(IMAGE_TAG) .
 
-docker-multiarch: ## Build multi-arch Docker image
-	$(DOCKER) buildx build --platform linux/amd64,linux/arm64 -t $(IMAGE_NAME):$(IMAGE_TAG) .
 docker-multiarch: ## Build the multi-arch (linux/amd64 + linux/arm64) image locally via buildx
 	@echo "→ Building multi-arch image for linux/amd64,linux/arm64..."
 	@$(DOCKER) buildx version >/dev/null 2>&1 || { \
@@ -378,7 +368,7 @@ check-unreachable-modules: ## Static check for unreachable modules and dead code
 	@echo "→ Checking unreachable modules and dead code paths..."
 	@$(CARGO) run --quiet --locked --bin check-unreachable-modules
 
-ci-local: fmt-check lint audit test build ## Run full CI locally
+ci-local: fmt-check lint audit test build issue-template-lint test-bats ## Run full CI locally
 	@echo ""
 	@echo "✓ All CI checks passed!"
 
@@ -633,8 +623,6 @@ benchmark-upgrade: ## Run upgrade load test with k6
 	@command -v k6 >/dev/null 2>&1 || (echo "✗ k6 not installed. Install: https://k6.io/docs/get-started/installation/" && exit 1)
 	cd benchmarks && k6 run k6/upgrade-load-test.js
 
-run-local: build ## Run locally
-	RUST_LOG=info ./target/release/stellar-operator
 # ── Running the Operator ──────────────────────────────────────────────────────
 
 run-local: build ## Run operator locally from built release binary

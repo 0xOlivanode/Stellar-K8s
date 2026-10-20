@@ -126,7 +126,7 @@ Before submitting, run the contributor health gates via `make` (not raw
 
 ```bash
 make health        # Format + lint + tests + docs
-make ci-local      # Full local CI gate (includes audit + link-check)
+make ci-local      # Full local CI gate (includes audit + issue-template-lint + test-bats + link-check)
 ```
 
 The full checklist, command rationale, and per-step details live in the
@@ -233,7 +233,7 @@ Always drive the local pipeline through `make` targets so results match CI:
 
 ```bash
 make health        # Contributor health gate
-make ci-local      # Full CI pipeline (fmt-check + lint + docs-lint + audit + test + build + link-check)
+make ci-local      # Full CI pipeline (fmt-check + lint + docs-lint + audit + test + build + issue-template-lint + test-bats + link-check)
 ```
 
 Individual targets, when you want to iterate on one step at a time:
