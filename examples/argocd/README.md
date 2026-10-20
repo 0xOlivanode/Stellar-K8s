@@ -14,3 +14,4 @@ Usage
 Notes
 
 - The manifests are intentionally declarative and include `syncPolicy.automated.prune=true` and `PruneLast=true` to reduce orphaned resources during deletion. See the docs page for finalizer guidance.
+- For Flux CD users, see the equivalent manifests in [examples/flux/](../flux/README.md) and the guide at [docs/gitops/flux.md](../../docs/gitops/flux.md).

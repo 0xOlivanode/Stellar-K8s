@@ -75,7 +75,7 @@ Designed for high availability, type safety, and minimal footprint.
 - **💾 Proactive Disk Scaling**: Automatically expands EBS/GCP volumes as the ledger grows, preventing 'Disk Full' outages without manual intervention.
 - **📊 Real-time SCP Analytics**: High-throughput streaming of SCP messages to Kafka for network topology analysis and quorum health monitoring.
 - **📈 Multi-Cluster Comparison**: CLI tool for comparing performance metrics (TPS, Ledger Time) between clusters in real-time with HTML/JSON reports.
-- **GitOps Ready**: Fully compatible with ArgoCD and Flux for declarative infrastructure management.
+- **GitOps Ready**: Fully compatible with ArgoCD and Flux CD for declarative infrastructure management. See [ArgoCD guide](docs/gitops/argocd.mdx) and [Flux guide](docs/gitops/flux.md).
 - **📈 Observable by Default**: Native Prometheus metrics integration for monitoring node health, ledger sync status, and resource usage.
 - **⚡ Soroban Ready**: First-class support for Soroban RPC nodes with captive core configuration.
 
@@ -192,6 +192,7 @@ Ready-to-use manifests for all supported node types are available in the [exampl
 - [Soroban RPC](examples/soroban-rpc.yaml) - Smart contract execution node with autoscaling.
 - [Disaster Recovery Setup](examples/dr-setup.yaml) - Multi-cluster HA configuration with automated drills.
 - [ArgoCD GitOps deployment guide](docs/gitops/argocd.mdx) - Versioned, declarative Testnet Validator and Soroban RPC golden path.
+- [Flux CD GitOps deployment guide](docs/gitops/flux.md) - Equivalent golden path using Flux `HelmRelease` and `GitRepository` resources.
 
 ---
 
@@ -722,6 +723,9 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and releases.
 
 ## Handsoff notes
+
+<!-- handsoff-issue-1731 -->
+- #1731: [EPIC] flux sync — added `examples/flux/` with `GitRepository`, `HelmRepository`, and `HelmRelease` manifests for the operator, Testnet Validator, and Soroban RPC; added `docs/gitops/flux.md` golden-path guide; registered in `mkdocs.yml` under GitOps; cross-referenced from `examples/argocd/README.md` and README feature list.
 
 <!-- handsoff-issue-1732 -->
 - #1732: [EPIC] cost estimate — added `docs/cost-estimate.md` with AWS on-demand and HA pricing tables for Testnet and Mainnet deployments; registered in `mkdocs.yml` under Operations & Observability.
