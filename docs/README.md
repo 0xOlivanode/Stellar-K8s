@@ -117,6 +117,7 @@ Production-grade Stellar infrastructure on Kubernetes. This directory contains a
 - [Development Setup](contributing/development-setup.md)
 - [Developer Onboarding](developer-onboarding/index.md)
 - [Development Reference](development.md)
+- [Build Targets](development/build-targets.md)
 - [Regenerating Charts & Bundle Manifests](development/regeneration-guide.md)
 - [Fuzzing](fuzzing.md)
 - [Docker Compose → Kubernetes Migration](docker-compose-to-kubernetes-migration.md)

@@ -177,6 +177,7 @@ nav:
     - Regeneration Guide: development/regeneration-guide.md
     - Repo Health Checklist: development/repo-health-checklist.md
     - Scripts Reference: development/scripts-reference.md
+    - Build Targets: development/build-targets.md
     - Static Analysis Gates: development/static-analysis-gates.md
     - License Header Compliance: development/license-headers.md
     - Documentation Build: development/docs-build.md
