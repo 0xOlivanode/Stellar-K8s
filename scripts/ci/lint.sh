@@ -15,7 +15,9 @@
 # scripts/ci/lint.sh — Unified lint runner for the Stellar-K8s repository.
 #
 # Runs every lint gate in the correct order so developers and CI share one
-# entry point.  Each step echoes a short header so failures are easy to locate
+# entry point: shellcheck, shell-safety, scripts-convention, python-lint
+# (py_compile + tomllib), yamllint, then cargo fmt + clippy.
+# Each step echoes a short header so failures are easy to locate
 # in long log streams.
 #
 # Usage:
@@ -75,6 +77,8 @@ if [[ "$RUST_ONLY" == "false" ]]; then
   run_step "shell-safety" python3 scripts/check-shell-safety.py
 
   run_step "scripts-convention" bash scripts/ci/check-scripts-convention.sh
+
+  run_step "python-lint" bash scripts/ci/check-python-toml-lint.sh
 
   run_step "yamllint" bash -c '
     command -v yamllint >/dev/null 2>&1 || { echo "yamllint not installed — skipping"; exit 0; }

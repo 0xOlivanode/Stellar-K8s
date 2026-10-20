@@ -49,14 +49,23 @@
   <img src="https://img.shields.io/badge/Kubernetes-Operator-blue?style=for-the-badge&logo=kubernetes" alt="Kubernetes Operator" />
 </p>
 
-<!-- Documentation -->
+<!-- Documentation & Support -->
 <p align="center">
   <a href="https://m1s0g1.github.io/Stellar-K8s/">
     <img src="https://img.shields.io/badge/📖_Documentation-Online-blue?style=for-the-badge&logo=readthedocs" alt="Documentation Site" />
   </a>
-  <a href="https://m1s0g1.github.io/Stellar-K8s/">
-    <strong>Read the full documentation</strong>
+  <a href="https://github.com/OtowoOrg/Stellar-K8s/issues/new/choose">
+    <img src="https://img.shields.io/badge/🐛_Report_Issue-GitHub-orange?style=for-the-badge&logo=github" alt="Report Issue" />
   </a>
+  <a href="https://m1s0g1.github.io/Stellar-K8s/getting-started/testnet-onboarding/">
+    <img src="https://img.shields.io/badge/🚀_Testnet_Guide-Start_Here-brightgreen?style=for-the-badge" alt="Testnet Onboarding" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://m1s0g1.github.io/Stellar-K8s/"><strong>Read the full documentation</strong></a> •
+  <a href="https://m1s0g1.github.io/Stellar-K8s/getting-started/testnet-onboarding/"><strong>Deploy testnet validator</strong></a> •
+  <a href="https://m1s0g1.github.io/Stellar-K8s/issue-reporting/"><strong>Report a bug</strong></a>
 </p>
 
 > **Production-grade Stellar infrastructure in one command.**
@@ -75,7 +84,7 @@ Designed for high availability, type safety, and minimal footprint.
 - **💾 Proactive Disk Scaling**: Automatically expands EBS/GCP volumes as the ledger grows, preventing 'Disk Full' outages without manual intervention.
 - **📊 Real-time SCP Analytics**: High-throughput streaming of SCP messages to Kafka for network topology analysis and quorum health monitoring.
 - **📈 Multi-Cluster Comparison**: CLI tool for comparing performance metrics (TPS, Ledger Time) between clusters in real-time with HTML/JSON reports.
-- **GitOps Ready**: Fully compatible with ArgoCD and Flux for declarative infrastructure management.
+- **GitOps Ready**: Fully compatible with ArgoCD and Flux CD for declarative infrastructure management. See [ArgoCD guide](docs/gitops/argocd.mdx) and [Flux guide](docs/gitops/flux.md).
 - **📈 Observable by Default**: Native Prometheus metrics integration for monitoring node health, ledger sync status, and resource usage.
 - **⚡ Soroban Ready**: First-class support for Soroban RPC nodes with captive core configuration.
 
@@ -192,6 +201,7 @@ Ready-to-use manifests for all supported node types are available in the [exampl
 - [Soroban RPC](examples/soroban-rpc.yaml) - Smart contract execution node with autoscaling.
 - [Disaster Recovery Setup](examples/dr-setup.yaml) - Multi-cluster HA configuration with automated drills.
 - [ArgoCD GitOps deployment guide](docs/gitops/argocd.mdx) - Versioned, declarative Testnet Validator and Soroban RPC golden path.
+- [Flux CD GitOps deployment guide](docs/gitops/flux.md) - Equivalent golden path using Flux `HelmRelease` and `GitRepository` resources.
 
 ---
 
@@ -383,7 +393,7 @@ featureFlags:
 
 We welcome contributions! This project uses pre-commit hooks to ensure code quality.
 
-Please see our **[Contributing Guide](CONTRIBUTING.md)** for details on our workflow, commit conventions, and pull request guidelines. For development setup instructions, see the **[Development Guide](DEVELOPMENT.md)**.
+Please see our **[Contributing Guide](CONTRIBUTING.md)** for details on our workflow, commit conventions, and pull request guidelines. For development setup instructions, see the **[Development Guide](DEVELOPMENT.md)**. An index of operational and helper scripts is available in **[`scripts/README.md`](scripts/README.md)**.
 
 Want the background story behind the project? Read the **[PITCH storyboards](docs/PITCH.md)** for the problem statement, target users, and the roadmap narrative.
 
@@ -722,6 +732,12 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes and releases.
 
 ## Handsoff notes
+
+<!-- handsoff-issue-1731 -->
+- #1731: [EPIC] flux sync — added `examples/flux/` with `GitRepository`, `HelmRepository`, and `HelmRelease` manifests for the operator, Testnet Validator, and Soroban RPC; added `docs/gitops/flux.md` golden-path guide; registered in `mkdocs.yml` under GitOps; cross-referenced from `examples/argocd/README.md` and README feature list.
+
+<!-- handsoff-issue-1732 -->
+- #1732: [EPIC] cost estimate — added `docs/cost-estimate.md` with AWS on-demand and HA pricing tables for Testnet and Mainnet deployments; registered in `mkdocs.yml` under Operations & Observability.
 
 <!-- handsoff-issue-1702 -->
 - #1702: [EPIC] helm chart flag — exposed operator.dryRun, operator.appArmorEnabled, and operator.logFormat in Helm values with Deployment wiring and unit tests.

@@ -99,6 +99,7 @@ nav:
     - Prerequisites: getting-started/prerequisites.md
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quick-start.md
+    - Testnet Onboarding: getting-started/testnet-onboarding.md
   - Deployment Guides:
     - deployment-guides/index.md
     - Validator Node: deployment-guides/validator.md
@@ -110,6 +111,7 @@ nav:
   - Configuration:
     - configuration/index.md
     - CRD Reference: api-reference.md
+    - Testnet Peer Configuration: configuration/testnet-peer-configuration.md
     - Operators: operator-sdk-guide.md
     - Storage: volume-snapshots.md
     - CRD Reference: configuration/crd-reference.md
@@ -125,6 +127,8 @@ nav:
     - Configure HA Setup: tutorials/configure-ha-setup.md
     - Backup and Restore: tutorials/backup-restore.md
   - Operations & Observability:
+    - Capacity Planning: capacity-planning.md
+    - Cost Estimate: cost-estimate.md
     - SCP Consensus Topology and Monitoring: scp-consensus-topology-and-monitoring.md
     - Monitoring and Dashboards Setup Guide: MONITORING_SETUP_GUIDE.md
     - Monitoring and Dashboards Operational Runbook: MONITORING_OPERATIONAL_RUNBOOK.md
@@ -176,6 +180,9 @@ nav:
     - Helm Chart Testing: helm-chart-testing.md
     - Database Migrations: database/migrations.md
     - Reconciler Phases: reconciler-phases.md
+  - GitOps:
+    - ArgoCD GitOps: gitops/argocd.md
+    - Flux CD: gitops/flux.md
   - Contributing:
     - contributing/index.md
     - Development Setup: contributing/development-setup.md

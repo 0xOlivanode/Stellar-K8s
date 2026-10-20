@@ -237,7 +237,7 @@ def main(argv: list[str] | None = None) -> int:
             baseline = REPO_ROOT / baseline
         if baseline.is_file():
             print(f"→ Comparing against baseline: {baseline} (threshold {threshold}%)")
-            # Re-use crd perf checker for generic metric comparison
+            # Reuse crd perf checker for generic metric comparison
             sys.argv = ["check-crd-performance.py", "--current", str(output), "--baseline", str(baseline), "--threshold", str(threshold)]
             # Inline comparison to avoid subprocess complexity
             import subprocess

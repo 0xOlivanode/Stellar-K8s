@@ -77,6 +77,14 @@ entry points only — detailed content belongs in `docs/`.
 
 Every script must pass `shellcheck -S error` before merging.
 
+### Python tools and TOML configs
+
+| Element | Convention | Example |
+|---|---|---|
+| Python tool names | `kebab-case.py` (legacy `snake_case.py` grandfathered in `scripts/ci/check-scripts-convention.sh`) | `check-links.py` |
+| Python tool syntax | `py_compile`-clean (`make python-lint`) | — |
+| TOML configs | parse with stdlib `tomllib` (`make python-lint`) | `lychee.toml`, `Cargo.toml` |
+
 ### Kubernetes manifests
 
 | Element | Convention | Example |
@@ -196,9 +204,10 @@ std::mem::forget(guard); // no kubectl call
 These conventions are enforced by:
 
 - **Pre-commit hooks** (`shellcheck`, `make fmt`, `yamllint`) — run `make pre-commit-install`
-- **CI lint step** (`make lint`, `make fmt-check`) — runs on every PR
+- **CI lint step** (`make lint`, `make fmt-check`, `make python-lint`) — runs on every PR
 - **Scripts convention gate** (`make scripts-convention-check`, `scripts/ci/check-scripts-convention.sh`) — enforces kebab-case naming, placement, and `Usage:` headers on every PR
-- **Unified lint runner** (`make lint-all`, `scripts/ci/lint.sh`) — single entry point for all shell, YAML, and Rust lints
+- **Python & TOML lint gate** (`make python-lint`, `scripts/ci/check-python-toml-lint.sh`) — stdlib-only `py_compile` + `tomllib` parse, wired into `make lint-scripts` and the `python-toml-lint` CI job
+- **Unified lint runner** (`make lint-all`, `scripts/ci/lint.sh`) — single entry point for all shell, Python/TOML, YAML, and Rust lints
 - **PR checklist** in [CONTRIBUTING.md](CONTRIBUTING.md#9-repo-health-checklist)
 
 If you find a file that violates these conventions and is not covered by the checklist, open

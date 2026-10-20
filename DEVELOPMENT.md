@@ -450,6 +450,9 @@ make fmt           # Auto-format all code
 make fmt-check     # Check if code is formatted (CI uses this)
 make lint          # Run clippy linter
 make lint-strict   # Run clippy with complexity checks (stricter)
+make python-lint   # Lint Python tools (py_compile) + TOML configs (tomllib), stdlib only
+make lint-scripts  # Lint all scripts: shellcheck + shell-safety + conventions + python-lint
+make lint-all      # All lint gates: Rust (clippy/fmt) + shell + conventions + Python/TOML
 make audit         # Security audit on dependencies
 make test          # Run all tests
 make build         # Build release binaries
@@ -470,10 +473,24 @@ make ci-local      # Full CI pipeline locally (fmt-check + lint + docs-lint + au
 ### Security
 
 ```bash
-make audit         # Run cargo-audit on dependencies
-make security-scan # Run audit + shellcheck
-make shellcheck    # Run shellcheck on all shell scripts
-make security-all  # Run all security checks
+make audit           # Run cargo-audit on dependencies
+make security-scan   # Run audit + shellcheck
+make security-review # Full security review (audit + scan + Helm lint + report)
+make shellcheck      # Run shellcheck on all shell scripts
+make security-all    # Run all security checks
+```
+
+### Documentation Quality
+
+```bash
+make docs-build           # Build documentation site (development mode)
+make docs-serve           # Serve documentation locally (http://127.0.0.1:8000)
+make docs-ci-build        # Build documentation in strict mode (mirrors CI)
+make docs-lint            # Check Rust doc comments for warnings
+make nav-coverage         # Verify all mkdocs.yml nav entries resolve to files
+make link-integrity       # Check internal markdown links for broken references
+make link-integrity-full  # Check all links (internal + external)
+make check-api-docs       # Verify API reference docs are up to date
 ```
 
 ### Kubernetes Operations

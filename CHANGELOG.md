@@ -10,8 +10,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 • Dedicated `Codespell` CI job and `make codespell` target (#1682).
+• Pinned `Codespell` CI job and `make codespell` target for documentation and codebase spell checking (#1769).
 • Index the remaining scripts and the `dep-gate.bats` suite in `scripts/README.md` (#1684).
+• Index newly added operational and release scripts (`generate-release-notes.sh`, `tag-release.sh`, `migrate-seed-key.sh`, `trivy-fs.sh`) in `scripts/README.md` (#1771).
 • Fill the welcome template's `[POINTS]`/`[DIFFICULTY]` placeholders from the `N-points` label (#1685).
+• Automated first-contribution welcome comment template and workflow wiring (#1772).
+• CHANGELOG entries for issues #1769, #1770, #1771, and #1772 (#1770).
 • CHANGELOG entries for the above (#1683).
 • `make test-bats` and a `Bats Suites` CI job covering every bats suite except helm-drift (#1680).
 • `make issue-template-lint`; the CI job now also runs when the linter changes (#1681).
@@ -21,11 +25,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 • Change notes documentation and release note guidelines in `docs/change-notes.md` (#1704).
 • Bats test coverage for `scripts/secret-rotation-check.sh` (#1705).
 • Comprehensive bats test coverage for critical shell scripts (health-check, repo-health, tag-release, validate-metrics, etc.) via `scripts/tests/shell-script-coverage.bats` (#1706).
+• Cost estimate reference document added at `docs/cost-estimate.md` with AWS on-demand and HA pricing tables for Testnet and Mainnet deployments (#1732).
+• Capacity planning documentation added at `docs/capacity-planning.md` covering the `CapacityRecommendationReport` CRD, forecasting models, Prometheus metrics, alerting rules, and sizing reference; registered in `mkdocs.yml` under Operations & Observability (#1733).
+• ArgoCD GitOps golden-path guide added at `docs/gitops/argocd.md`; registered in `mkdocs.yml` under GitOps alongside the existing Flux guide (#1730).
 
 ### Fixed
 
 • Fix spelling errors reported by codespell in historical CHANGELOG entries (#1682).
+• Fix typos reported by codespell in `scripts/check-stale-samples.sh`, `scripts/benchmark-api.py`, and `argoCdParser.js` (#1769).
+• Add domain terms and acceptable spelling variants to `.codespellignore` (#1769).
 • Use an absolute CONTRIBUTING.md link in the welcome comment (#1685).
+• Add `pull-requests: write` permission to first-time contributor welcome workflow (#1772).
 • `make help` no longer prints the target list twice (#1679).
 • `preflight.bats` "gh missing" tests pass on hosts with `gh` in `/usr/bin`; `dep-gate.bats` tests the gate's real `--audit-only` interface (#1680).
 • Deduplicate operator environment variables.
