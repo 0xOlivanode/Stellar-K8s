@@ -106,6 +106,11 @@ nav:
     - Horizon API: deployment-guides/horizon.md
     - Horizon Query API Reference: horizon-query-api-reference.md
     - Soroban RPC: deployment-guides/soroban-rpc.md
+    - OLM / OpenShift: deploy-olm.md
+    - Deployment Patterns: deployment-patterns/index.md
+    - Horizon / RPC Farm: deployment-patterns/horizon-rpc-farm.md
+    - Multi-Region and DR: deployment-patterns/multi-region-dr.md
+    - GitOps, Scaling and Upgrades: deployment-patterns/gitops-scaling-upgrades.md
   - Multi-Region:
     - multi-region-deployment-and-failover.md
   - Configuration:
@@ -135,6 +140,11 @@ nav:
     - Production Profiling Runbook: operations/profiling-runbook.md
     - Core Blue/Green Runbook: operations/core-blue-green-runbook.md
     - Observability Overview: observability/index.md
+    - Metric Reference: observability/metric-reference.md
+    - Metric Naming Conventions: observability/metric-naming-conventions.md
+    - Metrics and Dashboards: observability/metrics-and-dashboards.md
+    - Telemetry Architecture: observability/telemetry-architecture.md
+    - Unified Observability Contract: observability/unified-contract.md
     - OpenTelemetry Tracing: observability/tracing.md
     - Distributed Rate Limiting: distributed-rate-limiting.md
     - Feature Flag Rollouts: feature-flag-rollouts.md
@@ -145,6 +155,7 @@ nav:
     - Diagnostic Decision Trees: troubleshooting/diagnostic-decision-trees.md
     - Operator Runbooks: troubleshooting/operator-runbooks.md
     - Metrics and Alerting: troubleshooting/metrics-alerting.md
+  - Frequently Asked Questions: faq.md
   - API Reference:
     - api-reference.md
     - Operator REST API:
@@ -170,6 +181,7 @@ nav:
     - Regeneration Guide: development/regeneration-guide.md
     - Repo Health Checklist: development/repo-health-checklist.md
     - Scripts Reference: development/scripts-reference.md
+    - Build Targets: development/build-targets.md
     - Static Analysis Gates: development/static-analysis-gates.md
     - License Header Compliance: development/license-headers.md
     - Documentation Build: development/docs-build.md
