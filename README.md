@@ -49,14 +49,23 @@
   <img src="https://img.shields.io/badge/Kubernetes-Operator-blue?style=for-the-badge&logo=kubernetes" alt="Kubernetes Operator" />
 </p>
 
-<!-- Documentation -->
+<!-- Documentation & Support -->
 <p align="center">
   <a href="https://m1s0g1.github.io/Stellar-K8s/">
     <img src="https://img.shields.io/badge/📖_Documentation-Online-blue?style=for-the-badge&logo=readthedocs" alt="Documentation Site" />
   </a>
-  <a href="https://m1s0g1.github.io/Stellar-K8s/">
-    <strong>Read the full documentation</strong>
+  <a href="https://github.com/OtowoOrg/Stellar-K8s/issues/new/choose">
+    <img src="https://img.shields.io/badge/🐛_Report_Issue-GitHub-orange?style=for-the-badge&logo=github" alt="Report Issue" />
   </a>
+  <a href="https://m1s0g1.github.io/Stellar-K8s/getting-started/testnet-onboarding/">
+    <img src="https://img.shields.io/badge/🚀_Testnet_Guide-Start_Here-brightgreen?style=for-the-badge" alt="Testnet Onboarding" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://m1s0g1.github.io/Stellar-K8s/"><strong>Read the full documentation</strong></a> •
+  <a href="https://m1s0g1.github.io/Stellar-K8s/getting-started/testnet-onboarding/"><strong>Deploy testnet validator</strong></a> •
+  <a href="https://m1s0g1.github.io/Stellar-K8s/issue-reporting/"><strong>Report a bug</strong></a>
 </p>
 
 > **Production-grade Stellar infrastructure in one command.**

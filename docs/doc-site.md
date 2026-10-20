@@ -7,6 +7,13 @@ The full Stellar-K8s documentation is published at:
 The site is built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) and is automatically
 deployed from the `main` branch whenever docs change.
 
+## Quick Navigation
+
+- 🚀 **New to Stellar-K8s testnet?** Start with [Testnet Onboarding Guide](getting-started/testnet-onboarding.md)
+- 🔧 **Deploying to testnet?** See [Testnet Peer Configuration](configuration/testnet-peer-configuration.md)
+- 🐛 **Report an issue?** Use [Issue Reporting Guide](issue-reporting.md)
+- 📡 **Networking issues?** Check [Testnet Peer Egress Port Requirements](networking/testnet-egress-ports.md)
+
 ## What's in the docs
 
 | Section | What you'll find |
