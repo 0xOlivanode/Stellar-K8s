@@ -39,7 +39,7 @@
 	compose-up compose-dev compose-down compose-logs \
 	bundle bundle-render bundle-generate bundle-validate bundle-build \
 	quickstart quickstart-setup quickstart-build quickstart-deploy \
-	health health-fast validate preflight test-shell all \
+	health health-fast health-full validate preflight test-shell all \
 	shell-safety test-shell-safety tag-release validate-yaml test-yaml-validation \
 	health health-fast validate preflight test-shell test-bats issue-template-lint all \
 	shell-safety test-shell-safety validate-yaml test-yaml-validation \
@@ -47,7 +47,7 @@
 	lint-observability-contract test-observability-contract \
 	helm-drift helm-drift-update test-helm-drift test-helm-bump \
 	collect-failure-diagnostics test-failure-diagnostics \
-	check-unreachable-modules \
+	check-unreachable-modules golden-path-pipeline secret-rotation-check dead-code-report \
 	check-pipeline-log-redaction \
 	license-headers check-license-headers \
 	check-api-contract check-api-coverage check-breaking-changes \
@@ -358,7 +358,19 @@ health: ## Run common repository health checks (format, lint, test, docs, links)
 health-fast: ## Fast health gate (format, lint, compile only)
 	@bash scripts/repo-health.sh --fast
 
+health-full: ## Full health gate plus cargo audit and helm lint (#1773)
+	@bash scripts/repo-health.sh --with-audit --with-helm
+
 validate: health-fast ## Fast validation (alias for health-fast)
+
+golden-path-pipeline: ## Run the golden-path full pipeline command test from a clean checkout (#1774)
+	@bash scripts/golden-path-pipeline-check.sh
+
+secret-rotation-check: ## Verify secret rotation without downtime (DRY_RUN=1 prints the plan without a cluster) (#1775)
+	@bash scripts/secret-rotation-check.sh $(if $(DRY_RUN),--dry-run)
+
+dead-code-report: ## Generate the informational dead-code report at target/reports/dead-code-report.md (#1776)
+	@bash scripts/dead-code-report.sh
 
 # ── Quality & Health ───────────────────────────────────────────────────────────
 

@@ -29,8 +29,9 @@ make ci-local                    # fmt-check lint audit test build link-check
 
 | Script | Purpose | Usage / CI caller |
 | --- | --- | --- |
-| `repo-health.sh` | Single entry point for repo health checks (`--fast`, `--with-audit`, `--with-links`, `--with-helm`) | `bash scripts/repo-health.sh`; `make health` / `make health-fast` |
+| `repo-health.sh` | Single entry point for repo health checks (`--fast`, `--with-audit`, `--with-links`, `--with-helm`) | `bash scripts/repo-health.sh`; `make health` / `make health-fast` / `make health-full` |
 | `validate.sh` | Fast local validation (delegates to `repo-health.sh --fast`) | `bash scripts/validate.sh`; `make validate` |
+| `golden-path-pipeline-check.sh` | Golden-path full pipeline command test from a clean checkout (fmt, clippy, issue templates, API docs, helm, release gate, quickstart) | `bash scripts/golden-path-pipeline-check.sh`; `make golden-path-pipeline` |
 | `release-gate.sh` | Release validation mirroring `RELEASE_CHECKLIST.md` | `VERSION=1.2.0 bash scripts/release-gate.sh` |
 | `check-links.py` | Internal markdown file+anchor link check | `python3 scripts/check-links.py`; `make link-check`; `ci.yml` docs-link-check |
 | `check-stale-samples.sh` | Flags sample manifests that drifted from sources | `ci.yml` |
@@ -41,9 +42,9 @@ make ci-local                    # fmt-check lint audit test build link-check
 | Script | Purpose | Usage / CI caller |
 | --- | --- | --- |
 | `check-secrets.sh` | Secret-handling checks for CI/runtime command paths | `bash scripts/check-secrets.sh`; `ci.yml` |
-| `secret-rotation-check.sh` | Verifies secret rotation without downtime (`--dry-run` for CI) | `quickstart-validation.yml` |
+| `secret-rotation-check.sh` | Verifies secret rotation without downtime (`--dry-run` for CI) | `make secret-rotation-check [DRY_RUN=1]`; `quickstart-validation.yml` |
 | `audit-features.sh` | Static audit for unused crate features and dead imports (`--report`) | `bash scripts/audit-features.sh --report`; `ci.yml` |
-| `dead-code-report.sh` | Periodic dead-code report to `target/reports/dead-code-report.md` (always exits 0) | `dead-code-report.yml` |
+| `dead-code-report.sh` | Periodic dead-code report to `target/reports/dead-code-report.md` (always exits 0) | `make dead-code-report`; `dead-code-report.yml` |
 | `generate-third-party-licenses.sh` | Regenerates `THIRD_PARTY_LICENSES.md` (requires `cargo-license`) | `make third-party-licenses`; `make check-third-party-licenses` in CI |
 
 ## Helm charts and CRDs
