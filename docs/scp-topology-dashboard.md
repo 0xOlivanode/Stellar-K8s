@@ -174,5 +174,5 @@ In a streaming WebSocket session, the client-side `StallTracker` also flags node
 
 - [SCP Consensus Topology and Monitoring](scp-consensus-topology-and-monitoring.md) — comprehensive SCP topology and monitoring guide
 - [API Reference](api-reference.md) — full `StellarNode` CRD fields including `validatorConfig.quorumSet`
-- [Monitoring & Observability](../README.md#monitoring--observability) — Prometheus metrics and Grafana dashboards
+- [Monitoring & Observability](https://github.com/OtowoOrg/Stellar-K8s/blob/main/README.md#monitoring--observability) — Prometheus metrics and Grafana dashboards
 - [Peer Discovery](peer-discovery.md) — automatic peer discovery for validator clusters

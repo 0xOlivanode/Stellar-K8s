@@ -330,7 +330,7 @@ kubectl patch namespace stellar-k8s-green -p '{"metadata":{"name":"stellar-k8s"}
 
 **Best for:** Validator nodes, traffic-sensitive deployments
 
-See [Canary Deployment Strategy](#canary-deployment-yaml) and examples/canary-deployment.yaml
+See [Canary Deployment Strategy](#strategy-2-canary-deployment-gradual-rollout) and examples/canary-deployment.yaml
 
 #### Canary Workflow
 

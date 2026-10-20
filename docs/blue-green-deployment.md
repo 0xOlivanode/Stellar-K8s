@@ -184,7 +184,7 @@ Example Prometheus alert for unexpected rollbacks:
 
 ## Examples
 
-Ready-to-apply manifests: [`examples/blue-green-deployment.yaml`](../examples/blue-green-deployment.yaml)
+Ready-to-apply manifests: [`examples/blue-green-deployment.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/blue-green-deployment.yaml)
 
 - **Horizon mainnet** — automatic traffic switch + 2-minute rollback window
 - **Soroban RPC mainnet** — longer ready timeout for sync

@@ -4,7 +4,7 @@ This guide describes how platform teams enforce **role-based access control (RBA
 
 ## Role hierarchy
 
-Stellar-K8s defines three enterprise roles. Map each role to an identity provider (IdP) group and bind it to Kubernetes RBAC as shown in [`examples/rbac/tenant-policy.yaml`](../../examples/rbac/tenant-policy.yaml).
+Stellar-K8s defines three enterprise roles. Map each role to an identity provider (IdP) group and bind it to Kubernetes RBAC as shown in [`examples/rbac/tenant-policy.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/rbac/tenant-policy.yaml).
 
 | Role | Scope | Kubernetes binding | Primary responsibilities |
 | --- | --- | --- | --- |

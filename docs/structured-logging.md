@@ -50,7 +50,7 @@ change the JSON envelope.
    `logs` pipeline (see `values.yaml` → `otel`) consume the JSON without
    transformation.
 
-See [Log Aggregation Guide](../docs/log-aggregation-guide.md) for reference
+See [Log Aggregation Guide](log-aggregation-guide.md) for reference
 setups.
 
 ## Alerting on logs
@@ -68,7 +68,7 @@ kubectl logs -n stellar-system deploy/stellar-operator | head -1 | python3 -m js
 ```
 
 Redaction of sensitive fields (validator seeds etc.) is handled separately by
-`src/logging/log_scrub.rs` — see [Log Redaction Policy](../docs/log-redaction-policy.md).
+`src/logging/log_scrub.rs` — see [Log Redaction Policy](log-redaction-policy.md).
 
 ---
 

@@ -13,7 +13,7 @@ gh api --paginate repos/OtowoOrg/Stellar-K8s/labels --jq '.[] | [.name, .descrip
 ```
 
 Compare the exact names with the top-level `labels` fields in
-[the issue templates](../../.github/ISSUE_TEMPLATE/):
+[the issue templates](https://github.com/OtowoOrg/Stellar-K8s/tree/main/.github/ISSUE_TEMPLATE):
 
 | Template | Requested labels |
 | --- | --- |
@@ -62,4 +62,4 @@ After approved changes, repeat the catalog comparison and inspect an affected
 issue to confirm its labels. Update this table whenever template labels change.
 
 See [GitHub's issue-form syntax](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms)
-and [the contributing guide](../../CONTRIBUTING.md).
+and [the contributing guide](https://github.com/OtowoOrg/Stellar-K8s/blob/main/CONTRIBUTING.md).

@@ -11,7 +11,7 @@ This guide provides hardware sizing guidelines, system tuning recommendations, a
 3. [Kubernetes Configuration](#kubernetes-configuration)
 4. [Performance Benchmarking](#performance-benchmarking)
 5. [Capacity Planning Dashboard](#capacity-planning-dashboard)
-6. [Validation & Optimization](#validation--optimization)
+6. [Validation & Optimization](#validation-optimization)
 
 ## Hardware Sizing Guidelines
 

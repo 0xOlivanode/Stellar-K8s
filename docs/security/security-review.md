@@ -55,8 +55,8 @@ Security findings that cannot be remediated immediately must be tracked via a Gi
 
 ## Cross-References
 
-- CI workflow: [`.github/workflows/security-review.yml`](../../.github/workflows/security-review.yml)
-- Existing audit workflow: [`.github/workflows/security-audit.yml`](../../.github/workflows/security-audit.yml)
+- CI workflow: [`.github/workflows/security-review.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/security-review.yml)
+- Existing audit workflow: [`.github/workflows/security-audit.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/security-audit.yml)
 - Compliance guide: [`compliance-guide.md`](compliance-guide.md)
 - Dependency policy: [`dependency-updates.md`](dependency-updates.md)
 - Incident response: [`incident-response-playbook.md`](incident-response-playbook.md)

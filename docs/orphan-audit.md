@@ -190,7 +190,7 @@ Additional resource kinds (Deployments, StatefulSets, Secrets) may be added in f
 
 ## Related Documentation
 
-- [Finalizers](../src/controller/finalizers.rs) — How the operator normally cleans up resources on deletion.
+- [Finalizers](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/controller/finalizers.rs) — How the operator normally cleans up resources on deletion.
 - [diff-utility.md](diff-utility.md) — Debug live state vs. desired state divergence.
 - [archive-pruning.md](archive-pruning.md) — Manage history archive storage costs.
 - [pod-disruption-budget.md](pod-disruption-budget.md) — PDB configuration for maintenance safety.

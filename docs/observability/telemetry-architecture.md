@@ -11,7 +11,7 @@ This document details a comprehensive end-to-end telemetry architecture using Pr
 3. [Log Aggregation](#log-aggregation)
 4. [Alert Configuration](#alert-configuration)
 5. [Dashboard Templates](#dashboard-templates)
-6. [Troubleshooting & Validation](#troubleshooting--validation)
+6. [Troubleshooting & Validation](#troubleshooting-validation)
 
 ## Architecture Overview
 

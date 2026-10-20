@@ -1,6 +1,6 @@
 # Soroban WASM Memory Allocation and Gas Tuning Manual
 
-This guide helps contract developers minimize CPU instruction consumption, host function costs, and TTL storage overhead on Soroban. Measurements reference [`examples/contracts/optimized-sample/`](../../examples/contracts/optimized-sample/).
+This guide helps contract developers minimize CPU instruction consumption, host function costs, and TTL storage overhead on Soroban. Measurements reference [`examples/contracts/optimized-sample/`](https://github.com/OtowoOrg/Stellar-K8s/tree/main/examples/contracts/optimized-sample).
 
 ## WASM memory layout
 
@@ -91,7 +91,7 @@ cargo build --target wasm32-unknown-unknown --release
 
 ## Optimized sample contract
 
-The [`optimized-sample`](../../examples/contracts/optimized-sample/) crate demonstrates:
+The [`optimized-sample`](https://github.com/OtowoOrg/Stellar-K8s/tree/main/examples/contracts/optimized-sample) crate demonstrates:
 
 - Split storage (`DataKey::Meta`, `DataKey::Counter`)
 - Symbol-based keys instead of strings

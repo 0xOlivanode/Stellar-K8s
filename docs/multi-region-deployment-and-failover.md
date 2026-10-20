@@ -90,7 +90,7 @@ sequenceDiagram
   Standby->>Standby: lag + hash check
 ```
 
-Sync strategies (authoritative Rust enum in [`src/crd/types.rs`](../src/crd/types.rs)):
+Sync strategies (authoritative Rust enum in [`src/crd/types.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/crd/types.rs)):
 
 | `syncStrategy` | Behavior |
 |----------------|----------|
@@ -167,7 +167,7 @@ spec:
       provider: "route53"
 ```
 
-Standby uses `role: standby` and the matching `peerClusterId`. CRD field reference: [`config/crd/stellarnode-crd.yaml`](../config/crd/stellarnode-crd.yaml) (`drConfig`).
+Standby uses `role: standby` and the matching `peerClusterId`. CRD field reference: [`config/crd/stellarnode-crd.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/config/crd/stellarnode-crd.yaml) (`drConfig`).
 
 ### Cross-cluster networking
 
@@ -225,7 +225,7 @@ kubectl get stellarnode validator-standby \
   -w -o jsonpath='{.status.drStatus.failoverActive}'
 ```
 
-Implementation: [`src/controller/dr.rs`](../src/controller/dr.rs).
+Implementation: [`src/controller/dr.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/controller/dr.rs).
 
 ### Manual failover (controlled)
 
@@ -259,7 +259,7 @@ Implementation: [`src/controller/dr.rs`](../src/controller/dr.rs).
 
 ### DR drills
 
-Schedule non-destructive drills via `spec.drConfig.drillSchedule` (cron, `dryRun`, `autoRollback`). See CRD `drillSchedule` in [`config/crd/stellarnode-crd.yaml`](../config/crd/stellarnode-crd.yaml).
+Schedule non-destructive drills via `spec.drConfig.drillSchedule` (cron, `dryRun`, `autoRollback`). See CRD `drillSchedule` in [`config/crd/stellarnode-crd.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/config/crd/stellarnode-crd.yaml).
 
 ---
 
@@ -292,10 +292,10 @@ Rollback within 15 minutes of a bad failover: follow **Part 4: Rollback Procedur
 
 | Topic | Location |
 |-------|----------|
-| DR controller | [`src/controller/dr.rs`](../src/controller/dr.rs) |
-| State sync sidecar | [`src/controller/state_sync.rs`](../src/controller/state_sync.rs) |
-| Cross-cluster bridges | [`src/controller/cross_cluster.rs`](../src/controller/cross_cluster.rs) |
-| E2E DR tests | [`tests/dr_failover_e2e.rs`](../tests/dr_failover_e2e.rs) |
+| DR controller | [`src/controller/dr.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/controller/dr.rs) |
+| State sync sidecar | [`src/controller/state_sync.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/controller/state_sync.rs) |
+| Cross-cluster bridges | [`src/controller/cross_cluster.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/controller/cross_cluster.rs) |
+| E2E DR tests | [`tests/dr_failover_e2e.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/tests/dr_failover_e2e.rs) |
 | Short DR pattern doc | [deployment-patterns/multi-region-dr.md](deployment-patterns/multi-region-dr.md) |
 
 ---

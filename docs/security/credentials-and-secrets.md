@@ -16,7 +16,7 @@ Stellar-K8s supports multiple strategies for managing sensitive credentials, fro
 | All rotation workflows | [Rotation Workflows](../rotation-workflows.md) | Unified guide for secrets, certs, and passphrases |
 | HashiCorp Vault | [Vault + Stellar Tutorial](../vault-stellar-tutorial.md) | Production Vault Agent Injector pattern |
 | Production hardening | [Security Hardening Guide](../production-security-hardening.md) | Full security posture for production |
-| External Secrets Operator | [ExternalSecret chart template](../../charts/stellar-operator/templates/externalsecret.yaml) | ESO integration via Helm |
+| External Secrets Operator | [ExternalSecret chart template](https://github.com/OtowoOrg/Stellar-K8s/blob/main/charts/stellar-operator/templates/externalsecret.yaml) | ESO integration via Helm |
 
 ## Secret Types
 

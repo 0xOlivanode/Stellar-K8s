@@ -153,9 +153,9 @@ cargo build --manifest-path wasm-plugins/security/reentrancy/Cargo.toml \
 cargo test --manifest-path wasm-plugins/security/reentrancy/Cargo.toml
 ```
 
-See [`wasm-plugins/security/reentrancy/README.md`](../../wasm-plugins/security/reentrancy/README.md)
+See [`wasm-plugins/security/reentrancy/README.md`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/wasm-plugins/security/reentrancy/README.md)
 for the full walkthrough and
-[`config/reentrancy-guard-configmap.yaml`](../../config/reentrancy-guard-configmap.yaml)
+[`config/reentrancy-guard-configmap.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/config/reentrancy-guard-configmap.yaml)
 for a deployable `ConfigMap` example.
 
 ## References

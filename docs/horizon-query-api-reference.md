@@ -2,7 +2,7 @@
 
 Reference for querying **Horizon** HTTP APIs in Stellar-K8s: endpoints used by operators, pagination and filtering patterns, deployment-specific URLs, caching, and error handling.
 
-**See also:** [Horizon deployment guide](deployment-guides/horizon.md) · [Horizon query cache](horizon-query-cache.md) · [Health checks](health-checks.md) · [Example manifest](../examples/horizon-with-health-check.yaml) · [Official Horizon API docs](https://developers.stellar.org/docs/data/apis/horizon)
+**See also:** [Horizon deployment guide](deployment-guides/horizon.md) · [Horizon query cache](horizon-query-cache.md) · [Health checks](health-checks.md) · [Example manifest](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/horizon-with-health-check.yaml) · [Official Horizon API docs](https://developers.stellar.org/docs/data/apis/horizon)
 
 ---
 
@@ -42,7 +42,7 @@ spec:
     stellarCoreUrl: "http://stellar-core:11626"
 ```
 
-Full example: [`examples/horizon-with-health-check.yaml`](../examples/horizon-with-health-check.yaml).
+Full example: [`examples/horizon-with-health-check.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/horizon-with-health-check.yaml).
 
 Horizon serves a **REST JSON API** (Stellar Horizon protocol). Stellar-K8s does not change URL paths; it manages pods, services, ingress, and optional **Horizon query caching** (`spec.horizonCache` — see [horizon-query-cache.md](horizon-query-cache.md)).
 
@@ -204,7 +204,7 @@ kubectl port-forward -n stellar-system svc/stellar-operator 9090:9090
 curl -sS http://localhost:9090/api/v1/horizon/cache/status | jq .
 ```
 
-CRD configuration for multi-tier caching: [horizon-query-cache.md](horizon-query-cache.md). Implementation: [`src/rest_api/horizon_cache_handlers.rs`](../src/rest_api/horizon_cache_handlers.rs).
+CRD configuration for multi-tier caching: [horizon-query-cache.md](horizon-query-cache.md). Implementation: [`src/rest_api/horizon_cache_handlers.rs`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/src/rest_api/horizon_cache_handlers.rs).
 
 ---
 
@@ -262,9 +262,9 @@ Database and ingestion tuning: [performance-tuning.md](performance-tuning.md#pos
 
 | Item | Location |
 |------|----------|
-| `StellarNode` Horizon spec | [`config/crd/stellarnode-crd.yaml`](../config/crd/stellarnode-crd.yaml) |
-| Health check reconciler | [`src/controller/`](../src/controller/) (Horizon sync phases) |
-| Horizon cache controller | [`src/controller/horizon_cache/`](../src/controller/horizon_cache/) |
+| `StellarNode` Horizon spec | [`config/crd/stellarnode-crd.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/config/crd/stellarnode-crd.yaml) |
+| Health check reconciler | [`src/controller/`](https://github.com/OtowoOrg/Stellar-K8s/tree/main/src/controller) (Horizon sync phases) |
+| Horizon cache controller | [`src/controller/horizon_cache/`](https://github.com/OtowoOrg/Stellar-K8s/tree/main/src/controller/horizon_cache) |
 | Ingress examples | [ingress-guide.md](ingress-guide.md) |
 | Deployment pattern (RPC farm) | [deployment-patterns/horizon-rpc-farm.md](deployment-patterns/horizon-rpc-farm.md) |
 

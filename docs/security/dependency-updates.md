@@ -4,7 +4,7 @@ This document describes how Stellar-K8s receives, reviews, and merges automated
 dependency updates. It closes the process gap for issue **#1332**.
 
 Automated updates are provided by **[Dependabot](https://docs.github.com/en/code-security/dependabot)**
-(configuration: [`.github/dependabot.yml`](../../.github/dependabot.yml)).
+(configuration: [`.github/dependabot.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/dependabot.yml)).
 **Renovate is not used** - do not enable a second update bot alongside Dependabot.
 
 ---
@@ -38,7 +38,7 @@ human PRs. **Do not merge while required checks are red or still running.**
 
 | Workflow / job | Role |
 |----------------|------|
-| [CI/CD Pipeline](../../.github/workflows/ci.yml) (`ci.yml`) | Preflight, hygiene, lint (as applicable), tests, and related PR gates |
+| [CI/CD Pipeline](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/ci.yml) (`ci.yml`) | Preflight, hygiene, lint (as applicable), tests, and related PR gates |
 | Conventional commits | Commit message format |
 
 ### Cargo / lockfile PRs (`Cargo.toml`, `Cargo.lock`)
@@ -48,7 +48,7 @@ human PRs. **Do not merge while required checks are red or still running.**
 | `security-audit` | `ci.yml` | `cargo audit` + third-party license reference check |
 | `dep-graph-guard` | `ci.yml` | Caps unexpected `Cargo.lock` graph growth |
 | Lint / format / tests | `ci.yml` | Compatibility: clippy/fmt when Rust core paths change; `make test` |
-| Cargo Deny (licenses + bans) | [dependency-review.yml](../../.github/workflows/dependency-review.yml) | `cargo deny check` against `deny.toml` |
+| Cargo Deny (licenses + bans) | [dependency-review.yml](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/dependency-review.yml) | `cargo deny check` against `deny.toml` |
 | Dependency Diff | `dependency-review.yml` | Summarizes `Cargo.lock` name/version churn on the PR |
 
 Local equivalent for cargo security/policy:
@@ -57,8 +57,8 @@ Local equivalent for cargo security/policy:
 make audit          # scripts/dep-gate.sh - cargo audit + cargo deny (+ fuller checks)
 ```
 
-Canonical ignore/exception lists live in [`.cargo/audit.toml`](../../.cargo/audit.toml)
-and [`deny.toml`](../../deny.toml). Do not paper over new advisories with one-off
+Canonical ignore/exception lists live in [`.cargo/audit.toml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.cargo/audit.toml)
+and [`deny.toml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/deny.toml). Do not paper over new advisories with one-off
 inline CI flags.
 
 ### GitHub Actions PRs
@@ -75,8 +75,8 @@ sample versions may need a follow-up).
 
 Scheduled reinforcement (not a substitute for green PR CI):
 
-- [security-audit.yml](../../.github/workflows/security-audit.yml) - daily audit / deny / SBOM / scorecard
-- [container-image-security.yml](../../.github/workflows/container-image-security.yml) - Trivy / Grype image scans on `main`
+- [security-audit.yml](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/security-audit.yml) - daily audit / deny / SBOM / scorecard
+- [container-image-security.yml](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/container-image-security.yml) - Trivy / Grype image scans on `main`
 
 ---
 
@@ -147,7 +147,7 @@ Dependabot will often reopen or recreate updates on the next schedule once `main
 
 ## Who approves (repository evidence only)
 
-From [`.github/CODEOWNERS`](../../.github/CODEOWNERS):
+From [`.github/CODEOWNERS`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/CODEOWNERS):
 
 | Path / change | Review request |
 |---------------|----------------|
@@ -156,11 +156,11 @@ From [`.github/CODEOWNERS`](../../.github/CODEOWNERS):
 | `Dockerfile` | `@stellar-k8s-maintainers` and `@devops-team` |
 
 There is no separate named "dependency approver" beyond CODEOWNERS and normal maintainer
-review. Security-sensitive ignore list edits should follow [`SECURITY.md`](../../SECURITY.md)
+review. Security-sensitive ignore list edits should follow [`SECURITY.md`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/SECURITY.md)
 and keep rationales in `.cargo/audit.toml`.
 
 Final merge authority is the repository maintainers who merge to `main` after review
-and green CI (see [CONTRIBUTING.md](../../CONTRIBUTING.md) merge conventions).
+and green CI (see [CONTRIBUTING.md](https://github.com/OtowoOrg/Stellar-K8s/blob/main/CONTRIBUTING.md) merge conventions).
 
 ---
 
@@ -196,4 +196,4 @@ and green CI (see [CONTRIBUTING.md](../../CONTRIBUTING.md) merge conventions).
 - [Contributor Maintenance Dashboard](../maintenance-dashboard.md)
 - [Release Process](../release-process.md) (dependency updates are typically PATCH-class)
 - [Production Security Hardening](../production-security-hardening.md)
-- [SECURITY.md](../../SECURITY.md)
+- [SECURITY.md](https://github.com/OtowoOrg/Stellar-K8s/blob/main/SECURITY.md)

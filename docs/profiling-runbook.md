@@ -226,7 +226,7 @@ pod restarts.
 
 ## Reference
 
-- [`src/profiling.rs`](../src/profiling.rs) — Core profiling implementation
+- [`src/profiling/`](https://github.com/OtowoOrg/Stellar-K8s/tree/main/src/profiling) — Core profiling implementation
 - [pprof format spec](https://github.com/google/pprof/blob/main/proto/profile.proto)
 - [jemalloc heap profiling](https://jemalloc.net/jemalloc.3.html#opt.prof)
-- [Helm values reference](../charts/stellar-operator/values.yaml) — `profiling.*`
+- [Helm values reference](https://github.com/OtowoOrg/Stellar-K8s/blob/main/charts/stellar-operator/values.yaml) — `profiling.*`

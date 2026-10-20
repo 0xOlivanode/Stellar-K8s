@@ -41,7 +41,7 @@ The Wasm webhook system provides:
 
 ### 1. Build a Plugin
 
-See the [example plugin](../examples/plugins/image-registry-validator/) for a complete example.
+See the [example plugin](https://github.com/OtowoOrg/Stellar-K8s/tree/main/examples/plugins/image-registry-validator) for a complete example.
 
 ```rust
 #[no_mangle]
@@ -587,10 +587,10 @@ DELETE /plugins/:name
 
 ## Examples
 
-See the [examples/plugins](../examples/plugins/) directory for complete examples:
+See the [examples/plugins](https://github.com/OtowoOrg/Stellar-K8s/tree/main/examples/plugins) directory for complete examples:
 
-- [image-registry-validator](../examples/plugins/image-registry-validator/) - Validates image registries
-- [example-validator](../examples/plugins/example-validator/) - Basic validation template
+- [image-registry-validator](https://github.com/OtowoOrg/Stellar-K8s/tree/main/examples/plugins/image-registry-validator) - Validates image registries
+- [example-validator](https://github.com/OtowoOrg/Stellar-K8s/tree/main/examples/plugins/example-validator) - Basic validation template
 
 ## References
 

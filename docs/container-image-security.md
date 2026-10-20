@@ -9,7 +9,7 @@ Cosign supply-chain signing, and the deployment gate policy.
 
 ## Pipeline Overview
 
-The [`.github/workflows/container-image-security.yml`](../.github/workflows/container-image-security.yml)
+The [`.github/workflows/container-image-security.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/container-image-security.yml)
 workflow runs on every PR, every push to `main`, and nightly.
 
 ```

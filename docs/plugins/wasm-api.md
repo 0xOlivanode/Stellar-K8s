@@ -4,7 +4,7 @@ This reference covers everything a plugin author needs to build, test, and deplo
 WebAssembly validation plugin for the Stellar Kubernetes Operator.
 
 > **Related documents**
-> - [Hello World Tutorial](../../examples/wasm-plugins/hello-world/README.md) — step-by-step first plugin
+> - [Hello World Tutorial](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/wasm-plugins/hello-world/README.md) — step-by-step first plugin
 > - [Sandboxing Troubleshooting Guide](./wasm-troubleshooting.md) — common runtime errors
 
 ---
@@ -18,13 +18,13 @@ WebAssembly validation plugin for the Stellar Kubernetes Operator.
 5. [Input Data Structure](#input-data-structure)
 6. [Output Data Structure](#output-data-structure)
 7. [Supporting Types](#supporting-types)
-8. [Resource Limits & Sandboxing](#resource-limits--sandboxing)
+8. [Resource Limits & Sandboxing](#resource-limits-sandboxing)
 9. [Plugin Lifecycle](#plugin-lifecycle)
 10. [REST Management API](#rest-management-api)
 11. [Configuration Reference](#configuration-reference)
 12. [Security Model](#security-model)
 13. [Performance Guidelines](#performance-guidelines)
-14. [Versioning & Stability](#versioning--stability)
+14. [Versioning & Stability](#versioning-stability)
 
 ---
 
@@ -784,5 +784,5 @@ The runtime rejects the binary if the hash does not match.
 | `Operation` enum values | **Stable** (new values may be added) |
 | Internal `env` module name | **Stable** |
 
-Deprecated host functions (if any) will be listed in the [CHANGELOG](../../CHANGELOG.md)
+Deprecated host functions (if any) will be listed in the [CHANGELOG](https://github.com/OtowoOrg/Stellar-K8s/blob/main/CHANGELOG.md)
 with at least one minor-version notice period before removal.

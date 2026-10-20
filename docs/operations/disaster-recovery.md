@@ -25,7 +25,7 @@ copy.
 - [Recovery Mode](#recovery-mode) — the shared pattern used by all three scenarios
 - [Scenario 1: Complete Pod Failure](#scenario-1-complete-pod-failure)
 - [Scenario 2: Corrupted PVC Recovery](#scenario-2-corrupted-pvc-recovery)
-- [Scenario 3: Total Quorum Loss — Forcing a Sync from Archives](#scenario-3-total-quorum-loss--forcing-a-sync-from-archives)
+- [Scenario 3: Total Quorum Loss — Forcing a Sync from Archives](#scenario-3-total-quorum-loss-forcing-a-sync-from-archives)
 - [Post-Incident](#post-incident)
 
 ## Prerequisites
@@ -89,9 +89,9 @@ together, applied **in this order**:
    threshold is harmless in steady state).
 
 Ready-to-adapt manifests for both steps are at
-[`examples/recovery-mode-1-relax-probes.yaml`](../../examples/recovery-mode-1-relax-probes.yaml)
+[`examples/recovery-mode-1-relax-probes.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/recovery-mode-1-relax-probes.yaml)
 and
-[`examples/recovery-mode-2-maintenance-mode.yaml`](../../examples/recovery-mode-2-maintenance-mode.yaml) —
+[`examples/recovery-mode-2-maintenance-mode.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/recovery-mode-2-maintenance-mode.yaml) —
 kept as two separate files on purpose, so there's no single `kubectl apply`
 that accidentally applies both at once and skips the confirmation step
 between them.
@@ -143,7 +143,7 @@ Common root causes and their signature:
 |---|---|---|
 | `FailedScheduling`, `Insufficient cpu/memory` | Node pool out of capacity | Scale the node pool; not a data issue |
 | `sqlite3.OperationalError`, `database disk image is malformed`, repeated crash immediately after DB open | Corrupted data volume | [Scenario 2](#scenario-2-corrupted-pvc-recovery) |
-| `Out of sync with the network`, no new SCP messages for a long window, `ERROR SCP ... quorum` | Quorum/consensus failure | [Scenario 3](#scenario-3-total-quorum-loss--forcing-a-sync-from-archives) |
+| `Out of sync with the network`, no new SCP messages for a long window, `ERROR SCP ... quorum` | Quorum/consensus failure | [Scenario 3](#scenario-3-total-quorum-loss-forcing-a-sync-from-archives) |
 | `OOMKilled` in `kubectl describe pod` | Undersized memory limit | Raise `spec.resources.limits.memory`; not covered here |
 | Pod `Running`, container never `Ready` | Slow catchup, or probe too strict | Check `kubectl stellar logs $NODE -c stellar-node -f` for catchup progress; consider [Recovery Mode](#recovery-mode) if it's just slow |
 

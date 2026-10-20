@@ -56,7 +56,7 @@ pvc-3b36f20d-5c3b-4e90-93b0-4f4d7f7b6d21
 ```
 
 If the PVC name is not obvious, use the operator naming reference in
-[Disaster Recovery](./disaster-recovery.md#naming-reference-so-commands-below-arent-guesswork).
+[Disaster Recovery](disaster-recovery.md#prerequisites).
 
 ## Phase 1: Stop writes and preserve evidence
 
@@ -122,7 +122,7 @@ If the PVC name is not obvious, use the operator naming reference in
 ## Phase 2: Attach a maintenance pod
 
 Create the debug manifest from
-[`examples/debug/maintenance-pod.yaml`](../../examples/debug/maintenance-pod.yaml),
+[`examples/debug/maintenance-pod.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/debug/maintenance-pod.yaml),
 set `metadata.namespace`, set `volumes[].persistentVolumeClaim.claimName` to
 the affected PVC, set the optional ConfigMap volume to the node's generated
 `$CONFIGMAP`, and apply it:
@@ -525,4 +525,4 @@ Use this reproducible lab path before changing production procedures.
 - PostgreSQL `amcheck`:
   <https://www.postgresql.org/docs/17/amcheck.html>
 - Maintenance pod manifest:
-  [`examples/debug/maintenance-pod.yaml`](../../examples/debug/maintenance-pod.yaml)
+  [`examples/debug/maintenance-pod.yaml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/examples/debug/maintenance-pod.yaml)
