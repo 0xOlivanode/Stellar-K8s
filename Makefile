@@ -47,7 +47,7 @@
 	lint-observability-contract test-observability-contract \
 	helm-drift helm-drift-update test-helm-drift test-helm-bump \
 	collect-failure-diagnostics test-failure-diagnostics \
-	check-unreachable-modules golden-path-pipeline secret-rotation-check \
+	check-unreachable-modules golden-path-pipeline secret-rotation-check dead-code-report \
 	check-pipeline-log-redaction \
 	license-headers check-license-headers \
 	check-api-contract check-api-coverage check-breaking-changes \
@@ -362,6 +362,9 @@ golden-path-pipeline: ## Run the golden-path full pipeline command test from a c
 
 secret-rotation-check: ## Verify secret rotation without downtime (DRY_RUN=1 prints the plan without a cluster) (#1775)
 	@bash scripts/secret-rotation-check.sh $(if $(DRY_RUN),--dry-run)
+
+dead-code-report: ## Generate the informational dead-code report at target/reports/dead-code-report.md (#1776)
+	@bash scripts/dead-code-report.sh
 
 # ── Quality & Health ───────────────────────────────────────────────────────────
 
