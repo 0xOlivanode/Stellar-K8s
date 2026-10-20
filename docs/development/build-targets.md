@@ -63,4 +63,4 @@ make docker-build
 - Makefile: [`Makefile`](../../Makefile)
 - Command matrix tests: [`command-matrix.md`](command-matrix.md)
 - Documentation build: [`docs-build.md`](docs-build.md)
-- Development workflow: [`DEVELOPMENT.md`](../../DEVELOPMENT.md)
+- Development workflow: [`DEVELOPMENT.md`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/DEVELOPMENT.md)
