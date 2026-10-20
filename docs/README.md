@@ -52,6 +52,13 @@ Production-grade Stellar infrastructure on Kubernetes. This directory contains a
 
 ## Observability
 
+- [Observability Overview](observability/index.md)
+- [Metric Reference](observability/metric-reference.md)
+- [Metric Naming Conventions](observability/metric-naming-conventions.md)
+- [Metrics and Dashboards](observability/metrics-and-dashboards.md)
+- [Telemetry Architecture](observability/telemetry-architecture.md)
+- [Unified Observability Contract](observability/unified-contract.md)
+- [OpenTelemetry Tracing](observability/tracing.md)
 - [Metrics Guide](metrics/STELLAR_METRICS_GUIDE.md)
 - [Grafana Dashboard Guide](monitoring/GRAFANA_DASHBOARD_GUIDE.md)
 - [SCP Analytics Pipeline](scp-analytics-pipeline.md)

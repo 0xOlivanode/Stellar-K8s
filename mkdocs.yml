@@ -131,6 +131,11 @@ nav:
     - Production Profiling Runbook: operations/profiling-runbook.md
     - Core Blue/Green Runbook: operations/core-blue-green-runbook.md
     - Observability Overview: observability/index.md
+    - Metric Reference: observability/metric-reference.md
+    - Metric Naming Conventions: observability/metric-naming-conventions.md
+    - Metrics and Dashboards: observability/metrics-and-dashboards.md
+    - Telemetry Architecture: observability/telemetry-architecture.md
+    - Unified Observability Contract: observability/unified-contract.md
     - OpenTelemetry Tracing: observability/tracing.md
     - Distributed Rate Limiting: distributed-rate-limiting.md
     - Feature Flag Rollouts: feature-flag-rollouts.md
