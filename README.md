@@ -385,7 +385,7 @@ We welcome contributions! This project uses pre-commit hooks to ensure code qual
 
 Please see our **[Contributing Guide](CONTRIBUTING.md)** for details on our workflow, commit conventions, and pull request guidelines. For development setup instructions, see the **[Development Guide](DEVELOPMENT.md)**.
 
-Want the background story behind the project? Read the **[PITCH storyboards](docs/PITCH.md)** for the problem statement, target users, and the roadmap narrative.
+Want the background story behind the project? Read the **[PITCH storyboards](docs/pitch-storyboards.md)** for the problem statement, target users, and the roadmap narrative.
 
 Report bugs, request features, propose epics, or submit maintenance and support requests using the [issue templates](https://github.com/OtowoOrg/Stellar-K8s/issues/new/choose).
 

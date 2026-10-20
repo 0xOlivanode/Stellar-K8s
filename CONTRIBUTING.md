@@ -12,7 +12,7 @@ New to the project? Start here:
 4. [PR Checklist](#3-pr-checklist) — confirm your pull request is ready for review.
 
 For a narrative overview of the project's direction and design storyboards, see
-the [PITCH storyboards](docs/development/pitch-storyboards.md).
+the [PITCH storyboards](docs/pitch-storyboards.md).
 
 ## Troubleshooting Quick Links
 
