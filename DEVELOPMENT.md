@@ -450,6 +450,9 @@ make fmt           # Auto-format all code
 make fmt-check     # Check if code is formatted (CI uses this)
 make lint          # Run clippy linter
 make lint-strict   # Run clippy with complexity checks (stricter)
+make python-lint   # Lint Python tools (py_compile) + TOML configs (tomllib), stdlib only
+make lint-scripts  # Lint all scripts: shellcheck + shell-safety + conventions + python-lint
+make lint-all      # All lint gates: Rust (clippy/fmt) + shell + conventions + Python/TOML
 make audit         # Security audit on dependencies
 make test          # Run all tests
 make build         # Build release binaries
