@@ -47,7 +47,7 @@
 	lint-observability-contract test-observability-contract \
 	helm-drift helm-drift-update test-helm-drift test-helm-bump \
 	collect-failure-diagnostics test-failure-diagnostics \
-	check-unreachable-modules \
+	check-unreachable-modules golden-path-pipeline \
 	check-pipeline-log-redaction \
 	license-headers check-license-headers \
 	check-api-contract check-api-coverage check-breaking-changes \
@@ -356,6 +356,9 @@ health-full: ## Full health gate plus cargo audit and helm lint (#1773)
 	@bash scripts/repo-health.sh --with-audit --with-helm
 
 validate: health-fast ## Fast validation (alias for health-fast)
+
+golden-path-pipeline: ## Run the golden-path full pipeline command test from a clean checkout (#1774)
+	@bash scripts/golden-path-pipeline-check.sh
 
 # ── Quality & Health ───────────────────────────────────────────────────────────
 

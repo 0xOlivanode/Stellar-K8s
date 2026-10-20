@@ -29,6 +29,7 @@ make ci-local                    # fmt-check lint audit test build link-check
 | --- | --- | --- |
 | `repo-health.sh` | Single entry point for repo health checks (`--fast`, `--with-audit`, `--with-links`, `--with-helm`) | `bash scripts/repo-health.sh`; `make health` / `make health-fast` / `make health-full` |
 | `validate.sh` | Fast local validation (delegates to `repo-health.sh --fast`) | `bash scripts/validate.sh`; `make validate` |
+| `golden-path-pipeline-check.sh` | Golden-path full pipeline command test from a clean checkout (fmt, clippy, issue templates, API docs, helm, release gate, quickstart) | `bash scripts/golden-path-pipeline-check.sh`; `make golden-path-pipeline` |
 | `release-gate.sh` | Release validation mirroring `RELEASE_CHECKLIST.md` | `VERSION=1.2.0 bash scripts/release-gate.sh` |
 | `check-links.py` | Internal markdown file+anchor link check | `python3 scripts/check-links.py`; `make link-check`; `ci.yml` docs-link-check |
 | `check-stale-samples.sh` | Flags sample manifests that drifted from sources | `ci.yml` |
