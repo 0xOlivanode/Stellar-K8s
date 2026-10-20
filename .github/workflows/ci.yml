@@ -958,6 +958,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          # git-revision-date-localized warns (and strict mode fails) on a
+          # shallow clone.
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v6

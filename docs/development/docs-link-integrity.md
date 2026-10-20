@@ -50,10 +50,11 @@ exclude = [
 - **Rate-limited external URLs** — Add the domain pattern to the `exclude` list in `lychee.toml`.
 - **Planned docs that do not exist yet** — Add the relative path to `IGNORED_MISSING_FILES` in `scripts/check-links.py`.
 - **In-cluster hostnames** — Already excluded via the `stellar-core.*:` patterns in `lychee.toml`.
+- **Links to source, examples or workflows** — These live outside `docs/`, so a relative `../src/...` path breaks the MkDocs build. Use an absolute `https://github.com/OtowoOrg/Stellar-K8s/blob/main/<path>` URL instead.
 
 ## Cross-References
 
-- Script: [`scripts/check-links.py`](../../scripts/check-links.py)
-- lychee config: [`lychee.toml`](../../lychee.toml)
-- CI workflow: [`.github/workflows/link-integrity.yml`](../../.github/workflows/link-integrity.yml)
+- Script: [`scripts/check-links.py`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/scripts/check-links.py)
+- lychee config: [`lychee.toml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/lychee.toml)
+- CI workflow: [`.github/workflows/link-integrity.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/link-integrity.yml)
 - Documentation build gate: [`docs-build.md`](docs-build.md)

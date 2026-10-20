@@ -34,9 +34,26 @@ All MkDocs options live in `mkdocs.yml` at the repository root.  The `strict: tr
 
 Python dependencies (mkdocs, mkdocs-material, plugins) are pinned in `requirements.txt`.
 
+A few settings exist only to keep strict mode green:
+
+- `exclude_docs` hides `docs/README.md` (it clashes with `index.md`) and keeps the MkDocs defaults (`.*`, `/templates/`). Setting it replaces the defaults, so keep them in the list.
+- `not_in_nav` lists pages that are deliberately unpublished (currently two empty placeholders). Every other page under `docs/` must appear in `nav:`.
+- The `git-revision-date-localized` plugin only shows the last-updated date. Creation dates come from `git log` ordering, which merge commits can scramble, and the plugin turns that into a warning.
+- Any CI job that runs `mkdocs build --strict` must check out with `fetch-depth: 0`; on a shallow clone the same plugin warns about unreliable revision dates.
+
+## Fixing a Strict Build Failure
+
+Run `make docs-ci-build` and fix what it reports:
+
+| Warning | Fix |
+|---|---|
+| `contains a link '../src/...'`, but the target is not found | MkDocs only resolves links between pages under `docs/`. Link to repository files (source, examples, workflows) with an absolute `https://github.com/OtowoOrg/Stellar-K8s/blob/main/<path>` URL (`tree/main` for directories). |
+| `contains a link '...'`, but the target is not found, for another page | The relative path is wrong for the page's directory, or the target does not exist. Correct it, or drop the link. |
+| Page missing from navigation | Add it to `nav:` in `mkdocs.yml` (see [Navigation Coverage](docs-nav-coverage.md)). |
+
 ## Cross-References
 
-- CI workflow: [`.github/workflows/docs-build.yml`](../../.github/workflows/docs-build.yml)
-- Deploy workflow: [`.github/workflows/docs-deploy.yml`](../../.github/workflows/docs-deploy.yml)
+- CI workflow: [`.github/workflows/docs-build.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/docs-build.yml)
+- Deploy workflow: [`.github/workflows/docs-deploy.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/docs-deploy.yml)
 - Navigation coverage gate: [`docs-nav-coverage.md`](docs-nav-coverage.md)
 - Link integrity gate: [`docs-link-integrity.md`](docs-link-integrity.md)

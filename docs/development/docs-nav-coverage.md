@@ -32,9 +32,10 @@ The check is intentionally fast (no network access, no build step) so it runs as
 1. Create the `.md` file under `docs/`.
 2. Add it to the `nav:` section of `mkdocs.yml`.
 3. Run `make nav-coverage` locally to confirm the entry resolves before pushing.
+4. Run `make docs-ci-build`. MkDocs logs every page that exists under `docs/` but is missing from `nav:`; only pages listed under `not_in_nav` in `mkdocs.yml` may be left out.
 
 ## Cross-References
 
-- Script: [`scripts/check_mkdocs_nav.py`](../../scripts/check_mkdocs_nav.py)
-- CI workflow: [`.github/workflows/nav-coverage.yml`](../../.github/workflows/nav-coverage.yml)
+- Script: [`scripts/check_mkdocs_nav.py`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/scripts/check_mkdocs_nav.py)
+- CI workflow: [`.github/workflows/nav-coverage.yml`](https://github.com/OtowoOrg/Stellar-K8s/blob/main/.github/workflows/nav-coverage.yml)
 - Documentation build gate: [`docs-build.md`](docs-build.md)
