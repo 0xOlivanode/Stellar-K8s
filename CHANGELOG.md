@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 • Change notes documentation and release note guidelines in `docs/change-notes.md` (#1704).
 • Bats test coverage for `scripts/secret-rotation-check.sh` (#1705).
 • Cost estimate reference document added at `docs/cost-estimate.md` with AWS on-demand and HA pricing tables for Testnet and Mainnet deployments (#1732).
+• Capacity planning documentation added at `docs/capacity-planning.md` covering the `CapacityRecommendationReport` CRD, forecasting models, Prometheus metrics, alerting rules, and sizing reference; registered in `mkdocs.yml` under Operations & Observability (#1733).
 • ArgoCD GitOps golden-path guide added at `docs/gitops/argocd.md`; registered in `mkdocs.yml` under GitOps alongside the existing Flux guide (#1730).
 
 ### Fixed
