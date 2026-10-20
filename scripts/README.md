@@ -163,6 +163,7 @@ Python suites use `unittest` and are run individually, e.g.
 | [`tests/bump-chart-version.bats`](tests/bump-chart-version.bats) | `bump-chart-version.sh` SemVer rules and `min-bump` floor |
 | [`tests/secret-rotation-check.bats`](tests/secret-rotation-check.bats) | `secret-rotation-check.sh` non-destructive secret rotation verification |
 | [`tests/failure-diagnostics.bats`](tests/failure-diagnostics.bats) | `ci/collect-failure-diagnostics.sh` bundle layout |
+| [`tests/shell-script-coverage.bats`](tests/shell-script-coverage.bats) | Comprehensive coverage for health-check, repo-health, tag-release, validate-metrics, and other critical shell scripts (#1702) |
 | [`tests/test_check_shell_safety.py`](tests/test_check_shell_safety.py) | `check-shell-safety.py` rules (both positive and negative cases) |
 | [`tests/test_validate_yaml_manifests.py`](tests/test_validate_yaml_manifests.py) | `validate-yaml-manifests.py` validation layers |
 | [`tests/test_crd_migration_lint.py`](tests/test_crd_migration_lint.py) | `crd_migration_lint.py` backward-compatibility rules |

@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 • Sample manifests for MaintenancePlan, dry-run validator, and policy bundle under `config/samples/` (#1703).
 • Change notes documentation and release note guidelines in `docs/change-notes.md` (#1704).
 • Bats test coverage for `scripts/secret-rotation-check.sh` (#1705).
+• Comprehensive bats test coverage for critical shell scripts (health-check, repo-health, tag-release, validate-metrics, etc.) via `scripts/tests/shell-script-coverage.bats` (#1706).
 
 ### Fixed
 
