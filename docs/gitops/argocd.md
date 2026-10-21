@@ -22,6 +22,7 @@ introduce breaking changes under a new directory such as `v2`.
   `stellar-local` StorageClass and static PVs for the two profiles; cloud
   clusters should override these with their approved dynamic StorageClass.
 - ArgoCD installed in the `argocd` namespace.
+- The `argocd` CLI installed and authenticated if syncing from the terminal.
 - Git access from the ArgoCD repo-server to this repository.
 - At least 4 vCPU and 8 GiB of memory for both node profiles.
 - A reviewed Git revision. The examples use `main` to remain runnable from a
@@ -153,6 +154,10 @@ layout, make this endpoint a declaratively managed cross-cluster DNS name or
 service-mesh address and give each cluster its own ArgoCD Application destination.
 
 ## 5. Verify a clean ArgoCD sync
+
+To request a sync from the terminal, run `make argocd-sync
+APP=stellar-k8s-gitops-v1`. The target requires an explicit Application name and
+uses the currently configured ArgoCD CLI context.
 
 Use the ArgoCD application tree or read-only ArgoCD status output and record the
 result in the PR description. The expected high-level state is:

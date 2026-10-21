@@ -50,6 +50,7 @@
 	check-unreachable-modules golden-path-pipeline secret-rotation-check dead-code-report \
 	check-pipeline-log-redaction \
 	license-headers check-license-headers \
+	argocd-sync \
 	check-api-contract check-api-coverage check-breaking-changes \
 	crd-benchmark \
 	compliance-test \
@@ -584,6 +585,10 @@ completions: ## Generate shell completion scripts
 helm-lint: ## Strict Helm lint check (warnings fail)
 	@echo "→ Linting Helm charts..."
 	helm lint charts/stellar-operator --strict
+
+argocd-sync: ## Sync an ArgoCD application (requires APP=<application>)
+	@test -n "$(APP)" || { echo "usage: make argocd-sync APP=<application>"; exit 1; }
+	argocd app sync "$(APP)"
 
 dev-setup: ## Setup dev environment
 	rustup update stable
